@@ -1,0 +1,8 @@
+﻿  SDLWindow.cpp
+  VulkanRender.cpp
+C:\Users\airat\source\repos\DRawEngine\DRawEngine\VulkanRender.cpp(279,53): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+C:\Users\airat\source\repos\DRawEngine\DRawEngine\VulkanRender.cpp(281,45): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+  main.cpp
+  Generating Code...
+C:\Users\airat\source\repos\DRawEngine\DRawEngine\VulkanRender.cpp(422,56): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+  DRawEngine.vcxproj -> C:\Users\airat\source\repos\DRawEngine\x64\Debug\DRawEngine.exe
