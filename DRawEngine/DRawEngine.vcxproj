@@ -89,7 +89,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(ProjectDir)libs\$(PlatformTarget)\vulkan-1.lib;$(ProjectDir)libs\$(PlatformTarget)\SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib32;$(VULKAN_SDK)\Third-Party\Bin32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -106,7 +106,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(ProjectDir)libs\$(PlatformTarget)\vulkan-1.lib;$(ProjectDir)libs\$(PlatformTarget)\SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib;$(VULKAN_SDK)\Third-Party\Bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="IBuffer.cpp" />
     <ClCompile Include="IImage.cpp" />
     <ClCompile Include="IRender.cpp" />
     <ClCompile Include="IWindow.cpp" />
@@ -164,6 +165,7 @@
     <ClCompile Include="VulkanRender.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IBuffer.h" />
     <ClInclude Include="IImage.h" />
     <ClInclude Include="IRender.h" />
     <ClInclude Include="IWindow.h" />

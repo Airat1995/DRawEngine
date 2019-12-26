@@ -2,10 +2,20 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+#include <glm/mat4x4.hpp> // glm::mat4
+#include <glm/vec3.hpp> // glm::vec3
+#include <glm/vec4.hpp> // glm::vec4
+
+#include <glm/ext/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale
+#include <glm/ext/matrix_clip_space.hpp> // glm::perspective
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "IRender.h"
 #include "SwapchainBuffer.h"
+#include "IImage.h"
 
 using namespace std;
+using namespace glm;
 
 class VulkanRender : public IRender
 {
@@ -21,6 +31,10 @@ public:
 	VkInstance GetInstance() const;
 
 	VkSurfaceKHR* GetSurface();
+
+	void CreateDepthBuffer();
+
+	void CreateBuffer();
 
 protected:
 	static std::vector<const char*> GetLayers();
@@ -78,6 +92,9 @@ protected:
 	uint32_t _graphicsQueueFamilyIndex;
 	
 	uint32_t _presentQueueFamilyIndex;
+
+	IImage* _depthBuffer;
+
 private:
 	static const uint32_t INCORRECT_WIDTH = 0xFFFFFFFF;
 

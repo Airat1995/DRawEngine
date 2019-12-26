@@ -1,5 +1,6 @@
 #include "VulkanRender.h"
 #include <cassert>
+#include "IBuffer.h"
 
 
 VulkanRender::VulkanRender() : IRender()
@@ -246,7 +247,18 @@ VkSurfaceKHR* VulkanRender::GetSurface()
 	return &_surface;
 }
 
-std::vector<const char*> VulkanRender::GetLayers()
+void VulkanRender::CreateDepthBuffer()
+{
+	_depthBuffer = new IImage(VK_FORMAT_D16_UNORM, &_device, _gpus, VkImageViewType::VK_IMAGE_VIEW_TYPE_2D,
+	                          _swapchainExtent.width, _swapchainExtent.height, VK_SAMPLE_COUNT_1_BIT);	
+}
+
+void VulkanRender::CreateBuffer()
+{
+	return;
+}
+
+vector<const char*> VulkanRender::GetLayers()
 {
 	std::vector<const char*> layers;
 #if defined(_DEBUG)

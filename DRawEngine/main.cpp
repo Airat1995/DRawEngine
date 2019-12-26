@@ -50,8 +50,6 @@ int main()
 	IRender* vulkanRender = new VulkanRender();
 	IWindow* window = new SDLWindow(1920, 1080, "some name", WindowType::Windowed, vulkanRender);
 
-
-
     bool stillRunning = true;
     while(stillRunning) {
 

@@ -40,11 +40,14 @@
     <ClCompile Include="IRender.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanRender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="IImage.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="IBuffer.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanRender.cpp">
+      <Filter>Source Files\Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -57,13 +60,16 @@
     <ClInclude Include="IRender.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanRender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SwapchainBuffer.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="IImage.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="IBuffer.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanRender.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
   </ItemGroup>
