@@ -13,6 +13,7 @@
 #include "IRender.h"
 #include "SwapchainBuffer.h"
 #include "IImage.h"
+#include "ISwapchain.h"
 
 using namespace std;
 using namespace glm;
@@ -77,8 +78,6 @@ protected:
 
 	VkCommandPool _commandPool = nullptr;
 
-	VkSwapchainKHR _swapChain = nullptr;
-
 	VkQueue _drawQueue;	
 
 	VkExtent2D _swapchainExtent;
@@ -94,6 +93,8 @@ protected:
 	uint32_t _presentQueueFamilyIndex;
 
 	IImage* _depthBuffer;
+
+	ISwapchain* _swapchain;
 
 private:
 	static const uint32_t INCORRECT_WIDTH = 0xFFFFFFFF;

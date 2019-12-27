@@ -49,6 +49,9 @@
     <ClCompile Include="VulkanRender.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
+    <ClCompile Include="ISwapchain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IWindow.h">
@@ -71,6 +74,9 @@
     </ClInclude>
     <ClInclude Include="VulkanRender.h">
       <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ISwapchain.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

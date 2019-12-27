@@ -17,12 +17,11 @@ void VulkanRender::Init(vector<const char*>* extensions)
 
 VulkanRender::~VulkanRender()
 {
-
+	delete(_swapchain);
 	for (auto& _swapchainBuffer : *_swapchainBuffers)
 	{
 		vkDestroyImageView(_device, *_swapchainBuffer.View(), nullptr);
-	}
-	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+	}	
 
 	VkCommandBuffer commandBuffers[1] = { _commandBuffer };
 	vkFreeCommandBuffers(_device, _commandPool, 1, commandBuffers);
@@ -30,27 +29,6 @@ VulkanRender::~VulkanRender()
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	vkDestroyDevice(_device, nullptr);
 	vkDestroyInstance(_instance, nullptr);	
-}
-
-VkFormat VulkanRender::GetSupportedFormat()
-{
-	uint32_t formatCount;
-	VkFormat format = VK_FORMAT_B8G8R8A8_UNORM;
-	VkResult result = vkGetPhysicalDeviceSurfaceFormatsKHR(_gpus->at(0), _surface, &formatCount, nullptr);
-	if (result != VK_SUCCESS)
-		throw exception("unable to get device surface image formats count!");
-
-	auto surfFormats = new VkSurfaceFormatKHR[formatCount];
-	result = vkGetPhysicalDeviceSurfaceFormatsKHR(_gpus->at(0), _surface, &formatCount, surfFormats);
-	if (result != VK_SUCCESS)
-		throw exception("unable to get device surface image formats!");
-
-	if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED)
-		format = VK_FORMAT_B8G8R8A8_UNORM;
-	else
-		format = surfFormats[0].format;
-
-	return format;
 }
 
 void VulkanRender::InitSurface(int screenWidth, int screenHeight)
@@ -98,144 +76,9 @@ void VulkanRender::InitSurface(int screenWidth, int screenHeight)
 	else
 		_swapchainExtent = surfaceCapabilities.currentExtent;
 
-	VkFormat supportedFormat = GetSupportedFormat();
-
-
-	const VkSurfaceTransformFlagBitsKHR preTransform = GetPresentMode(surfaceCapabilities);
-	const VkCompositeAlphaFlagBitsKHR compositeAlpha = GetCompositeAlpha(surfaceCapabilities);
-	const VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-	uint32_t desiredNumberOfSwapChainImages = surfaceCapabilities.minImageCount;
-
-	if (surfaceCapabilities.maxImageCount > 0 && desiredNumberOfSwapChainImages > surfaceCapabilities.maxImageCount)
-		desiredNumberOfSwapChainImages = surfaceCapabilities.maxImageCount;	
-
-	const std::vector<const char*> deviceExtensions = {
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
-	};
-
-	VkSwapchainCreateInfoKHR swapchain_ci = {};
-	swapchain_ci.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	swapchain_ci.pNext = nullptr;
-	swapchain_ci.surface = _surface;
-	swapchain_ci.minImageCount = desiredNumberOfSwapChainImages;
-	swapchain_ci.imageFormat = supportedFormat;
-	swapchain_ci.imageExtent.width = _swapchainExtent.width;
-	swapchain_ci.imageExtent.height = _swapchainExtent.height;
-	swapchain_ci.preTransform = preTransform;
-	swapchain_ci.compositeAlpha = compositeAlpha;
-	swapchain_ci.imageArrayLayers = 1;
-	swapchain_ci.presentMode = swapchainPresentMode;
-	swapchain_ci.oldSwapchain = nullptr;
-	swapchain_ci.clipped = true;
-	swapchain_ci.imageColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-	swapchain_ci.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	swapchain_ci.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	swapchain_ci.queueFamilyIndexCount = 0;
-	swapchain_ci.pQueueFamilyIndices = nullptr;
-
-	uint32_t queueFamilyIndices[2] = { _graphicsQueueFamilyIndex, _presentQueueFamilyIndex };
-	if (_presentQueueFamilyIndex != _graphicsQueueFamilyIndex) 
-	{
-		swapchain_ci.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-		swapchain_ci.queueFamilyIndexCount = 2;
-		swapchain_ci.pQueueFamilyIndices = queueFamilyIndices;
-	}
-	else 
-	{
-		swapchain_ci.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		swapchain_ci.queueFamilyIndexCount = 0; // Optional
-		swapchain_ci.pQueueFamilyIndices = nullptr; // Optional
-	}
-
-	CreateSwapchainAndImages(swapchain_ci);
+	_swapchain = new ISwapchain(&_device, _swapchainExtent, surfaceCapabilities, _surface, _gpus, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex);
 }
 
-VkSurfaceTransformFlagBitsKHR VulkanRender::GetPresentMode(VkSurfaceCapabilitiesKHR surfaceCapabilities)
-{	
-	VkSurfaceTransformFlagBitsKHR preTransform;
-	if ((surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) == 1)
-		preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-	else
-		preTransform = surfaceCapabilities.currentTransform;
-
-	return preTransform;
-}
-
-VkCompositeAlphaFlagBitsKHR VulkanRender::GetCompositeAlpha(VkSurfaceCapabilitiesKHR surfaceCapabilities)
-{
-	VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	VkCompositeAlphaFlagBitsKHR compositeAlphaFlags[4] =
-	{
-		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-		VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
-		VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
-		VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
-	};
-
-	for (auto& compositeAlphaFlag : compositeAlphaFlags)
-	{
-		if ((surfaceCapabilities.supportedCompositeAlpha & compositeAlphaFlag) == 0)
-			continue;
-		compositeAlpha = compositeAlphaFlag;
-		break;
-	}
-
-	return  compositeAlpha;
-}
-
-void VulkanRender::CreateSwapchainAndImages(VkSwapchainCreateInfoKHR swapchainInfo)
-{
-	VkResult result = vkCreateSwapchainKHR(_device, &swapchainInfo, nullptr, &_swapChain);
-	if (result != VK_SUCCESS)
-	{
-		throw exception("Unable to create swapchain!");
-	}
-
-	uint32_t imageCount;
-	result = vkGetSwapchainImagesKHR(_device, _swapChain, &imageCount, nullptr);
-	if (result != VK_SUCCESS)
-	{
-		throw exception("Unable to create swapchain!");
-	}
-	VkImage* swapchainImages = new VkImage[imageCount];
-	result = vkGetSwapchainImagesKHR(_device, _swapChain, &imageCount, swapchainImages);
-	if (result != VK_SUCCESS)
-	{
-		throw exception("Unable to create swapchain!");
-	}
-
-	_swapchainBuffers = new vector<SwapchainBuffer>(imageCount);
-	for (uint32_t index = 0; index < imageCount; ++index)
-	{
-		_swapchainBuffers->at(index).Image(swapchainImages[index]);
-	}
-	delete[](swapchainImages);
-
-	for (uint32_t i = 0; i < imageCount; i++) {
-		VkImageViewCreateInfo color_image_view = {};
-		color_image_view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		color_image_view.pNext = nullptr;
-		color_image_view.flags = 0;
-		color_image_view.image = *_swapchainBuffers->at(i).Image();
-		color_image_view.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		color_image_view.format = swapchainInfo.imageFormat;
-		color_image_view.components.r = VK_COMPONENT_SWIZZLE_R;
-		color_image_view.components.g = VK_COMPONENT_SWIZZLE_G;
-		color_image_view.components.b = VK_COMPONENT_SWIZZLE_B;
-		color_image_view.components.a = VK_COMPONENT_SWIZZLE_A;
-		color_image_view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		color_image_view.subresourceRange.baseMipLevel = 0;
-		color_image_view.subresourceRange.levelCount = 1;
-		color_image_view.subresourceRange.baseArrayLayer = 0;
-		color_image_view.subresourceRange.layerCount = 1;
-
-		VkResult resultImage = vkCreateImageView(_device, &color_image_view, nullptr, _swapchainBuffers->at(i).View());
-		if(resultImage != VK_SUCCESS)
-		{
-			throw exception("Unable to create image!");
-		}
-	}
-}
 
 VkInstance VulkanRender::GetInstance() const
 {
