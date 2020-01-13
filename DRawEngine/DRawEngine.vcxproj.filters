@@ -26,6 +26,12 @@
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{89c0283b-9bc2-4d0f-8122-6b92e1fd4f09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Tools">
+      <UniqueIdentifier>{437666b9-af82-49ea-a555-b10085732a28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tools">
+      <UniqueIdentifier>{af05d0b2-9590-4fe1-be7a-b00decf0e876}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -50,7 +56,13 @@
       <Filter>Source Files\Render</Filter>
     </ClCompile>
     <ClCompile Include="ISwapchain.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="FileReader.cpp">
+      <Filter>Source Files\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="IShader.cpp">
+      <Filter>Source Files\Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,7 +88,13 @@
       <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="ISwapchain.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="FileReader.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="IShader.h">
+      <Filter>Header Files\Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -156,9 +156,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="IBuffer.cpp" />
     <ClCompile Include="IImage.cpp" />
     <ClCompile Include="IRender.cpp" />
+    <ClCompile Include="IShader.cpp" />
     <ClCompile Include="ISwapchain.cpp" />
     <ClCompile Include="IWindow.cpp" />
     <ClCompile Include="main.cpp" />
@@ -166,9 +168,11 @@
     <ClCompile Include="VulkanRender.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FileReader.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="IImage.h" />
     <ClInclude Include="IRender.h" />
+    <ClInclude Include="IShader.h" />
     <ClInclude Include="ISwapchain.h" />
     <ClInclude Include="IWindow.h" />
     <ClInclude Include="SDLWindow.h" />
