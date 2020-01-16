@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <iostream>
+
 #include "SwapchainBuffer.h"
 
 
@@ -15,6 +16,10 @@ public:
 	           VkSurfaceKHR surface, vector<VkPhysicalDevice>* gpus, uint32_t graphicsQueueFamilyIndex,
 	           uint32_t presentQueueFamilyIndex);
 
+	VkSwapchainCreateInfoKHR* SwapchainInfo();
+
+	vector<SwapchainBuffer>* SwapchainBuffers();
+
 	~ISwapchain();
 
 protected:
@@ -24,13 +29,15 @@ protected:
 
 	VkCompositeAlphaFlagBitsKHR GetCompositeAlpha(VkSurfaceCapabilitiesKHR surfaceCapabilities);
 
-	VkFormat GetSupportedFormat(vector<VkPhysicalDevice>* gpus, VkSurfaceKHR surface);
+	static VkFormat GetSupportedFormat(vector<VkPhysicalDevice>* gpus, VkSurfaceKHR surface);
 
 	void CreateSemaphore();
 
 	std::vector<SwapchainBuffer>* _swapchainBuffers = nullptr;
 
 	VkSwapchainKHR _swapChain = nullptr;
+
+	VkSwapchainCreateInfoKHR _swapchainInfo;
 
 	VkDevice* _device;
 

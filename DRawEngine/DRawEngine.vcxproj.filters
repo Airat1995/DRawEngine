@@ -64,6 +64,12 @@
     <ClCompile Include="IShader.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
+    <ClCompile Include="IPipeline.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="IFramebuffer.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IWindow.h">
@@ -94,6 +100,12 @@
       <Filter>Header Files\Tools</Filter>
     </ClInclude>
     <ClInclude Include="IShader.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="IPipeline.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="IFramebuffer.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
   </ItemGroup>

@@ -158,7 +158,9 @@
   <ItemGroup>
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="IBuffer.cpp" />
+    <ClCompile Include="IFramebuffer.cpp" />
     <ClCompile Include="IImage.cpp" />
+    <ClCompile Include="IPipeline.cpp" />
     <ClCompile Include="IRender.cpp" />
     <ClCompile Include="IShader.cpp" />
     <ClCompile Include="ISwapchain.cpp" />
@@ -170,7 +172,9 @@
   <ItemGroup>
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="IBuffer.h" />
+    <ClInclude Include="IFramebuffer.h" />
     <ClInclude Include="IImage.h" />
+    <ClInclude Include="IPipeline.h" />
     <ClInclude Include="IRender.h" />
     <ClInclude Include="IShader.h" />
     <ClInclude Include="ISwapchain.h" />

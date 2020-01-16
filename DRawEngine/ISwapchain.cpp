@@ -14,45 +14,55 @@ ISwapchain::ISwapchain(VkDevice* device, VkExtent2D swapchainExtent, VkSurfaceCa
 		desiredNumberOfSwapChainImages = surfaceCapabilities.maxImageCount;
 
 	const std::vector<const char*> deviceExtensions = {
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
 
-	VkSwapchainCreateInfoKHR swapchainInfo = {};
-	swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	swapchainInfo.pNext = nullptr;
-	swapchainInfo.surface = surface;
-	swapchainInfo.minImageCount = desiredNumberOfSwapChainImages;
-	swapchainInfo.imageFormat = supportedFormat;
-	swapchainInfo.imageExtent.width = swapchainExtent.width;
-	swapchainInfo.imageExtent.height = swapchainExtent.height;
-	swapchainInfo.preTransform = preTransform;
-	swapchainInfo.compositeAlpha = compositeAlpha;
-	swapchainInfo.imageArrayLayers = 1;
-	swapchainInfo.presentMode = swapchainPresentMode;
-	swapchainInfo.oldSwapchain = nullptr;
-	swapchainInfo.clipped = true;
-	swapchainInfo.imageColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-	swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	swapchainInfo.queueFamilyIndexCount = 0;
-	swapchainInfo.pQueueFamilyIndices = nullptr;
+	
+	_swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	_swapchainInfo.pNext = nullptr;
+	_swapchainInfo.surface = surface;
+	_swapchainInfo.minImageCount = desiredNumberOfSwapChainImages;
+	_swapchainInfo.imageFormat = supportedFormat;
+	_swapchainInfo.imageExtent.width = swapchainExtent.width;
+	_swapchainInfo.imageExtent.height = swapchainExtent.height;
+	_swapchainInfo.preTransform = preTransform;
+	_swapchainInfo.compositeAlpha = compositeAlpha;
+	_swapchainInfo.imageArrayLayers = 1;
+	_swapchainInfo.presentMode = swapchainPresentMode;
+	_swapchainInfo.oldSwapchain = nullptr;
+	_swapchainInfo.clipped = true;
+	_swapchainInfo.imageColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
+	_swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	_swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	_swapchainInfo.queueFamilyIndexCount = 0;
+	_swapchainInfo.pQueueFamilyIndices = nullptr;
 
 	uint32_t queueFamilyIndices[2] = { graphicsQueueFamilyIndex, presentQueueFamilyIndex };
 	if (presentQueueFamilyIndex != graphicsQueueFamilyIndex)
 	{
-		swapchainInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-		swapchainInfo.queueFamilyIndexCount = 2;
-		swapchainInfo.pQueueFamilyIndices = queueFamilyIndices;
+		_swapchainInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+		_swapchainInfo.queueFamilyIndexCount = 2;
+		_swapchainInfo.pQueueFamilyIndices = queueFamilyIndices;
 	}
 	else
 	{
-		swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		swapchainInfo.queueFamilyIndexCount = 0; // Optional
-		swapchainInfo.pQueueFamilyIndices = nullptr; // Optional
+		_swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		_swapchainInfo.queueFamilyIndexCount = 0; // Optional
+		_swapchainInfo.pQueueFamilyIndices = nullptr; // Optional
 	}
 
-	CreateSwapchainAndImages(device, swapchainInfo);
+	CreateSwapchainAndImages(device, _swapchainInfo);
 
+}
+
+VkSwapchainCreateInfoKHR* ISwapchain::SwapchainInfo()
+{
+	return &_swapchainInfo;
+}
+
+vector<SwapchainBuffer>* ISwapchain::SwapchainBuffers()
+{
+	return _swapchainBuffers;
 }
 
 ISwapchain::~ISwapchain()
