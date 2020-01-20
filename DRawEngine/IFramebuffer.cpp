@@ -3,7 +3,7 @@
 IFramebuffer::IFramebuffer(VkDevice* device, IPipeline* pipeline, ISwapchain* swapchain) :_device(device)
 {
 	vector<SwapchainBuffer>* swapchainBuffers = swapchain->SwapchainBuffers();
-	_swapChainFramebuffers = new vector<VkFramebuffer>(swapchainBuffers->size());
+	_swapChainFramebuffers = new vector<VkFramebuffer>(0);
 	for (auto swapchainBuffer : *swapchainBuffers)
 	{
 		VkImageView attachments[] = {

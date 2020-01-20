@@ -52,6 +52,7 @@ ISwapchain::ISwapchain(VkDevice* device, VkExtent2D swapchainExtent, VkSurfaceCa
 	}
 
 	CreateSwapchainAndImages(device, _swapchainInfo);
+	CreateSemaphore();
 
 }
 

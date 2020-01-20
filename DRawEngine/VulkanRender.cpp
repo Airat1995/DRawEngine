@@ -1,6 +1,5 @@
 #include "VulkanRender.h"
 #include <cassert>
-#include "IBuffer.h"
 
 
 VulkanRender::VulkanRender() : IRender()
@@ -23,12 +22,10 @@ VulkanRender::~VulkanRender()
 		vkDestroyImageView(_device, *_swapchainBuffer.View(), nullptr);
 	}	
 
-	VkCommandBuffer commandBuffers[1] = { _commandBuffer };
-	vkFreeCommandBuffers(_device, _commandPool, 1, commandBuffers);
-	vkDestroyCommandPool(_device, _commandPool, nullptr);
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	vkDestroyDevice(_device, nullptr);
-	vkDestroyInstance(_instance, nullptr);	
+	vkDestroyInstance(_instance, nullptr);
+
 }
 
 void VulkanRender::InitSurface(int screenWidth, int screenHeight)
@@ -77,6 +74,8 @@ void VulkanRender::InitSurface(int screenWidth, int screenHeight)
 		_swapchainExtent = surfaceCapabilities.currentExtent;
 
 	_swapchain = new ISwapchain(&_device, _swapchainExtent, surfaceCapabilities, _surface, _gpus, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex);
+	_pipeline = new IPipeline(&_device, _swapchain, &_swapchainExtent);
+	_framebuffer = new IFramebuffer(&_device, _pipeline, _swapchain);
 }
 
 
@@ -145,17 +144,7 @@ void VulkanRender::CreateInstanceCreateInfo(VkApplicationInfo appInfo, vector<co
 
 void VulkanRender::CreateCommandPool(int queueFamilyIndex)
 {
-	VkCommandPoolCreateInfo commandPoolInfo;
-	commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	commandPoolInfo.pNext = nullptr;
-	commandPoolInfo.queueFamilyIndex = queueFamilyIndex;
-	commandPoolInfo.flags = 0;
-
-	const VkResult result = vkCreateCommandPool(_device, &commandPoolInfo, nullptr, &_commandPool);
-	if (result != VK_SUCCESS)
-	{
-		throw exception("Unable to create command pool!");
-	}
+	_commandPool = new ICommandPool(&_device, queueFamilyIndex);
 }
 
 bool VulkanRender::IsDeviceSuitable(VkPhysicalDevice device)
@@ -171,18 +160,7 @@ bool VulkanRender::IsDeviceSuitable(VkPhysicalDevice device)
 
 void VulkanRender::CreateCommandBuffer()
 {
-	VkCommandBufferAllocateInfo allocateInfo;
-	allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocateInfo.pNext = nullptr;
-	allocateInfo.commandPool = _commandPool;
-	allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocateInfo.commandBufferCount = 1;
-
-	const VkResult result = vkAllocateCommandBuffers(_device, &allocateInfo, &_commandBuffer);
-	if (result != VK_SUCCESS)
-	{
-		throw exception("Unable to create command buffer!");
-	}
+	_commandPool->AddCommandBuffer();
 }
 
 void VulkanRender::EnumeratePhysicalDevices()

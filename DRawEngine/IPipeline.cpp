@@ -79,7 +79,7 @@ IPipeline::IPipeline(VkDevice* device, ISwapchain* swapchain, VkExtent2D* extent
 	if (result != VK_SUCCESS)
 		throw std::runtime_error("failed to create pipeline layout!");
 
-	VkAttachmentDescription colorAttachment;
+	VkAttachmentDescription colorAttachment = {};
 	colorAttachment.format = swapchain->SwapchainInfo()->imageFormat;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -89,26 +89,28 @@ IPipeline::IPipeline(VkDevice* device, ISwapchain* swapchain, VkExtent2D* extent
 	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-	VkAttachmentReference colorAttachRef;
-	colorAttachRef.attachment = 0;
-	colorAttachRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	VkAttachmentReference colorAttachmentRef = {};
+	colorAttachmentRef.attachment = 0;
+	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-	VkSubpassDescription subpass;
+	VkSubpassDescription subpass = {};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorAttachRef;
+	subpass.pColorAttachments = &colorAttachmentRef;
 
-	VkRenderPassCreateInfo renderPassCreateInfo;
-	renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassCreateInfo.attachmentCount = 1;
-	renderPassCreateInfo.subpassCount = 1;
-	renderPassCreateInfo.pSubpasses = &subpass;
+	VkRenderPassCreateInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount = 1;
+	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpass;
 
-	result = vkCreateRenderPass(*_device, &renderPassCreateInfo, nullptr, &_renderPass);
-	if (result != VK_SUCCESS)
-		throw runtime_error("Unable to create renderpass!");
+	VkResult renderPassCreateInfo = vkCreateRenderPass(*device, &renderPassInfo, nullptr, &_renderPass);
+	if (renderPassCreateInfo != VK_SUCCESS) 
+	{
+		throw std::runtime_error("failed to create render pass!");
+	}
 }
-
 VkRenderPass* IPipeline::RenderPass()
 {
 	return &_renderPass;

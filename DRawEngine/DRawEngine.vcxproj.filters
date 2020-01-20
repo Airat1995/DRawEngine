@@ -70,6 +70,12 @@
     <ClCompile Include="IFramebuffer.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
+    <ClCompile Include="ICommandBuffer.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ICommandPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IWindow.h">
@@ -107,6 +113,12 @@
     </ClInclude>
     <ClInclude Include="IFramebuffer.h">
       <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ICommandBuffer.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ICommandPool.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

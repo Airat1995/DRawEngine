@@ -14,6 +14,9 @@
 #include "SwapchainBuffer.h"
 #include "IImage.h"
 #include "ISwapchain.h"
+#include "IPipeline.h"
+#include "IFramebuffer.h"
+#include "ICommandPool.h"
 
 using namespace std;
 using namespace glm;
@@ -50,8 +53,6 @@ protected:
 
 	void CreateCommandBuffer();
 
-	VkFormat GetSupportedFormat();
-
 	void EnumeratePhysicalDevices();	
 
 	void InitDevice();
@@ -59,12 +60,6 @@ protected:
 	VkBool32* GetQueuesSupportPresenting(uint32_t queueFamilyCount) const;
 	
 	bool GetGraphicsAndPresentQueue(uint32_t queueFamilyCount, vector<VkQueueFamilyProperties> queueProps);
-
-	static VkSurfaceTransformFlagBitsKHR GetPresentMode(VkSurfaceCapabilitiesKHR surfaceCapabilities);
-
-	VkCompositeAlphaFlagBitsKHR GetCompositeAlpha(VkSurfaceCapabilitiesKHR surfaceCapabilities);
-
-	void CreateSwapchainAndImages(VkSwapchainCreateInfoKHR swapchainInfo);
 
 	VkDeviceQueueCreateInfo _queueInfo;
 
@@ -74,9 +69,8 @@ protected:
 
 	VkSurfaceKHR _surface = nullptr;
 
-	VkCommandBuffer _commandBuffer = nullptr;
 
-	VkCommandPool _commandPool = nullptr;
+	ICommandPool* _commandPool;
 
 	VkQueue _drawQueue;	
 
@@ -95,6 +89,10 @@ protected:
 	IImage* _depthBuffer;
 
 	ISwapchain* _swapchain;
+
+	IPipeline* _pipeline;
+
+	IFramebuffer* _framebuffer;
 
 private:
 	static const uint32_t INCORRECT_WIDTH = 0xFFFFFFFF;

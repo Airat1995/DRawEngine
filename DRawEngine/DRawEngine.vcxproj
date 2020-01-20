@@ -158,6 +158,8 @@
   <ItemGroup>
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="IBuffer.cpp" />
+    <ClCompile Include="ICommandBuffer.cpp" />
+    <ClCompile Include="ICommandPool.cpp" />
     <ClCompile Include="IFramebuffer.cpp" />
     <ClCompile Include="IImage.cpp" />
     <ClCompile Include="IPipeline.cpp" />
@@ -172,6 +174,8 @@
   <ItemGroup>
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="IBuffer.h" />
+    <ClInclude Include="ICommandBuffer.h" />
+    <ClInclude Include="ICommandPool.h" />
     <ClInclude Include="IFramebuffer.h" />
     <ClInclude Include="IImage.h" />
     <ClInclude Include="IPipeline.h" />
