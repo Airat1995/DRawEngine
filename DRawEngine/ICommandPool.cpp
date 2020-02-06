@@ -1,6 +1,6 @@
 #include "ICommandPool.h"
 
-ICommandPool::ICommandPool(VkDevice* device, int queueFamilyIndex)
+ICommandPool::ICommandPool(VkDevice* device, int queueFamilyIndex) : _device(device)
 {
 	VkCommandPoolCreateInfo commandPoolInfo;
 	commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -17,15 +17,25 @@ ICommandPool::ICommandPool(VkDevice* device, int queueFamilyIndex)
 
 ICommandPool::~ICommandPool()
 {	
-	vkFreeCommandBuffers(*_device, _commandPool, _commandBuffers.size(), _commandBuffers.data());
+	vector<VkCommandBuffer> commandBuffers = vector<VkCommandBuffer>(_commandBuffers.size());
+	for (auto& _commandBuffer : _commandBuffers)
+		commandBuffers.push_back(*_commandBuffer.CommandBuffer());
+
+	vkFreeCommandBuffers(*_device, _commandPool, commandBuffers.size(), commandBuffers.data());
 	vkDestroyCommandPool(*_device, _commandPool, nullptr);
 
 }
 
 void ICommandPool::AddCommandBuffer()
 {
-	ICommandBuffer commandBuffer = ICommandBuffer(_device, &_commandPool);
-	_commandBuffers.push_back(*commandBuffer.CommandBuffer());
+	const ICommandBuffer commandBuffer = ICommandBuffer(_device, &_commandPool);
+	_commandBuffers.push_back(commandBuffer);
+}
+
+void ICommandPool::BeginCommandPool()
+{
+	for (auto commandBuffer : _commandBuffers)
+		commandBuffer.BeginCommandBuffer();
 }
 
 VkCommandPool* ICommandPool::CommandPool()

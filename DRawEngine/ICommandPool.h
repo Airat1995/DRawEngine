@@ -14,6 +14,8 @@ public:
 
 	void AddCommandBuffer();
 
+	void BeginCommandPool();
+
 	VkCommandPool* CommandPool();
 
 private:
@@ -21,6 +23,6 @@ private:
 
 	VkDevice* _device;
 
-	vector<VkCommandBuffer> _commandBuffers;
+	vector<ICommandBuffer> _commandBuffers;
 };
 

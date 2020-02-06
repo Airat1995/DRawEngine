@@ -23,7 +23,7 @@ enum class ShaderType
 class IShader
 {
 public:	
-	IShader(VkDevice* device, ShaderType shaderType, string* shaderLocation, string* name = nullptr);
+	explicit IShader(VkDevice* device, ShaderType shaderType, string* shaderLocation, string* name = nullptr);
 
 	virtual ~IShader();
 
@@ -33,9 +33,7 @@ protected:
 	VkShaderModule _shaderModule{};
 
 	VkPipelineShaderStageCreateInfo _pipelineShader{};
-
-	unique_ptr<FileReader> _reader;
-
+		
 	VkDevice* _device;
 
 private:

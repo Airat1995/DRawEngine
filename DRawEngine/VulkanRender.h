@@ -11,12 +11,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "IRender.h"
-#include "SwapchainBuffer.h"
 #include "IImage.h"
-#include "ISwapchain.h"
-#include "IPipeline.h"
 #include "IFramebuffer.h"
-#include "ICommandPool.h"
+
 
 using namespace std;
 using namespace glm;
@@ -69,7 +66,6 @@ protected:
 
 	VkSurfaceKHR _surface = nullptr;
 
-
 	ICommandPool* _commandPool;
 
 	VkQueue _drawQueue;	
@@ -80,19 +76,36 @@ protected:
 
 	vector<VkPhysicalDevice>* _gpus;
 
-	vector<SwapchainBuffer>* _swapchainBuffers;
-
 	uint32_t _graphicsQueueFamilyIndex;
 	
 	uint32_t _presentQueueFamilyIndex;
 
 	IImage* _depthBuffer;
 
-	ISwapchain* _swapchain;
-
-	IPipeline* _pipeline;
-
 	IFramebuffer* _framebuffer;
+
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+		void* pUserData) {
+
+		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+
+		return VK_FALSE;
+	}
+
+	void SetupDebugMessenger();
+
+	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
+		auto func = PFN_vkCreateDebugUtilsMessengerEXT(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
+		if (func != nullptr) {
+			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+		}
+		else {
+			return VK_ERROR_EXTENSION_NOT_PRESENT;
+		}
+	}
 
 private:
 	static const uint32_t INCORRECT_WIDTH = 0xFFFFFFFF;

@@ -1,10 +1,9 @@
 #include "IShader.h"
 
-
 IShader::IShader(VkDevice* device, ShaderType shaderType, string* shaderLocation, string* name) : _device(device)
 {
-	_reader = make_unique<FileReader>();
-	string* fileData = _reader->Read(shaderLocation);
+	FileReader reader = FileReader();
+	string* fileData = reader.Read(shaderLocation);
 	const bool isShaderCreated = CreateShaderModule(device, fileData);
 	if (isShaderCreated)
 		CreatePipelineShaderStageCreateInfo(shaderType, name);

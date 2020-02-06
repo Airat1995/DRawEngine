@@ -1,8 +1,7 @@
 #include "IPipeline.h"
 
 
-
-IPipeline::IPipeline(VkDevice* device, ISwapchain* swapchain, VkExtent2D* extent) : _device(device)
+IPipeline::IPipeline(VkDevice* device, vector<IShader>* shaders, VkFormat imageFormat, VkExtent2D* extent) : _device(device)
 {
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo;
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -78,9 +77,9 @@ IPipeline::IPipeline(VkDevice* device, ISwapchain* swapchain, VkExtent2D* extent
 	VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, nullptr, &_pipelineLayout);
 	if (result != VK_SUCCESS)
 		throw std::runtime_error("failed to create pipeline layout!");
-
+	
 	VkAttachmentDescription colorAttachment = {};
-	colorAttachment.format = swapchain->SwapchainInfo()->imageFormat;
+	colorAttachment.format = imageFormat;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -108,13 +107,38 @@ IPipeline::IPipeline(VkDevice* device, ISwapchain* swapchain, VkExtent2D* extent
 	VkResult renderPassCreateInfo = vkCreateRenderPass(*device, &renderPassInfo, nullptr, &_renderPass);
 	if (renderPassCreateInfo != VK_SUCCESS) 
 	{
-		throw std::runtime_error("failed to create render pass!");
+		throw runtime_error("failed to create render pass!");
 	}
+
+	auto shadersInfo = new std::vector<VkPipelineShaderStageCreateInfo>();
+	for (auto& shader : *shaders)
+		shadersInfo->push_back(*shader.GetShaderStageInfo());
+
+
+	VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
+	pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipelineCreateInfo.stageCount = shadersInfo->size();
+	pipelineCreateInfo.pStages = shadersInfo->data();
+	pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
+	pipelineCreateInfo.pInputAssemblyState = &inputAssembly;
+	pipelineCreateInfo.pViewportState = &viewportState;
+	pipelineCreateInfo.pRasterizationState = &rasterizer;
+	pipelineCreateInfo.pMultisampleState = &multisampling;
+	pipelineCreateInfo.pColorBlendState = &colorBlending;
+	pipelineCreateInfo.layout = _pipelineLayout;
+	pipelineCreateInfo.renderPass = _renderPass;
+	pipelineCreateInfo.subpass = 0;
+	pipelineCreateInfo.basePipelineHandle = nullptr;
+
+	result = vkCreateGraphicsPipelines(*_device, nullptr, 1, &pipelineCreateInfo, nullptr, _pipeline);
+	if (result != VK_SUCCESS)
+		throw runtime_error("Unable to create pipeline!");
 }
 VkRenderPass* IPipeline::RenderPass()
 {
 	return &_renderPass;
 }
+
 
 IPipeline::~IPipeline()
 {

@@ -1,5 +1,4 @@
 #include "VulkanRender.h"
-#include <cassert>
 
 
 VulkanRender::VulkanRender() : IRender()
@@ -10,18 +9,18 @@ void VulkanRender::Init(vector<const char*>* extensions)
 {	
 	const VkApplicationInfo appInfo = CreateAppInfo();
 	std::vector<const char*> layers = GetLayers();
-	CreateInstanceCreateInfo(appInfo, extensions, &layers);
+#if _DEBUG
+	extensions->push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	extensions->push_back("VK_EXT_debug_report");
+#endif
+	CreateInstanceCreateInfo(appInfo, extensions, &layers);	
 	EnumeratePhysicalDevices();
+	SetupDebugMessenger();
 }
 
 VulkanRender::~VulkanRender()
 {
-	delete(_swapchain);
-	for (auto& _swapchainBuffer : *_swapchainBuffers)
-	{
-		vkDestroyImageView(_device, *_swapchainBuffer.View(), nullptr);
-	}	
-
+	delete(_framebuffer);
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	vkDestroyDevice(_device, nullptr);
 	vkDestroyInstance(_instance, nullptr);
@@ -32,7 +31,6 @@ void VulkanRender::InitSurface(int screenWidth, int screenHeight)
 {
 	InitDevice();
 	CreateCommandPool(_queueInfo.queueFamilyIndex);
-	CreateCommandBuffer();
 
 	VkSurfaceCapabilitiesKHR surfaceCapabilities;
 	VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_gpus->at(0), _surface, &surfaceCapabilities);
@@ -73,9 +71,17 @@ void VulkanRender::InitSurface(int screenWidth, int screenHeight)
 	else
 		_swapchainExtent = surfaceCapabilities.currentExtent;
 
-	_swapchain = new ISwapchain(&_device, _swapchainExtent, surfaceCapabilities, _surface, _gpus, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex);
-	_pipeline = new IPipeline(&_device, _swapchain, &_swapchainExtent);
-	_framebuffer = new IFramebuffer(&_device, _pipeline, _swapchain);
+	std::string vertex = "C:\\Users\\airat\\source\\repos\\DRawEngine\\vert.spv";
+	std::string fragment = "C:\\Users\\airat\\source\\repos\\DRawEngine\\frag.spv";
+	std::string shaderName = "main";
+	auto vertexShader = new IShader(&_device, ShaderType::Vertex, &vertex, &shaderName);
+	auto fragmentShader = new IShader(&_device, ShaderType::Fragment, &fragment, &shaderName);
+	auto shaders = new vector<IShader>();
+	shaders->push_back(*vertexShader);
+	shaders->push_back(*fragmentShader);
+
+	auto image = IImage(VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK, &_device, _gpus, VkImageViewType::VK_IMAGE_VIEW_TYPE_2D, 1920, 1080, VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT);
+	_framebuffer = new IFramebuffer(&_device, shaders, _commandPool, _swapchainExtent, surfaceCapabilities, _surface, _gpus, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex);
 }
 
 
@@ -135,6 +141,20 @@ void VulkanRender::CreateInstanceCreateInfo(VkApplicationInfo appInfo, vector<co
 	instInfo.enabledLayerCount = layers->size();
 	instInfo.ppEnabledLayerNames = layers->data();
 
+#if _DEBUG
+	VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.pfnUserCallback = debugCallback;
+	createInfo.pUserData = nullptr; // Optional
+		
+	instInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&createInfo;
+#else	
+	instInfo.enabledLayerCount = 0;
+	instInfo.pNext = nullptr;
+#endif
+
 	const VkResult createResult = vkCreateInstance(&instInfo, nullptr, &_instance);
 	if (createResult != VK_SUCCESS)
 	{
@@ -160,7 +180,6 @@ bool VulkanRender::IsDeviceSuitable(VkPhysicalDevice device)
 
 void VulkanRender::CreateCommandBuffer()
 {
-	_commandPool->AddCommandBuffer();
 }
 
 void VulkanRender::EnumeratePhysicalDevices()
@@ -225,6 +244,23 @@ bool VulkanRender::GetGraphicsAndPresentQueue(uint32_t queueFamilyCount, vector<
 		break;
 	}
 	return found;
+}
+
+void VulkanRender::SetupDebugMessenger()
+{
+#if !_DEBUG
+	return;
+#endif
+	VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.pfnUserCallback = debugCallback;
+	createInfo.pUserData = nullptr; // Optional
+
+	if (CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+		throw std::runtime_error("failed to set up debug messenger!");
+	}
 }
 
 void VulkanRender::InitDevice()

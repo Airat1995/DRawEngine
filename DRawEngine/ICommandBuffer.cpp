@@ -1,6 +1,7 @@
 #include "ICommandBuffer.h"
 
 
+
 ICommandBuffer::ICommandBuffer(VkDevice* device, VkCommandPool* commandPool)
 {
 	VkCommandBufferAllocateInfo allocateInfo;
@@ -27,4 +28,14 @@ ICommandBuffer::~ICommandBuffer()
 {
 	//Command buffer getting destroyed by ICommandPool
 	//Created like to decrease Vulkan send commands
+}
+
+bool ICommandBuffer::BeginCommandBuffer()
+{
+	VkCommandBufferBeginInfo beginInfo;
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	VkResult result = vkBeginCommandBuffer(_commandBuffer, &beginInfo);
+	if (result != VK_SUCCESS)
+		throw std::runtime_error("Unable to start command buffer!");
+	return true;
 }

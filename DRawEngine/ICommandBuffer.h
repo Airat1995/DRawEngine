@@ -1,8 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <exception>
-
-#include "ICommandPool.h"
+#include <stdexcept>
 
 
 class ICommandBuffer
@@ -13,6 +12,8 @@ public:
 	VkCommandBuffer* CommandBuffer();
 
 	virtual ~ICommandBuffer();
+	
+	bool BeginCommandBuffer();
 private:
 	VkCommandBuffer _commandBuffer;
 };
