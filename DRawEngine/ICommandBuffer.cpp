@@ -2,7 +2,7 @@
 
 
 
-ICommandBuffer::ICommandBuffer(VkDevice* device, VkCommandPool* commandPool)
+ICommandBuffer::ICommandBuffer(VkDevice device, VkCommandPool* commandPool)
 {
 	VkCommandBufferAllocateInfo allocateInfo;
 	allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -11,7 +11,7 @@ ICommandBuffer::ICommandBuffer(VkDevice* device, VkCommandPool* commandPool)
 	allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocateInfo.commandBufferCount = 1;
 
-	const VkResult result = vkAllocateCommandBuffers(*device, &allocateInfo, &_commandBuffer);
+	const VkResult result = vkAllocateCommandBuffers(device, &allocateInfo, &_commandBuffer);
 	if (result != VK_SUCCESS)
 	{
 		throw std::exception("Unable to create command buffer!");

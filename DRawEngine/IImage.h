@@ -8,7 +8,7 @@ using namespace std;
 class IImage
 {
 public:
-	explicit IImage(VkFormat format, VkDevice* device, vector<VkPhysicalDevice>* gpus, VkImageViewType imageType, int width, int height, VkSampleCountFlagBits samples);
+	explicit IImage(VkFormat format, VkDevice device, vector<VkPhysicalDevice>& gpus, VkImageViewType imageType, int width, int height, VkSampleCountFlagBits samples);
 
 	~IImage();
 protected:
@@ -25,6 +25,6 @@ protected:
 	
 	VkPhysicalDeviceMemoryProperties _memoryProperties;
 
-	VkDevice* _device;
+	VkDevice _device;
 };
 

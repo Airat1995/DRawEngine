@@ -23,21 +23,23 @@ enum class ShaderType
 class IShader
 {
 public:	
-	explicit IShader(VkDevice* device, ShaderType shaderType, string* shaderLocation, string* name = nullptr);
+	explicit IShader(VkDevice device, ShaderType shaderType, string& shaderLocation, string& name);
 
 	virtual ~IShader();
 
-	VkPipelineShaderStageCreateInfo* GetShaderStageInfo();
+	void DestroyShader();
+
+	VkPipelineShaderStageCreateInfo GetShaderStageInfo();
 
 protected:
 	VkShaderModule _shaderModule{};
 
 	VkPipelineShaderStageCreateInfo _pipelineShader{};
 		
-	VkDevice* _device;
+	VkDevice _device;
 
 private:
-	void CreatePipelineShaderStageCreateInfo(ShaderType shaderType, string* moduleName);
+	void CreatePipelineShaderStageCreateInfo(ShaderType shaderType, string& moduleName);
 
-	bool CreateShaderModule(VkDevice* device, string* fileData);
+	bool CreateShaderModule(VkDevice device, vector<char>& fileData);
 };

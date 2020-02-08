@@ -2,8 +2,7 @@
 
 #include <fstream>
 #include <string>
-#include <iterator>
-#include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -11,12 +10,12 @@ class FileReader
 {
 public:
 
-	string* Read(string* fileLocation);
+	vector<char>& Read(string& fileLocation);
 
-	string GetCached();
+	vector<char>& GetCached();
 
 	void ClearCache();
 private:
-	string _cachedData;
+	vector<char> _cachedData;
 
 };

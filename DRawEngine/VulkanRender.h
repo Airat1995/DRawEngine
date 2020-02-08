@@ -10,6 +10,8 @@
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <filesystem>
+
 #include "IRender.h"
 #include "IImage.h"
 #include "IFramebuffer.h"
@@ -74,7 +76,7 @@ protected:
 
 	VkDebugUtilsMessengerEXT debugMessenger;
 
-	vector<VkPhysicalDevice>* _gpus;
+	vector<VkPhysicalDevice> _gpus;
 
 	uint32_t _graphicsQueueFamilyIndex;
 	
@@ -89,9 +91,15 @@ protected:
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData) {
+		//cerr << "\n" << endl;
+		//cerr << "" << "validation layer: " << pCallbackData->pMessage << std::endl;
 
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+		//return VK_FALSE;
 
+		std::ofstream outfile;
+		outfile.open("log.txt", std::ios_base::app); // append instead of overwrite
+		outfile << pCallbackData->pMessage << endl;
+		outfile.close();
 		return VK_FALSE;
 	}
 

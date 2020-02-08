@@ -10,8 +10,8 @@ using namespace std;
 class IFramebuffer
 {
 public:
-	explicit IFramebuffer(VkDevice* device, vector<IShader>* shaders, ICommandPool* commandPool, VkExtent2D swapchainExtent, VkSurfaceCapabilitiesKHR surfaceCapabilities,
-		VkSurfaceKHR surface, vector<VkPhysicalDevice>* gpus, uint32_t graphicsQueueFamilyIndex,
+	explicit IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPool& commandPool, VkExtent2D swapchainExtent, VkSurfaceCapabilitiesKHR surfaceCapabilities,
+		VkSurfaceKHR surface, vector<VkPhysicalDevice>& gpus, uint32_t graphicsQueueFamilyIndex,
 		uint32_t presentQueueFamilyIndex);
 
 	VkFramebuffer* Framebuffer(int index);
@@ -24,7 +24,7 @@ private:
 
 	vector<SwapchainBuffer>* _swapchainBuffers;
 
-	VkDevice* _device;
+	VkDevice _device;
 
 	ISwapchain* _swapchain;
 

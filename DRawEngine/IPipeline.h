@@ -10,7 +10,7 @@ using namespace std;
 class IPipeline
 {
 public:
-	IPipeline(VkDevice* device, vector<IShader>* shaders, VkFormat imageFormat, VkExtent2D* extent);
+	IPipeline(VkDevice device, vector<IShader>& shaders, VkFormat imageFormat, VkExtent2D* extent);
 
 	VkRenderPass* RenderPass();
 
@@ -23,10 +23,11 @@ private:
 
 	VkPipelineLayout _pipelineLayout;
 
-	VkDevice* _device;
+	VkDevice _device;
 	
-	VkPipeline* _pipeline;
+	VkPipeline _pipeline;
 
 	VkRenderPass _renderPass;
+
 };
 

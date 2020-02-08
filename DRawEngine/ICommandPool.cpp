@@ -1,6 +1,6 @@
 #include "ICommandPool.h"
 
-ICommandPool::ICommandPool(VkDevice* device, int queueFamilyIndex) : _device(device)
+ICommandPool::ICommandPool(VkDevice device, int queueFamilyIndex) : _device(device)
 {
 	VkCommandPoolCreateInfo commandPoolInfo;
 	commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -8,7 +8,7 @@ ICommandPool::ICommandPool(VkDevice* device, int queueFamilyIndex) : _device(dev
 	commandPoolInfo.queueFamilyIndex = queueFamilyIndex;
 	commandPoolInfo.flags = 0;
 
-	const VkResult result = vkCreateCommandPool(*device, &commandPoolInfo, nullptr, &_commandPool);
+	const VkResult result = vkCreateCommandPool(device, &commandPoolInfo, nullptr, &_commandPool);
 	if (result != VK_SUCCESS)
 	{
 		throw exception("Unable to create command pool!");
@@ -21,8 +21,8 @@ ICommandPool::~ICommandPool()
 	for (auto& _commandBuffer : _commandBuffers)
 		commandBuffers.push_back(*_commandBuffer.CommandBuffer());
 
-	vkFreeCommandBuffers(*_device, _commandPool, commandBuffers.size(), commandBuffers.data());
-	vkDestroyCommandPool(*_device, _commandPool, nullptr);
+	vkFreeCommandBuffers(_device, _commandPool, commandBuffers.size(), commandBuffers.data());
+	vkDestroyCommandPool(_device, _commandPool, nullptr);
 
 }
 

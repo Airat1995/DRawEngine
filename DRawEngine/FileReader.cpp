@@ -1,30 +1,21 @@
 #include "FileReader.h"
 
-string* FileReader::Read(string* fileLocation)
+vector<char>& FileReader::Read(string& fileLocation)
 {
-	fstream fileStream(fileLocation->c_str(), std::ios_base::in);
+	std::ifstream infile(fileLocation, std::ios::binary);
 
-	if (!fileStream.is_open())
-	{	
-		std::stringstream formattedString;
-		formattedString << "failed to open file! file name is " << fileLocation;
-		throw std::runtime_error(formattedString.str());
-	}
-	
-	stringstream buffer;
-	buffer << fileStream.rdbuf();
-	fileStream.close();
-	_cachedData = buffer.str();
+	_cachedData = vector<char>(std::istreambuf_iterator<char>(infile),
+		std::istreambuf_iterator<char>());
 
-	return &_cachedData;
+	return _cachedData;
 }
 
-string FileReader::GetCached()
+vector<char>& FileReader::GetCached()
 {
 	return _cachedData;
 }
 
 void FileReader::ClearCache()
 {
-	_cachedData = "";
+	_cachedData.clear();
 }

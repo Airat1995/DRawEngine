@@ -1,12 +1,12 @@
 #include "IImage.h"
 
-IImage::IImage(VkFormat format, VkDevice* device, vector<VkPhysicalDevice>* gpus, VkImageViewType imageType, int width, int height, VkSampleCountFlagBits samples)
+IImage::IImage(VkFormat format, VkDevice device, vector<VkPhysicalDevice>& gpus, VkImageViewType imageType, int width, int height, VkSampleCountFlagBits samples)
 {
 	_device = device;
 
 	VkImageCreateInfo image_info = {};
 	VkFormatProperties props;
-	vkGetPhysicalDeviceFormatProperties(gpus->at(0), format, &props);
+	vkGetPhysicalDeviceFormatProperties(gpus.at(0), format, &props);
 	if (props.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) 
 	{
 		image_info.tiling = VK_IMAGE_TILING_LINEAR;
@@ -67,7 +67,7 @@ IImage::IImage(VkFormat format, VkDevice* device, vector<VkPhysicalDevice>* gpus
 	_format = format;
 
 	/* Create image */
-	VkResult res = vkCreateImage(*device, &image_info, nullptr, &_image);
+	VkResult res = vkCreateImage(device, &image_info, nullptr, &_image);
 	if(res != VK_SUCCESS)
 	{
 		std::cerr << "Unable to create image!" << std::endl;
@@ -75,7 +75,7 @@ IImage::IImage(VkFormat format, VkDevice* device, vector<VkPhysicalDevice>* gpus
 	}
 	
 
-	vkGetImageMemoryRequirements(*device, _image, &memReqs);
+	vkGetImageMemoryRequirements(device, _image, &memReqs);
 
 	mem_alloc.allocationSize = memReqs.size;
 	/* Use the memory properties to determine the type of memory required */
@@ -86,21 +86,21 @@ IImage::IImage(VkFormat format, VkDevice* device, vector<VkPhysicalDevice>* gpus
 	}
 
 	/* Allocate memory */
-	res = vkAllocateMemory(*device, &mem_alloc, nullptr, &_mem);
+	res = vkAllocateMemory(device, &mem_alloc, nullptr, &_mem);
 	if (!pass)
 	{
 		std::cerr << "Unable to get memory properties from image!" << std::endl;
 	}
 
 	/* Bind memory */
-	res = vkBindImageMemory(*device, _image, _mem, 0);
+	res = vkBindImageMemory(device, _image, _mem, 0);
 	if (res != VK_SUCCESS)
 	{
 		std::cerr << "Unable to bind image memory!" << std::endl;
 	}
 
 	view_info.image = _image;
-	res = vkCreateImageView(*device, &view_info, nullptr, &_view);
+	res = vkCreateImageView(device, &view_info, nullptr, &_view);
 	if(res != VK_SUCCESS)
 	{
 		std::cerr << "Unable to create view for the image!" << std::endl;
@@ -110,9 +110,9 @@ IImage::IImage(VkFormat format, VkDevice* device, vector<VkPhysicalDevice>* gpus
 
 IImage::~IImage()
 {
-	vkDestroyImageView(*_device, _view, nullptr);
-	vkDestroyImage(*_device, _image, nullptr);
-	vkFreeMemory(*_device, _mem, nullptr);
+	vkDestroyImageView(_device, _view, nullptr);
+	vkDestroyImage(_device, _image, nullptr);
+	vkFreeMemory(_device, _mem, nullptr);
 }
 
 bool IImage::MemoryTypeFromProperties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex) 

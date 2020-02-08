@@ -1,17 +1,17 @@
 #include "IFramebuffer.h"
 
-IFramebuffer::IFramebuffer(VkDevice* device, vector<IShader>* shaders, ICommandPool* commandPool, VkExtent2D swapchainExtent, VkSurfaceCapabilitiesKHR surfaceCapabilities,
-	VkSurfaceKHR surface, vector<VkPhysicalDevice>* gpus, uint32_t graphicsQueueFamilyIndex,
+IFramebuffer::IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPool& commandPool, VkExtent2D swapchainExtent, VkSurfaceCapabilitiesKHR surfaceCapabilities,
+	VkSurfaceKHR surface, vector<VkPhysicalDevice>& gpus, uint32_t graphicsQueueFamilyIndex,
 	uint32_t presentQueueFamilyIndex) :_device(device)
 {
 	_swapchain = new ISwapchain(_device, swapchainExtent, surfaceCapabilities, surface, gpus, graphicsQueueFamilyIndex, presentQueueFamilyIndex);
-	for (auto swapchain : *_swapchain->SwapchainBuffers())
-		commandPool->AddCommandBuffer();
+	for (auto swapchain : _swapchain->SwapchainBuffers())
+		commandPool.AddCommandBuffer();
 
 	_pipeline = new IPipeline(_device, shaders, _swapchain->SwapchainInfo()->imageFormat, &swapchainExtent);
-	vector<SwapchainBuffer>* swapchainBuffers = _swapchain->SwapchainBuffers();
+	vector<SwapchainBuffer> swapchainBuffers = _swapchain->SwapchainBuffers();
 	_swapChainFramebuffers = new vector<VkFramebuffer>(0);
-	for (auto swapchainBuffer : *swapchainBuffers)
+	for (auto swapchainBuffer : swapchainBuffers)
 	{
 		VkImageView attachments[] = {
 			*swapchainBuffer.View()
@@ -25,9 +25,11 @@ IFramebuffer::IFramebuffer(VkDevice* device, vector<IShader>* shaders, ICommandP
 		framebufferCreateInfo.width = _swapchain->SwapchainInfo()->imageExtent.width;
 		framebufferCreateInfo.height = _swapchain->SwapchainInfo()->imageExtent.height;
 		framebufferCreateInfo.layers = 1;
+		framebufferCreateInfo.pNext = nullptr;
+		framebufferCreateInfo.flags = 0;
 
 		VkFramebuffer framebuffer;
-		VkResult result = vkCreateFramebuffer(*device, &framebufferCreateInfo, nullptr, &framebuffer);
+		VkResult result = vkCreateFramebuffer(device, &framebufferCreateInfo, nullptr, &framebuffer);
 		if (result != VK_SUCCESS)
 			throw runtime_error("Unable to create framebuffer");
 		_swapChainFramebuffers->push_back(framebuffer);
@@ -59,11 +61,11 @@ IFramebuffer::~IFramebuffer()
 {
 	for (auto& _swapchainBuffer : *_swapchainBuffers)
 	{
-		vkDestroyImageView(*_device, *_swapchainBuffer.View(), nullptr);
+		vkDestroyImageView(_device, *_swapchainBuffer.View(), nullptr);
 	}
 
 	for (auto framebuffer : *_swapChainFramebuffers)
 	{
-		vkDestroyFramebuffer(*_device, framebuffer, nullptr);
+		vkDestroyFramebuffer(_device, framebuffer, nullptr);
 	}
 }
