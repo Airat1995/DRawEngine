@@ -9,7 +9,7 @@ class ICommandBuffer
 public:
 	ICommandBuffer(VkDevice device, VkCommandPool* commandPool);
 
-	VkCommandBuffer* CommandBuffer();
+	VkCommandBuffer& CommandBuffer();
 
 	virtual ~ICommandBuffer();
 	

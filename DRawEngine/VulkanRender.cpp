@@ -109,6 +109,12 @@ void VulkanRender::CreateBuffer()
 	return;
 }
 
+void VulkanRender::DrawFrame()
+{
+	_framebuffer->DrawFrame();
+	vkDeviceWaitIdle(_device);
+}
+
 vector<const char*> VulkanRender::GetLayers()
 {
 	std::vector<const char*> layers;

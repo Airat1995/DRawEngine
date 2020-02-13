@@ -22,6 +22,12 @@ public:
 
 	~ISwapchain();
 
+	VkSemaphore& ImageAvailableSemaphore();
+
+	VkSemaphore& RenderFinishSemaphore();
+
+	VkSwapchainKHR& Swapchain();
+
 protected:
 	void CreateSwapchainAndImages(VkDevice device, VkSwapchainCreateInfoKHR swapchainInfo);
 

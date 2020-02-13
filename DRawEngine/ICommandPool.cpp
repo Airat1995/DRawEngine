@@ -19,7 +19,7 @@ ICommandPool::~ICommandPool()
 {	
 	vector<VkCommandBuffer> commandBuffers = vector<VkCommandBuffer>(_commandBuffers.size());
 	for (auto& _commandBuffer : _commandBuffers)
-		commandBuffers.push_back(*_commandBuffer.CommandBuffer());
+		commandBuffers.push_back(_commandBuffer.CommandBuffer());
 
 	vkFreeCommandBuffers(_device, _commandPool, commandBuffers.size(), commandBuffers.data());
 	vkDestroyCommandPool(_device, _commandPool, nullptr);
@@ -36,6 +36,16 @@ void ICommandPool::BeginCommandPool()
 {
 	for (auto commandBuffer : _commandBuffers)
 		commandBuffer.BeginCommandBuffer();
+}
+
+int ICommandPool::CommandBufferCount()
+{
+	return _commandBuffers.size();
+}
+
+ICommandBuffer& ICommandPool::CommandBuffer(int index)
+{
+	return _commandBuffers[index];
 }
 
 VkCommandPool* ICommandPool::CommandPool()

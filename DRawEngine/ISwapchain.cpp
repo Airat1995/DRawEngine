@@ -67,6 +67,20 @@ ISwapchain::~ISwapchain()
 	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
 }
 
+VkSemaphore& ISwapchain::ImageAvailableSemaphore()
+{
+	return _imageAvailableSemaphore;
+}
+
+VkSemaphore& ISwapchain::RenderFinishSemaphore()
+{
+	return _renderFinishSemaphore;
+}
+
+VkSwapchainKHR& ISwapchain::Swapchain()
+{
+	return _swapChain;
+}
 
 void ISwapchain::CreateSwapchainAndImages(VkDevice device, VkSwapchainCreateInfoKHR swapchainInfo)
 {

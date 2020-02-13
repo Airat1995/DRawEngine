@@ -39,6 +39,8 @@ public:
 
 	void CreateBuffer();
 
+	void DrawFrame() override;
+
 protected:
 	static std::vector<const char*> GetLayers();
 
@@ -69,8 +71,6 @@ protected:
 	VkSurfaceKHR _surface = nullptr;
 
 	ICommandPool* _commandPool;
-
-	VkQueue _drawQueue;	
 
 	VkExtent2D _swapchainExtent;
 

@@ -19,9 +19,9 @@ ICommandBuffer::ICommandBuffer(VkDevice device, VkCommandPool* commandPool)
 
 }
 
-VkCommandBuffer* ICommandBuffer::CommandBuffer()
+VkCommandBuffer& ICommandBuffer::CommandBuffer()
 {
-	return &_commandBuffer;
+	return _commandBuffer;
 }
 
 ICommandBuffer::~ICommandBuffer()
@@ -33,6 +33,9 @@ ICommandBuffer::~ICommandBuffer()
 bool ICommandBuffer::BeginCommandBuffer()
 {
 	VkCommandBufferBeginInfo beginInfo;
+	beginInfo.pNext = nullptr;
+	beginInfo.flags = 0;
+	beginInfo.pInheritanceInfo = nullptr;
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	VkResult result = vkBeginCommandBuffer(_commandBuffer, &beginInfo);
 	if (result != VK_SUCCESS)

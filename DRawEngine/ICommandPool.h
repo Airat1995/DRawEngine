@@ -16,6 +16,10 @@ public:
 
 	void BeginCommandPool();
 
+	int CommandBufferCount();
+
+	ICommandBuffer& CommandBuffer(int index);
+
 	VkCommandPool* CommandPool();
 
 private:

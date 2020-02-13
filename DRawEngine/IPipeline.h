@@ -14,6 +14,8 @@ public:
 
 	VkRenderPass* RenderPass();
 
+	VkPipeline Pipeline();
+
 	virtual ~IPipeline();
 private:
 	VkDynamicState _dynamicStates[2] = {

@@ -12,5 +12,7 @@ public:
 	virtual ~IRender() = default;
 
 	virtual void Init(vector<const char*>* extensions) = 0;
+
+	virtual void DrawFrame() = 0;
 };
 
