@@ -53,22 +53,21 @@ int main()
     bool stillRunning = true;
     while(stillRunning) {
 
-        //SDL_Event event;
-        //while(SDL_PollEvent(&event)) {
+        SDL_Event event;
+        while(SDL_PollEvent(&event)) {
 
-        //    switch(event.type) {
+            switch(event.type) {
 
-        //    case SDL_QUIT:
-        //        stillRunning = false;
-        //        break;
+            case SDL_QUIT:
+                stillRunning = false;
+                break;
 
-        //    default:
-        //        // Do nothing.
-        //        break;
-        //    }
-        //}
-		vulkanRender->DrawFrame();		
-        //SDL_Delay(0);
+            default:
+                // Do nothing.
+                break;
+            }
+        }
+		vulkanRender->DrawFrame();
     }
 //
 //    // Clean up.

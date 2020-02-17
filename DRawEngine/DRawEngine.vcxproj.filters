@@ -32,11 +32,14 @@
     <Filter Include="Source Files\Tools">
       <UniqueIdentifier>{af05d0b2-9590-4fe1-be7a-b00decf0e876}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Render\Data">
+      <UniqueIdentifier>{20b48ad5-6a81-474b-bc67-ba5cb942bae2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render\Data">
+      <UniqueIdentifier>{2058fec0-401d-4a8e-a7bd-9c37f7a5fdfe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="IWindow.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -61,9 +64,6 @@
     <ClCompile Include="FileReader.cpp">
       <Filter>Source Files\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="IShader.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
     <ClCompile Include="IPipeline.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
@@ -74,7 +74,16 @@
       <Filter>Source Files\Render</Filter>
     </ClCompile>
     <ClCompile Include="ICommandPool.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IShader.cpp">
+      <Filter>Source Files\Render\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="IMesh.cpp">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -90,9 +99,6 @@
     <ClInclude Include="SwapchainBuffer.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
-    <ClInclude Include="IImage.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
     <ClInclude Include="IBuffer.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
@@ -105,9 +111,6 @@
     <ClInclude Include="FileReader.h">
       <Filter>Header Files\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="IShader.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
     <ClInclude Include="IPipeline.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
@@ -118,7 +121,19 @@
       <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="ICommandPool.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="IVertex.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="IShader.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="IImage.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="IMesh.h">
+      <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
