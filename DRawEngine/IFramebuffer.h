@@ -4,18 +4,23 @@
 #include "IPipeline.h"
 #include "ICommandPool.h"
 #include "IShader.h"
+#include "IVertex.h"
+#include "IBuffer.h"
+#include <glm/vec2.hpp>
 
+class VertexBuffer;
 using namespace std;
 
 class IFramebuffer
 {
 public:
-	void CreateQueues(VkDevice device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex);
-	explicit IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPool& commandPool, VkExtent2D swapchainExtent, VkSurfaceCapabilitiesKHR surfaceCapabilities,
-		VkSurfaceKHR surface, vector<VkPhysicalDevice>& gpus, uint32_t graphicsQueueFamilyIndex,
-		uint32_t presentQueueFamilyIndex);
-
+	explicit IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPool& commandPool, VkExtent2D swapchainExtent,
+	             VkSurfaceCapabilitiesKHR surfaceCapabilities, VkSurfaceKHR surface, vector<VkPhysicalDevice>& gpus,
+	             uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex,
+	             VertexBuffer& vertexBuffer);
 	VkFramebuffer* Framebuffer(int index);
+
+	void CreateQueues(VkDevice device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex);
 
 	void BeginRenderPass(int index, ICommandBuffer& commandBuffer);
 
@@ -38,5 +43,7 @@ private:
 	VkQueue _presentQueue;
 	
 	ICommandPool& _commandPool;
+
+	VertexBuffer& _drawBuffer;
 };
 

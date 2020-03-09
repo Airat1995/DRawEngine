@@ -1,12 +1,16 @@
 #include "IPipeline.h"
 
 
-IPipeline::IPipeline(VkDevice device, vector<IShader>& shaders, VkFormat imageFormat, VkExtent2D* extent) : _device(device)
+IPipeline::IPipeline(VkDevice device, vector<IShader>& shaders, VkFormat imageFormat, VkExtent2D* extent, vector<VkVertexInputBindingDescription>& bindingDescriptions, vector<VkVertexInputAttributeDescription>& attributeDescriptions) : _device(device)
 {
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
+	vertexInputInfo.vertexBindingDescriptionCount = bindingDescriptions.size();
+	vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
+	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+	vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
+	vertexInputInfo.flags = 0;
+	vertexInputInfo.pNext = nullptr;
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -16,8 +20,8 @@ IPipeline::IPipeline(VkDevice device, vector<IShader>& shaders, VkFormat imageFo
 	VkViewport viewport = {};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = (float)extent->width;
-	viewport.height = (float)extent->height;
+	viewport.width = static_cast<float>(extent->width);
+	viewport.height = static_cast<float>(extent->height);
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
@@ -129,18 +133,16 @@ IPipeline::IPipeline(VkDevice device, vector<IShader>& shaders, VkFormat imageFo
 	pipelineInfo.layout = _pipelineLayout;
 	pipelineInfo.renderPass = _renderPass;
 	pipelineInfo.subpass = 0;
-	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+	pipelineInfo.basePipelineHandle = nullptr;
 
-	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS) {
+	if (vkCreateGraphicsPipelines(device, nullptr, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
 
 	for (auto& shader : shaders)
 		shader.DestroyShader();
-
-	//vkDestroyShaderModule(*device, fragShaderModule, nullptr);
-	//vkDestroyShaderModule(*device, vertShaderModule, nullptr);
 }
+
 VkRenderPass* IPipeline::RenderPass()
 {
 	return &_renderPass;

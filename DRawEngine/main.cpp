@@ -51,22 +51,12 @@ int main()
 	IWindow* window = new SDLWindow(1920, 1080, "some name", WindowType::Windowed, vulkanRender);
 
     bool stillRunning = true;
-    while(stillRunning) {
-
-        SDL_Event event;
-        while(SDL_PollEvent(&event)) {
-
-            switch(event.type) {
-
-            case SDL_QUIT:
-                stillRunning = false;
-                break;
-
-            default:
-                // Do nothing.
-                break;
-            }
-        }
+	SDL_Event event;
+    while(stillRunning) 
+	{		
+		//SDL_PollEvent(&event);
+		//if (event.type == SDL_QUIT)
+		//	stillRunning = false;
 		vulkanRender->DrawFrame();
     }
 //

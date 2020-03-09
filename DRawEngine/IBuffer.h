@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-
+#include <vector>
 #include "SwapchainBuffer.h"
 
 using namespace std;
@@ -34,20 +34,20 @@ class IBuffer
 {
 public:
 	IBuffer(VkDevice* device, VkPhysicalDevice physical, BufferUsageFlag usage, SharingMode sharingMode, T* data):
-		_bufferInfo(),
+		_bufferDescriptorInfo(),
 		_device(device),
 		_data(data)
 	{
-		VkBufferCreateInfo buf_info = {};
-		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		buf_info.pNext = nullptr;
-		buf_info.usage = static_cast<VkBufferUsageFlags>(usage);
-		buf_info.size = sizeof(T);
-		buf_info.queueFamilyIndexCount = 0;
-		buf_info.pQueueFamilyIndices = nullptr;
-		buf_info.sharingMode = static_cast<VkSharingMode>(sharingMode);
-		buf_info.flags = 0;
-		VkResult result = vkCreateBuffer(*device, &buf_info, nullptr, &_buffer);
+		_bufferInfo = {};
+		_bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		_bufferInfo.pNext = nullptr;
+		_bufferInfo.usage = static_cast<VkBufferUsageFlags>(usage);
+		_bufferInfo.size = sizeof(T);
+		_bufferInfo.queueFamilyIndexCount = 0;
+		_bufferInfo.pQueueFamilyIndices = nullptr;
+		_bufferInfo.sharingMode = static_cast<VkSharingMode>(sharingMode);
+		_bufferInfo.flags = 0;
+		VkResult result = vkCreateBuffer(*device, &_bufferInfo, nullptr, &_buffer);
 		if (result != VK_SUCCESS)
 			cerr << "Unable to create buffer!" << endl;
 
@@ -82,16 +82,12 @@ public:
 		VkResult result = vkMapMemory(*_device, _memory, 0, _memoryReq.size, 0, reinterpret_cast<void**>(&_dataPointer));
 		if (result != VK_SUCCESS)
 			cerr << "Unable to map memory!" << endl;
-		memcpy(_dataPointer, _data, sizeof(T));
+		memcpy(_dataPointer, &_data, _bufferInfo.size);
 		vkUnmapMemory(*_device, _memory);
 
-		result = vkBindBufferMemory(*_device, _buffer, _memory, 0);
-		if (result != VK_SUCCESS)
-			cerr << "Unable to bind buffer memory!" << endl;
-
-		_bufferInfo.buffer = _buffer;
-		_bufferInfo.offset = 0;
-		_bufferInfo.range = sizeof(T);
+		_bufferDescriptorInfo.buffer = _buffer;
+		_bufferDescriptorInfo.offset = 0;
+		_bufferDescriptorInfo.range = sizeof(T);
 	}
 
 	virtual void Flush()
@@ -100,17 +96,25 @@ public:
 		_dataPointer = nullptr;
 	}
 
-	virtual ~IBuffer()
+	virtual ~IBuffer()	= default;
+
+	virtual void Destroy()
 	{
 		vkDestroyBuffer(*_device, _buffer, nullptr);
 		vkFreeMemory(*_device, _memory, nullptr);
 	}
 
+	VkBuffer& Buffer()
+	{
+		return _buffer;
+	}
+
 protected:
 	VkBuffer _buffer;
 	VkDeviceMemory _memory;
-	VkDescriptorBufferInfo _bufferInfo;
+	VkDescriptorBufferInfo _bufferDescriptorInfo;
 	VkDevice* _device;
+	VkBufferCreateInfo _bufferInfo;
 	VkMemoryRequirements _memoryReq;
 	
 	uint8_t* _dataPointer = nullptr;

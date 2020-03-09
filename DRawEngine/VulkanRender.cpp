@@ -1,6 +1,7 @@
 #include "VulkanRender.h"
 
 
+
 VulkanRender::VulkanRender() : IRender()
 {
 }
@@ -83,8 +84,25 @@ void VulkanRender::InitSurface(int screenWidth, int screenHeight)
 	vector<IShader> shaders = vector<IShader>();
 	shaders.push_back(vertexShader);
 	shaders.push_back(fragmentShader);
+	
+	vector<SimpleVertex> vertices = vector<SimpleVertex>();
+	vec2 vertex1 = glm::vec2(0.0f, -0.5f);
+	vec2 vertex2 = glm::vec2(.5f, 0.5f);
+	vec2 vertex3 = glm::vec2(-.5f, .5f);
+	SimpleVertex vertex1D = SimpleVertex(vertex1);
+	SimpleVertex vertex2D = SimpleVertex(vertex2);
+	SimpleVertex vertex3D = SimpleVertex(vertex3);
+	vertices.push_back(vertex1D);
+	vertices.push_back(vertex2D);
+	vertices.push_back(vertex3D);
 
-	_framebuffer = new IFramebuffer(_device, shaders, *_commandPool, _swapchainExtent, surfaceCapabilities, _surface, _gpus, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex);
+	IMesh<SimpleVertex> mesh = IMesh<SimpleVertex>(vertices);
+
+	auto vertexBuffer = VertexBuffer(&_device, _gpus[0], BufferUsageFlag::VertexBuffer,
+	                                                   SharingMode::Exclusive, mesh);
+	vertexBuffer.Fill();
+	_framebuffer = new IFramebuffer(_device, shaders, *_commandPool, _swapchainExtent, surfaceCapabilities, _surface,
+		_gpus, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex, vertexBuffer);
 }
 
 

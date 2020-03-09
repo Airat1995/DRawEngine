@@ -1,8 +1,12 @@
 #include "IFramebuffer.h"
+#include "SimpleVertex.h"
+#include "IBuffer.h"
+#include "VertexBuffer.h"
+
 
 IFramebuffer::IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPool& commandPool, VkExtent2D swapchainExtent, VkSurfaceCapabilitiesKHR surfaceCapabilities,
 	VkSurfaceKHR surface, vector<VkPhysicalDevice>& gpus, uint32_t graphicsQueueFamilyIndex,
-	uint32_t presentQueueFamilyIndex) :_device(device), _commandPool(commandPool)
+	uint32_t presentQueueFamilyIndex, VertexBuffer& buffer) :_device(device), _commandPool(commandPool), _drawBuffer(buffer)
 {
 
 	CreateQueues(device, graphicsQueueFamilyIndex, presentQueueFamilyIndex);
@@ -11,7 +15,8 @@ IFramebuffer::IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPo
 	for (auto swapchain : _swapchain->SwapchainBuffers())
 		commandPool.AddCommandBuffer();
 
-	_pipeline = new IPipeline(_device, shaders, _swapchain->SwapchainInfo()->imageFormat, &swapchainExtent);
+	_pipeline = new IPipeline(_device, shaders, _swapchain->SwapchainInfo()->imageFormat, &swapchainExtent,
+		buffer.BindingDescriptions(), buffer.AttributeDescriptions());
 	vector<SwapchainBuffer> swapchainBuffers = _swapchain->SwapchainBuffers();
 	_swapChainFramebuffers = new vector<VkFramebuffer>(0);
 	for (auto swapchainBuffer : swapchainBuffers)
@@ -37,6 +42,7 @@ IFramebuffer::IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPo
 			throw runtime_error("Unable to create framebuffer");
 		_swapChainFramebuffers->push_back(framebuffer);
 	}
+
 
 	int commandBufferCount = commandPool.CommandBufferCount();
 	for (size_t i = 0; i < commandBufferCount; i++)
@@ -66,7 +72,11 @@ void IFramebuffer::BeginRenderPass(int index, ICommandBuffer& commandBuffer)
 	commandBuffer.BeginCommandBuffer();
 	vkCmdBeginRenderPass(commandBuffer.CommandBuffer(), &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	vkCmdBindPipeline(commandBuffer.CommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline->Pipeline());
-	//vkCmdBindPipeline(*commandBuffer->CommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, );
+
+	VkBuffer vertexBuffers[] = { _drawBuffer.Buffer() };
+	VkDeviceSize offsets[] = { 0 };
+
+	vkCmdBindVertexBuffers(commandBuffer.CommandBuffer(), 0, 1, vertexBuffers, offsets);
 	vkCmdDraw(commandBuffer.CommandBuffer(), 3, 1, 0, 0);
 	vkCmdEndRenderPass(commandBuffer.CommandBuffer());
 	if (vkEndCommandBuffer(commandBuffer.CommandBuffer()) != VK_SUCCESS) {

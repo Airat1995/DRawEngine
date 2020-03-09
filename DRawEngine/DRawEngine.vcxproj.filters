@@ -82,8 +82,8 @@
     <ClCompile Include="IShader.cpp">
       <Filter>Source Files\Render\Data</Filter>
     </ClCompile>
-    <ClCompile Include="IMesh.cpp">
-      <Filter>Source Files\Core</Filter>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -134,6 +134,15 @@
     </ClInclude>
     <ClInclude Include="IMesh.h">
       <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleVertex.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

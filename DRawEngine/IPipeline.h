@@ -10,7 +10,7 @@ using namespace std;
 class IPipeline
 {
 public:
-	IPipeline(VkDevice device, vector<IShader>& shaders, VkFormat imageFormat, VkExtent2D* extent);
+	IPipeline(VkDevice device, vector<IShader>& shaders, VkFormat imageFormat, VkExtent2D* extent, vector<VkVertexInputBindingDescription>& bindingDescriptions, vector<VkVertexInputAttributeDescription>& attributeDescriptions);
 
 	VkRenderPass* RenderPass();
 

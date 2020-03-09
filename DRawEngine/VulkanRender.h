@@ -15,6 +15,10 @@
 #include "IRender.h"
 #include "IImage.h"
 #include "IFramebuffer.h"
+#include "IBuffer.h"
+#include "SimpleVertex.h"
+#include "IMesh.h"
+#include "VertexBuffer.h"
 
 
 using namespace std;
@@ -91,10 +95,6 @@ protected:
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData) {
-		//cerr << "\n" << endl;
-		//cerr << "" << "validation layer: " << pCallbackData->pMessage << std::endl;
-
-		//return VK_FALSE;
 
 		std::ofstream outfile;
 		outfile.open("log.txt", std::ios_base::app); // append instead of overwrite
