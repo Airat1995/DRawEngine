@@ -13,8 +13,12 @@ public:
 
 	virtual void const* VerticesData() = 0;
 
+	virtual void const* IndicesData() = 0;
+
 	virtual int RequiredBufferSize() = 0;
 
 	virtual int VertexSize() = 0;
+
+	virtual int IndexSize() = 0;
 };
 

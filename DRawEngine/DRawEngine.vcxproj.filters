@@ -144,5 +144,8 @@
     <ClInclude Include="Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IndexedVertexBuffer.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -132,6 +132,10 @@ IPipeline::IPipeline(VkDevice device, vector<IShader>& shaders, VkFormat imageFo
 	pipelineInfo.pColorBlendState = &colorBlending;
 	pipelineInfo.layout = _pipelineLayout;
 	pipelineInfo.renderPass = _renderPass;
+	pipelineInfo.pTessellationState = nullptr;
+	pipelineInfo.pDynamicState = nullptr;
+	pipelineInfo.pDepthStencilState = nullptr;
+	pipelineInfo.basePipelineHandle = nullptr;
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = nullptr;
 

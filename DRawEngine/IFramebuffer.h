@@ -6,6 +6,7 @@
 #include "IShader.h"
 #include "IVertex.h"
 #include "IBuffer.h"
+#include "IndexedVertexBuffer.h"
 #include <glm/vec2.hpp>
 
 class VertexBuffer;
@@ -17,7 +18,7 @@ public:
 	explicit IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPool& commandPool, VkExtent2D swapchainExtent,
 	             VkSurfaceCapabilitiesKHR surfaceCapabilities, VkSurfaceKHR surface, vector<VkPhysicalDevice>& gpus,
 	             uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex,
-	             VertexBuffer& vertexBuffer);
+				 IndexedVertexBuffer& vertexBuffer);
 	VkFramebuffer* Framebuffer(int index);
 
 	void CreateQueues(VkDevice device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex);
@@ -44,6 +45,6 @@ private:
 	
 	ICommandPool& _commandPool;
 
-	VertexBuffer& _drawBuffer;
+	IndexedVertexBuffer& _drawBuffer;
 };
 

@@ -92,7 +92,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalDependencies>$(ProjectDir)libs\$(PlatformTarget)\vulkan-1.lib;$(ProjectDir)libs\$(PlatformTarget)\SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib32;$(VULKAN_SDK)\Third-Party\Bin32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
@@ -110,7 +110,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalDependencies>$(ProjectDir)libs\$(PlatformTarget)\vulkan-1.lib;$(ProjectDir)libs\$(PlatformTarget)\SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib;$(VULKAN_SDK)\Third-Party\Bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
@@ -185,6 +185,7 @@
     <ClInclude Include="IFramebuffer.h" />
     <ClInclude Include="IImage.h" />
     <ClInclude Include="IMesh.h" />
+    <ClInclude Include="IndexedVertexBuffer.h" />
     <ClInclude Include="IPipeline.h" />
     <ClInclude Include="IRender.h" />
     <ClInclude Include="IShader.h" />

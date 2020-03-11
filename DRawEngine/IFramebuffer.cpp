@@ -1,22 +1,21 @@
 #include "IFramebuffer.h"
 #include "SimpleVertex.h"
 #include "IBuffer.h"
-#include "VertexBuffer.h"
+#include <thread>
 
 
 IFramebuffer::IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPool& commandPool, VkExtent2D swapchainExtent, VkSurfaceCapabilitiesKHR surfaceCapabilities,
 	VkSurfaceKHR surface, vector<VkPhysicalDevice>& gpus, uint32_t graphicsQueueFamilyIndex,
-	uint32_t presentQueueFamilyIndex, VertexBuffer& buffer) :_device(device), _commandPool(commandPool), _drawBuffer(buffer)
+	uint32_t presentQueueFamilyIndex, IndexedVertexBuffer& buffer) :_device(device), _commandPool(commandPool), _drawBuffer(buffer)
 {
-
 	CreateQueues(device, graphicsQueueFamilyIndex, presentQueueFamilyIndex);
 
 	_swapchain = new ISwapchain(_device, swapchainExtent, surfaceCapabilities, surface, gpus, graphicsQueueFamilyIndex, presentQueueFamilyIndex);
 	for (auto swapchain : _swapchain->SwapchainBuffers())
 		commandPool.AddCommandBuffer();
-
-	_pipeline = new IPipeline(_device, shaders, _swapchain->SwapchainInfo()->imageFormat, &swapchainExtent,
+	_pipeline = new IPipeline(_device, shaders, VK_FORMAT_B8G8R8A8_UNORM, &swapchainExtent,
 		buffer.BindingDescriptions(), buffer.AttributeDescriptions());
+
 	vector<SwapchainBuffer> swapchainBuffers = _swapchain->SwapchainBuffers();
 	_swapChainFramebuffers = new vector<VkFramebuffer>(0);
 	for (auto swapchainBuffer : swapchainBuffers)
@@ -26,7 +25,7 @@ IFramebuffer::IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPo
 		};
 
 		VkFramebufferCreateInfo framebufferCreateInfo;
-		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;		
+		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferCreateInfo.renderPass = *_pipeline->RenderPass();
 		framebufferCreateInfo.attachmentCount = 1;
 		framebufferCreateInfo.pAttachments = attachments;
@@ -43,13 +42,11 @@ IFramebuffer::IFramebuffer(VkDevice device, vector<IShader>& shaders, ICommandPo
 		_swapChainFramebuffers->push_back(framebuffer);
 	}
 
-
-	int commandBufferCount = commandPool.CommandBufferCount();
+	int commandBufferCount = _commandPool.CommandBufferCount();
 	for (size_t i = 0; i < commandBufferCount; i++)
 	{
-		BeginRenderPass(i, commandPool.CommandBuffer(i));
+		BeginRenderPass(i, _commandPool.CommandBuffer(i));
 	}
-	
 }
 
 VkFramebuffer* IFramebuffer::Framebuffer(int index)
@@ -74,14 +71,16 @@ void IFramebuffer::BeginRenderPass(int index, ICommandBuffer& commandBuffer)
 	vkCmdBindPipeline(commandBuffer.CommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline->Pipeline());
 
 	VkBuffer vertexBuffers[] = { _drawBuffer.Buffer() };
+	VkBuffer indexBuffers[] = { _drawBuffer.IndexedBuffer() };
 	VkDeviceSize offsets[] = { 0 };
 
 	vkCmdBindVertexBuffers(commandBuffer.CommandBuffer(), 0, 1, vertexBuffers, offsets);
-	vkCmdDraw(commandBuffer.CommandBuffer(), 3, 1, 0, 0);
+	//vkCmdBindIndexBuffer(commandBuffer.CommandBuffer(), indexBuffers[0], 0, VK_INDEX_TYPE_UINT16);
+	vkCmdDraw(commandBuffer.CommandBuffer(), _drawBuffer.IndexesCount(), 1, 0, 0);
+	//vkCmdDrawIndexed(commandBuffer.CommandBuffer(), _drawBuffer.IndexesCount(), 1, 0, 0, 0)
 	vkCmdEndRenderPass(commandBuffer.CommandBuffer());
-	if (vkEndCommandBuffer(commandBuffer.CommandBuffer()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to record command buffer!");
-	}
+	if (vkEndCommandBuffer(commandBuffer.CommandBuffer()) != VK_SUCCESS) 
+		throw std::runtime_error("failed to record command buffer!");	
 }
 
 IFramebuffer::~IFramebuffer()

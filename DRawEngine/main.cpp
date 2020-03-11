@@ -54,9 +54,9 @@ int main()
 	SDL_Event event;
     while(stillRunning) 
 	{		
-		//SDL_PollEvent(&event);
-		//if (event.type == SDL_QUIT)
-		//	stillRunning = false;
+		SDL_PollEvent(&event);
+		if (event.type == SDL_QUIT)
+			stillRunning = false;
 		vulkanRender->DrawFrame();
     }
 //

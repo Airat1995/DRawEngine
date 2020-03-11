@@ -18,9 +18,19 @@ public:
 		_vertices = vector<Vertex>();
 	}
 
+	IMesh(vector<Vertex>& vertices, vector<uint16_t> indexes) : _vertices(vertices), _indexes(indexes)
+	{
+		_indexed = true;
+	}
+
 	void const* VerticesData()
 	{
 		return _vertices.data();
+	}
+
+	void const* IndicesData() override
+	{
+		return _indexes.data();
 	}
 
 	int RequiredBufferSize() override
@@ -31,6 +41,11 @@ public:
 	int VertexSize() override
 	{
 		return sizeof(Vertex);
+	}
+
+	int IndexSize() override
+	{
+		return _indexes.size();
 	}
 
 	vector<VkVertexInputBindingDescription>& BindingDescriptions() override
@@ -46,5 +61,10 @@ public:
 protected:
 
 	vector<Vertex> _vertices;
+
+	vector<uint16_t> _indexes;
+
+private:
+	bool _indexed = false;
 };
 

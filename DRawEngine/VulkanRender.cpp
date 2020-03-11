@@ -1,5 +1,5 @@
 #include "VulkanRender.h"
-
+#include "IndexedVertexBuffer.h"
 
 
 VulkanRender::VulkanRender() : IRender()
@@ -89,16 +89,22 @@ void VulkanRender::InitSurface(int screenWidth, int screenHeight)
 	vec2 vertex1 = glm::vec2(0.0f, -0.5f);
 	vec2 vertex2 = glm::vec2(.5f, 0.5f);
 	vec2 vertex3 = glm::vec2(-.5f, .5f);
+	vec2 vertex4 = glm::vec2(-.5f, -.5f);
 	SimpleVertex vertex1D = SimpleVertex(vertex1);
 	SimpleVertex vertex2D = SimpleVertex(vertex2);
 	SimpleVertex vertex3D = SimpleVertex(vertex3);
+	SimpleVertex vertex4D = SimpleVertex(vertex4);
+	const std::vector<uint16_t> indices = {
+	0, 1, 2, 2, 3, 0
+	};
 	vertices.push_back(vertex1D);
 	vertices.push_back(vertex2D);
 	vertices.push_back(vertex3D);
+	vertices.push_back(vertex4D);
 
-	IMesh<SimpleVertex> mesh = IMesh<SimpleVertex>(vertices);
+	IMesh<SimpleVertex> mesh = IMesh<SimpleVertex>(vertices, indices);
 
-	auto vertexBuffer = VertexBuffer(&_device, _gpus[0], BufferUsageFlag::VertexBuffer,
+	auto vertexBuffer = IndexedVertexBuffer(&_device, _gpus[0], BufferUsageFlag::VertexBuffer,
 	                                                   SharingMode::Exclusive, mesh);
 	vertexBuffer.Fill();
 	_framebuffer = new IFramebuffer(_device, shaders, *_commandPool, _swapchainExtent, surfaceCapabilities, _surface,
