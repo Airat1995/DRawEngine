@@ -1,41 +1,108 @@
 #pragma once
-#include <vector>
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-
-#include "IShader.h"
+#include "IMesh.h"
 #include "IVertex.h"
-#include "VertexAttributeInfo.h"
-#include "VertexBindingInfo.h"
 
 using namespace std;
-using namespace glm;
 
-class Mesh
+template
+<
+	typename Vertex,
+	typename VertexDataT,
+	typename = enable_if<is_base_of_v<VertexData, VertexDataT>>,
+	typename = enable_if<is_base_of_v<IVertex<VertexDataT>, Vertex>>
+>
+class Mesh : public IMesh
 {
 public:
-			
-	virtual const void* VerticesData() = 0;
+	Mesh(const Mesh&) = default;               // Copy constructor
+	Mesh(Mesh&&) = default;                    // Move constructor
+	Mesh& operator=(const Mesh&) = delete;  // Copy assignment operator
+	Mesh& operator=(Mesh&&) = delete;       // Move assignment operator
+	virtual ~Mesh() = default;
 
-	virtual void const* IndicesData() = 0;
+	Mesh(vector<Vertex>& vertices, vector<IShader>& shaders) : IMesh(), _vertices(vertices)
+	{
+		_shaders = shaders;
+		vertices.at(0).FillVertexInfo();
+		FillVertexDatas();
+	}
 
-	virtual int VertexCount() = 0;
+	Mesh(): IMesh()
+	{
+		_vertices = vector<Vertex>();		
+	}
 
-	virtual int RequiredBufferSize() = 0;
+	Mesh(vector<Vertex>& vertices, vector<uint16_t> indexes) : IMesh(), _vertices(vertices),
+	                                                            _indexes(indexes)
+	{
+		_indexed = true;
+		vertices.at(0).FillVertexInfo();
+		FillVertexDatas();
+	}
 
-	virtual int VertexSize() = 0;
+	void FillVertexDatas()
+	{
+		_vertexDatas = vector<VertexDataT>();
+		for (size_t index = 0; index < _vertices.size(); ++index)
+		{
+			_vertexDatas.push_back(_vertices[index].GetVertexData());
+		}
+	}
 
-	virtual int IndexSize() = 0;
+	const void* VerticesData() override
+	{
+		return _vertexDatas.data();
+	}
 
-	virtual vector<VertexAttributeInfo> VertexInfo() = 0;
-	
-	virtual vector<VertexBindingInfo> GetVertexBindingInfo() = 0;	
+	int VertexCount() override
+	{
+		return _vertices.size();
+	}
 
-	virtual vector<IShader>& Shaders() = 0;
-	
+	void const* IndicesData() override
+	{
+		return _indexes.data();
+	}
+
+	int RequiredBufferSize() override
+	{
+		return _vertices[0].VertexSize() * _vertexDatas.size();
+	}
+
+	int VertexSize() override
+	{
+		return sizeof(Vertex);
+	}
+
+	int IndexSize() override
+	{
+		return _indexes.size();
+	}
+
+	vector<VertexAttributeInfo> VertexInfo() override
+	{
+		return _vertices.at(0).GetVertexInfo();
+	}
+
+	vector<VertexBindingInfo> GetVertexBindingInfo() override
+	{
+		return _vertices.at(0).GetBindingInfo();
+	}
+
+	vector<IShader>& Shaders() override
+	{
+		return _shaders;
+	}
+
 protected:
-	vec3 position;
-	quat rotation;
 
-	vector<IShader>	_shaders;		
+	vector<Vertex> _vertices;
+
+	vector<uint16_t> _indexes;
+
+private:
+	bool _indexed = false;
+
+	vector<VertexDataT> _vertexDatas;
 };
+

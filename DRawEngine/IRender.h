@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Mesh.h"
+#include "IMesh.h"
 #include <vector>
 
 using namespace std;
@@ -14,9 +14,9 @@ public:
 
 	virtual void Init(vector<const char*>* extensions) = 0;
 
-	virtual void AddMesh(Mesh* mesh) = 0;
+	virtual void AddMesh(IMesh* mesh) = 0;
 
-	virtual void RemoveMesh(Mesh* mesh) = 0;
+	virtual void RemoveMesh(IMesh* mesh) = 0;
 
 	virtual void DrawFrame() = 0;
 };

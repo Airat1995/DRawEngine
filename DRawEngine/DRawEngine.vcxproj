@@ -180,7 +180,7 @@
     <ClCompile Include="ISwapchain.cpp" />
     <ClCompile Include="IWindow.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="IMesh.cpp" />
     <ClCompile Include="SDLWindow.cpp" />
     <ClCompile Include="VulkanRender.cpp" />
     <ClCompile Include="VulkanRenderpass.cpp" />
@@ -199,7 +199,7 @@
     <ClInclude Include="VulkanCommandPool.h" />
     <ClInclude Include="VulkanFramebuffer.h" />
     <ClInclude Include="IImage.h" />
-    <ClInclude Include="IMesh.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="IndexedVertexBuffer.h" />
     <ClInclude Include="IPipeline.h" />
     <ClInclude Include="VulkanMeshData.h" />
@@ -210,7 +210,7 @@
     <ClInclude Include="ISwapchain.h" />
     <ClInclude Include="IVertex.h" />
     <ClInclude Include="IWindow.h" />
-    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="IMesh.h" />
     <ClInclude Include="SDLWindow.h" />
     <ClInclude Include="SimpleVertex.h" />
     <ClInclude Include="SwapchainBuffer.h" />

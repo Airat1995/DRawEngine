@@ -6,7 +6,7 @@
 #include "IRender.h"
 #include "VulkanPipeline.h"
 #include "VulkanCommandBuffer.h"
-#include "Mesh.h"
+#include "IMesh.h"
 #include "ISwapchain.h"
 #include "VulkanCommandPool.h"
 #include "VulkanFramebuffer.h"
@@ -33,9 +33,9 @@ public:
 
 	void DrawFrame() override;
 
-	void AddMesh(Mesh* mesh) override;
+	void AddMesh(IMesh* mesh) override;
 
-	void RemoveMesh(Mesh* mesh) override;
+	void RemoveMesh(IMesh* mesh) override;
 
 	VkDevice& Device();
 

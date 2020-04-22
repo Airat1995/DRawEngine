@@ -189,7 +189,7 @@ void VulkanPipeline::CreateBuffers(vector<VulkanMeshData>& meshData)
 {
 	for (auto& data : meshData)
 	{
-		for (Mesh* mesh : data.Meshes())
+		for (IMesh* mesh : data.Meshes())
 		{			
 			VertexBuffer vertexBuffer = VertexBuffer(_device, _physical, mesh->RequiredBufferSize(), mesh->VertexCount());			
 			vertexBuffer.Fill(mesh->VerticesData());

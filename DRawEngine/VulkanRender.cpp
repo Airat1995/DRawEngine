@@ -132,10 +132,10 @@ void VulkanRender::DrawFrame()
 	}	
 }
 
-void VulkanRender::AddMesh(Mesh* mesh)
+void VulkanRender::AddMesh(IMesh* mesh)
 {
 	vector<VulkanMeshData> meshData = vector<VulkanMeshData>();
-	vector<Mesh*> meshes = vector<Mesh*>();
+	vector<IMesh*> meshes = vector<IMesh*>();
 	meshes.push_back(mesh);
 	VulkanMeshData currentMeshData = VulkanMeshData(meshes);
 	meshData.push_back(currentMeshData);
@@ -143,7 +143,7 @@ void VulkanRender::AddMesh(Mesh* mesh)
 	_pipelines.push_back(pipeline);
 }
 
-void VulkanRender::RemoveMesh(Mesh* mesh)
+void VulkanRender::RemoveMesh(IMesh* mesh)
 {
 }
 

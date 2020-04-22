@@ -103,11 +103,11 @@
     <ClCompile Include="VulkanShader.cpp">
       <Filter>Source Files\Render\Data</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files\Render\Data</Filter>
-    </ClCompile>
     <ClCompile Include="VertexBindingInfo.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IMesh.cpp">
+      <Filter>Source Files\Render\Data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -139,9 +139,6 @@
       <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
     <ClInclude Include="IImage.h">
-      <Filter>Header Files\Render\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="IMesh.h">
       <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
     <ClInclude Include="SimpleVertex.h">
@@ -195,14 +192,17 @@
     <ClInclude Include="IShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files\Render\Data</Filter>
-    </ClInclude>
     <ClInclude Include="VertexAttributeInfo.h">
       <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
     <ClInclude Include="VertexBindingInfo.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="IMesh.h">
+      <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

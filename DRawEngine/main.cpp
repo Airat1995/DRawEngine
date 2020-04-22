@@ -43,12 +43,12 @@ Create and destroy a Vulkan surface on an SDL window.
 #include <iostream>
 #include <vector>
 
-#include "IMesh.h"
+#include "Mesh.h"
 #include "SDLWindow.h"
 #include "SimpleVertex.h"
 #include "VulkanRender.h"
 
-IMesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData> CreateMesh()
+Mesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData> CreateMesh()
 {
 	vector<SimpleVertex<AlphaColoredVertexData>> vertices = vector<SimpleVertex<AlphaColoredVertexData>>();
 	AlphaColoredVertexData firstVertex = AlphaColoredVertexData();
@@ -82,11 +82,11 @@ IMesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData> CreateMesh()
 	shaders.push_back(vertexShader);
 	shaders.push_back(fragShader);
 
-	IMesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData> basicMesh = IMesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData>(vertices, shaders);
+	Mesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData> basicMesh = Mesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData>(vertices, shaders);
 	return basicMesh;
 }
 
-IMesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData> CreateMesh1()
+Mesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData> CreateMesh1()
 {
 	vector<SimpleVertex1<ColoredVertexData>> vertices = vector<SimpleVertex1<ColoredVertexData>>();
 	ColoredVertexData firstVertex = ColoredVertexData();
@@ -117,7 +117,7 @@ IMesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData> CreateMesh1()
 	shaders.push_back(vertexShader);
 	shaders.push_back(fragShader);
 
-	IMesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData> basicMesh = IMesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData>(vertices, shaders);
+	Mesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData> basicMesh = Mesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData>(vertices, shaders);
 	return basicMesh;
 }
 
@@ -126,7 +126,7 @@ int main()
 	IRender* vulkanRender = new VulkanRender();
 	IWindow* window = new SDLWindow(1920, 1080, "some name", WindowType::Windowed, vulkanRender);
 
-	IMesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData> basicMesh = CreateMesh();
+	Mesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData> basicMesh = CreateMesh();
 	auto mesh1 = CreateMesh1();
 	vulkanRender->AddMesh(&basicMesh);
 	vulkanRender->AddMesh(&mesh1);

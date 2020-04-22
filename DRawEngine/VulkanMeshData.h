@@ -1,6 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.h>
-#include "Mesh.h"
+#include "IMesh.h"
 #include "VertexBuffer.h"
 #include "VulkanShader.h"
 
@@ -9,22 +9,22 @@ using namespace std;
 class VulkanMeshData
 {
 public:
-	VulkanMeshData(vector<Mesh*>& meshes);
+	VulkanMeshData(vector<IMesh*>& meshes);
 
 	vector<VkVertexInputBindingDescription> BindingDescriptions();
 
 	vector<VkVertexInputAttributeDescription> AttributeDescriptions();
 
-	void AddMesh(Mesh* mesh);
+	void AddMesh(IMesh* mesh);
 
-	vector<Mesh*>& Meshes();
+	vector<IMesh*>& Meshes();
 
 private:
 	vector<VkVertexInputBindingDescription> _bindingDescriptions;
 
 	vector<VkVertexInputAttributeDescription> _attributeDescriptions;
 
-	vector<Mesh*>& _meshes;
+	vector<IMesh*>& _meshes;
 	
 	inline VkVertexInputAttributeDescription CreateAttributeDescription(
 		uint32_t binding,
