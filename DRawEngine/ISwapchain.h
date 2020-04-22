@@ -16,19 +16,24 @@ public:
 	           VkSurfaceKHR surface, vector<VkPhysicalDevice>& gpus, uint32_t graphicsQueueFamilyIndex,
 	           uint32_t presentQueueFamilyIndex);
 
-	VkSwapchainCreateInfoKHR* SwapchainInfo();
+	VkSwapchainCreateInfoKHR SwapchainInfo();
 
 	vector<SwapchainBuffer>& SwapchainBuffers();
 
 	~ISwapchain();
 
-	VkSemaphore& ImageAvailableSemaphore();
+	VkSemaphore ImageAvailableSemaphore();
 
-	VkSemaphore& RenderFinishSemaphore();
+	VkSemaphore RenderFinishSemaphore();
 
-	VkSwapchainKHR& Swapchain();
+	VkSwapchainKHR Swapchain();
+		
+	void RecreateSwapchain();
 
 protected:
+
+	void DestroySwapchain();
+
 	void CreateSwapchainAndImages(VkDevice device, VkSwapchainCreateInfoKHR swapchainInfo);
 
 	VkSurfaceTransformFlagBitsKHR GetPresentMode(VkSurfaceCapabilitiesKHR surfaceCapabilities);
@@ -41,7 +46,9 @@ protected:
 
 	vector<SwapchainBuffer> _swapchainBuffers;
 
-	VkSwapchainKHR _swapChain = nullptr;
+	VkSwapchainKHR _swapChain;
+
+	VkSwapchainKHR _swapChainRebuild;
 
 	VkSwapchainCreateInfoKHR _swapchainInfo = {};
 

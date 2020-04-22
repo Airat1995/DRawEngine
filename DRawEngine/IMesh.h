@@ -1,31 +1,62 @@
 #pragma once
-#include <vector>
 #include "Mesh.h"
+#include "IVertex.h"
 
 using namespace std;
 
-template<typename Vertex,
-		 typename = enable_if<is_base_of_v<IVertex, Vertex>>>
+template
+<
+	typename Vertex,
+	typename VertexDataT,
+	typename = enable_if<is_base_of_v<VertexData, VertexDataT>>,
+	typename = enable_if<is_base_of_v<IVertex<VertexDataT>, Vertex>>
+>
 class IMesh : public Mesh
 {
 public:
-	IMesh(vector<Vertex>& vertices) : _vertices(vertices)
+	IMesh(const IMesh&) = default;               // Copy constructor
+	IMesh(IMesh&&) = default;                    // Move constructor
+	IMesh& operator=(const IMesh&) = delete;  // Copy assignment operator
+	IMesh& operator=(IMesh&&) = delete;       // Move assignment operator
+	virtual ~IMesh() = default;
+
+	IMesh(vector<Vertex>& vertices, vector<IShader>& shaders) : Mesh(), _vertices(vertices)
 	{
+		_shaders = shaders;
+		vertices.at(0).FillVertexInfo();
+		FillVertexDatas();
 	}
 
-	IMesh()
+	IMesh(): Mesh()
 	{
-		_vertices = vector<Vertex>();
+		_vertices = vector<Vertex>();		
 	}
 
-	IMesh(vector<Vertex>& vertices, vector<uint16_t> indexes) : _vertices(vertices), _indexes(indexes)
+	IMesh(vector<Vertex>& vertices, vector<uint16_t> indexes) : Mesh(), _vertices(vertices),
+	                                                            _indexes(indexes)
 	{
 		_indexed = true;
+		vertices.at(0).FillVertexInfo();
+		FillVertexDatas();
 	}
 
-	void const* VerticesData()
+	void FillVertexDatas()
 	{
-		return _vertices.data();
+		_vertexDatas = vector<VertexDataT>();
+		for (size_t index = 0; index < _vertices.size(); ++index)
+		{
+			_vertexDatas.push_back(_vertices[index].GetVertexData());
+		}
+	}
+
+	const void* VerticesData() override
+	{
+		return _vertexDatas.data();
+	}
+
+	int VertexCount() override
+	{
+		return _vertices.size();
 	}
 
 	void const* IndicesData() override
@@ -35,7 +66,7 @@ public:
 
 	int RequiredBufferSize() override
 	{
-		return sizeof(Vertex) * _vertices.size();
+		return _vertices[0].VertexSize() * _vertexDatas.size();
 	}
 
 	int VertexSize() override
@@ -48,14 +79,19 @@ public:
 		return _indexes.size();
 	}
 
-	vector<VkVertexInputBindingDescription>& BindingDescriptions() override
+	vector<VertexAttributeInfo> VertexInfo() override
 	{
-		return  Vertex::BindingDescriptions();
+		return _vertices.at(0).GetVertexInfo();
 	}
 
-	vector<VkVertexInputAttributeDescription>& AttributeDescriptions() override
+	vector<VertexBindingInfo> GetVertexBindingInfo() override
 	{
-		return Vertex::AttributeDescriptions();
+		return _vertices.at(0).GetBindingInfo();
+	}
+
+	vector<IShader>& Shaders() override
+	{
+		return _shaders;
 	}
 
 protected:
@@ -66,5 +102,7 @@ protected:
 
 private:
 	bool _indexed = false;
+
+	vector<VertexDataT> _vertexDatas;
 };
 

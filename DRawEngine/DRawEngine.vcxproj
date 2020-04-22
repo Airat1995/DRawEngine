@@ -23,7 +23,7 @@
     <ProjectGuid>{5A4234BA-9B20-4CD4-B9F0-D7BC800EDB93}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>DRawEngine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -88,7 +88,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -106,7 +106,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -164,31 +164,49 @@
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="IBuffer.cpp" />
     <ClCompile Include="ICommandBuffer.cpp" />
-    <ClCompile Include="ICommandPool.cpp" />
     <ClCompile Include="IFramebuffer.cpp" />
+    <ClCompile Include="VertexBindingInfo.cpp" />
+    <ClCompile Include="VulkanCommandBuffer.cpp" />
+    <ClCompile Include="ICommandPool.cpp" />
+    <ClCompile Include="VulkanCommandPool.cpp" />
+    <ClCompile Include="VulkanFramebuffer.cpp" />
     <ClCompile Include="IImage.cpp" />
     <ClCompile Include="IPipeline.cpp" />
+    <ClCompile Include="VulkanMeshData.cpp" />
+    <ClCompile Include="VulkanPipeline.cpp" />
     <ClCompile Include="IRender.cpp" />
-    <ClCompile Include="IShader.cpp" />
+    <ClCompile Include="IRenderpass.cpp" />
+    <ClCompile Include="VulkanShader.cpp" />
     <ClCompile Include="ISwapchain.cpp" />
     <ClCompile Include="IWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="SDLWindow.cpp" />
     <ClCompile Include="VulkanRender.cpp" />
+    <ClCompile Include="VulkanRenderpass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileReader.h" />
+    <ClInclude Include="Format.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="ICommandBuffer.h" />
-    <ClInclude Include="ICommandPool.h" />
     <ClInclude Include="IFramebuffer.h" />
+    <ClInclude Include="IShader.h" />
+    <ClInclude Include="VertexAttributeInfo.h" />
+    <ClInclude Include="VertexBindingInfo.h" />
+    <ClInclude Include="VulkanCommandBuffer.h" />
+    <ClInclude Include="ICommandPool.h" />
+    <ClInclude Include="VulkanCommandPool.h" />
+    <ClInclude Include="VulkanFramebuffer.h" />
     <ClInclude Include="IImage.h" />
     <ClInclude Include="IMesh.h" />
     <ClInclude Include="IndexedVertexBuffer.h" />
     <ClInclude Include="IPipeline.h" />
+    <ClInclude Include="VulkanMeshData.h" />
+    <ClInclude Include="VulkanPipeline.h" />
     <ClInclude Include="IRender.h" />
-    <ClInclude Include="IShader.h" />
+    <ClInclude Include="IRenderpass.h" />
+    <ClInclude Include="VulkanShader.h" />
     <ClInclude Include="ISwapchain.h" />
     <ClInclude Include="IVertex.h" />
     <ClInclude Include="IWindow.h" />
@@ -198,6 +216,7 @@
     <ClInclude Include="SwapchainBuffer.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VulkanRender.h" />
+    <ClInclude Include="VulkanRenderpass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

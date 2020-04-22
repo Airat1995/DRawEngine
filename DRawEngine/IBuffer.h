@@ -37,7 +37,7 @@ public:
 		_bufferDescriptorInfo(),
 		_device(device),
 		_data(data)
-	{
+	{	
 		_bufferInfo = {};
 		_bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		_bufferInfo.pNext = nullptr;

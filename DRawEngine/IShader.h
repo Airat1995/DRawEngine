@@ -1,9 +1,5 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
-#include <iostream>
 #include "FileReader.h"
-
-using namespace  std;
 
 enum class ShaderType
 {
@@ -19,27 +15,47 @@ enum class ShaderType
 	Mesh = 0x00000080,
 };
 
-
 class IShader
 {
-public:	
-	explicit IShader(VkDevice device, ShaderType shaderType, string& shaderLocation, string& name);
+public:
 
-	virtual ~IShader();
+	IShader(string& location, string& name, ShaderType shaderType)
+	{
+		_shaderLocation = location;
+		_name = name;
+		FileReader reader = FileReader();
+		_shaderData = reader.Read(location);		
+		_shaderType = shaderType;
+	}
 
-	void DestroyShader();
+	vector<char>& ShaderData()
+	{
+		return _shaderData;
+	}
 
-	VkPipelineShaderStageCreateInfo GetShaderStageInfo();
+	ShaderType GetShaderType()
+	{
+		return _shaderType;
+	}
 
+	string& Name()
+	{
+		return _name;
+	}
+
+	string& ShaderLocation()
+	{
+		return _shaderLocation;
+	}
+	
 protected:
-	VkShaderModule _shaderModule{};
 
-	VkPipelineShaderStageCreateInfo _pipelineShader{};
-		
-	VkDevice _device;
+	string _shaderLocation;
 
-private:
-	void CreatePipelineShaderStageCreateInfo(ShaderType shaderType, string& moduleName);
+	string _name;
 
-	bool CreateShaderModule(VkDevice device, vector<char>& fileData);
+	vector<char> _shaderData;
+
+	ShaderType _shaderType;
 };
+

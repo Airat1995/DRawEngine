@@ -25,8 +25,6 @@ SDLWindow::SDLWindow(int width, int height, const string& name, WindowType windo
 	SDL_Vulkan_CreateSurface(_window, vulkanInstance->GetInstance(), vulkanInstance->GetSurface());
 	vulkanInstance->InitSurface(width, height);
 	vulkanInstance->CreateDepthBuffer();
-	vulkanInstance->CreateBuffer();
-
 }
 
 vector<const char*> SDLWindow::GetExtensions() const

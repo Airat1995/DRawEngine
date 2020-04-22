@@ -1,5 +1,5 @@
 #include "VulkanRender.h"
-#include "IndexedVertexBuffer.h"
+#include "VulkanFramebuffer.h"
 
 
 VulkanRender::VulkanRender() : IRender()
@@ -25,7 +25,6 @@ void VulkanRender::Init(vector<const char*>* extensions)
 
 VulkanRender::~VulkanRender()
 {
-	delete(_framebuffer);
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	vkDestroyDevice(_device, nullptr);
 	vkDestroyInstance(_instance, nullptr);
@@ -75,42 +74,21 @@ void VulkanRender::InitSurface(int screenWidth, int screenHeight)
 	}
 	else
 		_swapchainExtent = surfaceCapabilities.currentExtent;
+	_width = _swapchainExtent.width;
+	_height = _swapchainExtent.height;
+	_swapchain = new ISwapchain(_device, _swapchainExtent, surfaceCapabilities, _surface, _gpus, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex);
+	for (auto swapchain : _swapchain->SwapchainBuffers())
+		_commandPool->AddCommandBuffer();
 
-	std::string vertex = "C:\\Users\\airat\\source\\repos\\DRawEngine\\vert.spv";
-	std::string fragment = "C:\\Users\\airat\\source\\repos\\DRawEngine\\frag.spv";
-	std::string shaderName = "main";
-	auto vertexShader = IShader(_device, ShaderType::Vertex, vertex, shaderName);
-	auto fragmentShader = IShader(_device, ShaderType::Fragment, fragment, shaderName);
-	vector<IShader> shaders = vector<IShader>();
-	shaders.push_back(vertexShader);
-	shaders.push_back(fragmentShader);
+	_renderpass = new VulkanRenderpass(_device, _swapchain->SwapchainInfo().imageFormat);
+
+	//First init with empty pipelines
+	_pipelines = vector<VulkanPipeline>();
 	
-	vector<SimpleVertex> vertices = vector<SimpleVertex>();
-	vec2 vertex1 = glm::vec2(0.0f, -0.5f);
-	vec2 vertex2 = glm::vec2(.5f, 0.5f);
-	vec2 vertex3 = glm::vec2(-.5f, .5f);
-	vec2 vertex4 = glm::vec2(-.5f, -.5f);
-	SimpleVertex vertex1D = SimpleVertex(vertex1);
-	SimpleVertex vertex2D = SimpleVertex(vertex2);
-	SimpleVertex vertex3D = SimpleVertex(vertex3);
-	SimpleVertex vertex4D = SimpleVertex(vertex4);
-	const std::vector<uint16_t> indices = {
-	0, 1, 2, 2, 3, 0
-	};
-	vertices.push_back(vertex1D);
-	vertices.push_back(vertex2D);
-	vertices.push_back(vertex3D);
-	vertices.push_back(vertex4D);
 
-	IMesh<SimpleVertex> mesh = IMesh<SimpleVertex>(vertices, indices);
-
-	auto vertexBuffer = IndexedVertexBuffer(&_device, _gpus[0], BufferUsageFlag::VertexBuffer,
-	                                                   SharingMode::Exclusive, mesh);
-	vertexBuffer.Fill();
-	_framebuffer = new IFramebuffer(_device, shaders, *_commandPool, _swapchainExtent, surfaceCapabilities, _surface,
-		_gpus, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex, vertexBuffer);
+	_framebuffer = new VulkanFramebuffer(_device, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex, *_swapchain, *_renderpass, *_commandPool);
+	vector<VulkanMeshData> meshData = vector<VulkanMeshData>();
 }
-
 
 VkInstance VulkanRender::GetInstance() const
 {
@@ -128,15 +106,65 @@ void VulkanRender::CreateDepthBuffer()
 	                          _swapchainExtent.width, _swapchainExtent.height, VK_SAMPLE_COUNT_1_BIT);	
 }
 
-void VulkanRender::CreateBuffer()
-{
-	return;
-}
-
 void VulkanRender::DrawFrame()
 {
-	_framebuffer->DrawFrame();
-	vkDeviceWaitIdle(_device);
+	int frameBuffersCount = _framebuffer->FramebufferCount();
+	for (size_t frameBufferIndex = 0; frameBufferIndex < frameBuffersCount; frameBufferIndex++)
+	{		
+		int commandBuffersCount = _commandPool->CommandBufferCount();
+		for (size_t commandBufferIndex = 0; commandBufferIndex < commandBuffersCount; commandBufferIndex++)
+		{
+			_commandPool->CommandBuffer(commandBufferIndex).BeginCommandBuffer();
+			_renderpass->BeginRenderPass(_width, _height, *_framebuffer->Framebuffer(frameBufferIndex), 
+				_commandPool->CommandBuffer(commandBufferIndex).CommandBuffer());
+
+			for (auto&& pipeline : _pipelines)
+			{
+				pipeline.DrawFrame(_commandPool->CommandBuffer(commandBufferIndex).CommandBuffer());
+			}
+			
+			_renderpass->EndRenderPass(_commandPool->CommandBuffer(commandBufferIndex).CommandBuffer());
+			_commandPool->CommandBuffer(commandBufferIndex).EndCommandBuffer();
+		}
+		_framebuffer->DrawFrame();
+		vkDeviceWaitIdle(_device);
+		_commandPool->ResetCommandBuffers();
+	}	
+}
+
+void VulkanRender::AddMesh(Mesh* mesh)
+{
+	vector<VulkanMeshData> meshData = vector<VulkanMeshData>();
+	vector<Mesh*> meshes = vector<Mesh*>();
+	meshes.push_back(mesh);
+	VulkanMeshData currentMeshData = VulkanMeshData(meshes);
+	meshData.push_back(currentMeshData);
+	VulkanPipeline pipeline = VulkanPipeline(_device, _gpus[0], *_renderpass, meshData, _swapchain->SwapchainInfo().imageFormat, _swapchain->SwapchainInfo().imageExtent);
+	_pipelines.push_back(pipeline);
+}
+
+void VulkanRender::RemoveMesh(Mesh* mesh)
+{
+}
+
+VkDevice& VulkanRender::Device()
+{
+	return _device;
+}
+
+glm::uint32 VulkanRender::GraphicsQueueFamilyIndex()
+{
+	return _graphicsQueueFamilyIndex;
+}
+
+uint32_t VulkanRender::PresentQueueFamilyIndex()
+{
+	return _presentQueueFamilyIndex;
+}
+
+VkPhysicalDevice VulkanRender::Physical()
+{
+	return _gpus[0];
 }
 
 vector<const char*> VulkanRender::GetLayers()
@@ -196,7 +224,7 @@ void VulkanRender::CreateInstanceCreateInfo(VkApplicationInfo appInfo, vector<co
 
 void VulkanRender::CreateCommandPool(int queueFamilyIndex)
 {
-	_commandPool = new ICommandPool(_device, queueFamilyIndex);
+	_commandPool = new VulkanCommandPool(_device, queueFamilyIndex);
 }
 
 bool VulkanRender::IsDeviceSuitable(VkPhysicalDevice device)

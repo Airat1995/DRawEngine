@@ -1,24 +1,41 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
 #include <vector>
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+
+#include "IShader.h"
+#include "IVertex.h"
+#include "VertexAttributeInfo.h"
+#include "VertexBindingInfo.h"
 
 using namespace std;
+using namespace glm;
 
 class Mesh
 {
 public:
-	virtual vector<VkVertexInputBindingDescription>& BindingDescriptions() = 0;
-
-	virtual vector<VkVertexInputAttributeDescription>& AttributeDescriptions() = 0;
-
-	virtual void const* VerticesData() = 0;
+			
+	virtual const void* VerticesData() = 0;
 
 	virtual void const* IndicesData() = 0;
+
+	virtual int VertexCount() = 0;
 
 	virtual int RequiredBufferSize() = 0;
 
 	virtual int VertexSize() = 0;
 
 	virtual int IndexSize() = 0;
-};
 
+	virtual vector<VertexAttributeInfo> VertexInfo() = 0;
+	
+	virtual vector<VertexBindingInfo> GetVertexBindingInfo() = 0;	
+
+	virtual vector<IShader>& Shaders() = 0;
+	
+protected:
+	vec3 position;
+	quat rotation;
+
+	vector<IShader>	_shaders;		
+};

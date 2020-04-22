@@ -1,33 +1,40 @@
 #pragma once
-#include "IBuffer.h"
-#include "Mesh.h"
+#include <vulkan/vulkan.h>
+#include <iostream>
+
 #include "IVertex.h"
 
-class VertexBuffer : public IBuffer<IVertex>
+#define FENCE_TIMEOUT 1
+
+using namespace std;
+
+class VertexBuffer
 {
 public:
+	VertexBuffer(const VertexBuffer&) = default;               // Copy constructor
+	VertexBuffer(VertexBuffer&&) = default;                    // Move constructor
+	VertexBuffer& operator=(const VertexBuffer&) = default;  // Copy assignment operator
+	VertexBuffer& operator=(VertexBuffer&&) = default;       // Move assignment operator
+	virtual ~VertexBuffer() { }
 
-	VertexBuffer(VkDevice* device, VkPhysicalDevice physical, BufferUsageFlag usage, SharingMode sharingMode,
-		Mesh& mesh)
-		: IBuffer<IVertex>(device, physical, usage, sharingMode, nullptr),
-		  _mesh(mesh)
+	VertexBuffer(VkDevice device, VkPhysicalDevice physical, int bufferSize, int vertexCount) :_device(device), _physical(physical), _vertexCount(vertexCount)
 	{
 		_bufferInfo = {};
 		_bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		_bufferInfo.pNext = nullptr;
-		_bufferInfo.usage = static_cast<VkBufferUsageFlags>(usage);
-		_bufferInfo.size = mesh.RequiredBufferSize();
+		_bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		_bufferInfo.size = bufferSize;
 		_bufferInfo.queueFamilyIndexCount = 0;
 		_bufferInfo.pQueueFamilyIndices = nullptr;
-		_bufferInfo.sharingMode = static_cast<VkSharingMode>(sharingMode);
+		_bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		_bufferInfo.flags = 0;
-		VkResult result = vkCreateBuffer(*device, &_bufferInfo, nullptr, &_buffer);
+		VkResult result = vkCreateBuffer(_device, &_bufferInfo, nullptr, &_buffer);
 		if (result != VK_SUCCESS)
 			cerr << "Unable to create buffer!" << endl;
 
-		vkGetBufferMemoryRequirements(*device, _buffer, &_memoryReq);
+		vkGetBufferMemoryRequirements(_device, _buffer, &_memoryReq);
 		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(physical, &memProperties);
+		vkGetPhysicalDeviceMemoryProperties(_physical, &memProperties);
 
 		VkMemoryAllocateInfo allocInfo;
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -37,13 +44,13 @@ public:
 			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 		allocInfo.allocationSize = _memoryReq.size;
 
-		result = vkAllocateMemory(*device, &allocInfo, nullptr, &_memory);
+		result = vkAllocateMemory(_device, &allocInfo, nullptr, &_memory);
 		if (result != VK_SUCCESS)
 		{
 			cerr << "Unable to allocate memory!!" << endl;
 			return;
 		}
-		result = vkBindBufferMemory(*device, _buffer, _memory, 0);
+		result = vkBindBufferMemory(_device, _buffer, _memory, 0);
 		if (result != VK_SUCCESS)
 		{
 			cerr << "Unable to bind memory!" << endl;
@@ -51,32 +58,50 @@ public:
 		}
 	}
 
-	void Fill() override
+	virtual void Fill(const void* data)
 	{
-		VkResult result = vkMapMemory(*_device, _memory, 0, _memoryReq.size, 0, reinterpret_cast<void**>(&_dataPointer));
+		VkResult result = vkMapMemory(_device, _memory, 0, _memoryReq.size, 0, reinterpret_cast<void**>(&_dataPointer));
 		if (result != VK_SUCCESS)
 			cerr << "Unable to map memory!" << endl;
-		memcpy(_dataPointer, _mesh.VerticesData(), _bufferInfo.size);
-		vkUnmapMemory(*_device, _memory);
-
-		_bufferDescriptorInfo.buffer = _buffer;
-		_bufferDescriptorInfo.offset = 0;
-		_bufferDescriptorInfo.range = _mesh.VertexSize();
-
+		memcpy(_dataPointer, data, _bufferInfo.size);
+		vkUnmapMemory(_device, _memory);
 	}
 
-	vector<VkVertexInputBindingDescription>& BindingDescriptions()
+	VkBuffer& Buffer()
 	{
-		return _mesh.BindingDescriptions();
+		return _buffer;
 	}
 
-	vector<VkVertexInputAttributeDescription>& AttributeDescriptions()
+	int VertexCount()
 	{
-		return _mesh.AttributeDescriptions();
+		return _vertexCount;
 	}
-
 
 protected:
 
-	Mesh& _mesh;
+	VkBuffer _buffer;
+	VkDeviceMemory _memory;
+	VkDescriptorBufferInfo _bufferDescriptorInfo;
+	VkDevice _device;
+	VkPhysicalDevice _physical;
+	VkBufferCreateInfo _bufferInfo;
+	VkMemoryRequirements _memoryReq;
+
+	int _vertexCount;
+
+	uint8_t* _dataPointer = nullptr;
+
+	vector<vec2> _data;
+
+	static uint32_t FindMemoryType(uint32_t typeFilter, VkPhysicalDeviceMemoryProperties memoryProperties, VkMemoryPropertyFlags properties)
+	{
+		for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+		{
+			if ((typeFilter & (1 << i)) && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+			{
+				return i;
+			}
+		}
+		throw std::runtime_error("Unable to find suitable memory type!");
+	}
 };

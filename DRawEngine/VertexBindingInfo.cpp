@@ -1,0 +1,1 @@
+#include "VertexBindingInfo.h"

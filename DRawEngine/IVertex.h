@@ -1,29 +1,46 @@
 #pragma once
+#include <glm/glm.hpp>
+#include "VertexAttributeInfo.h"
+#include "VertexBindingInfo.h"
+
+using namespace std;
+using namespace glm;
+
+
+struct VertexData
+{
+	glm::vec2 position;
+};
+
+struct ColoredVertexData : VertexData
+{
+	glm::vec3 color;
+};
+
+struct AlphaColoredVertexData : ColoredVertexData
+{
+	float alpha;
+};
+
 
 /**
  * Base data description structure
  * MUST FIT _bindingDescriptions and _attributeDescriptions to properly work with vertex input buffer
  */
+template<typename  T>
 class IVertex
 {
 public:
-	IVertex()
-	{
-	}
+	virtual ~IVertex() = default;
 	
-	static vector<VkVertexInputBindingDescription>& BindingDescriptions()
-	{
-		return _bindingDescriptions;
-	}
+	virtual void FillVertexInfo() = 0;
 
-	static vector<VkVertexInputAttributeDescription>& AttributeDescriptions()
-	{
-		return _attributeDescriptions;
-	}
+	virtual vector<VertexAttributeInfo>& GetVertexInfo() = 0;
 
-protected:
-	inline static vector<VkVertexInputBindingDescription> _bindingDescriptions = vector<VkVertexInputBindingDescription>();
+	virtual vector<VertexBindingInfo>& GetBindingInfo() = 0;
 
-	inline static vector<VkVertexInputAttributeDescription> _attributeDescriptions = vector<VkVertexInputAttributeDescription>();
+	virtual int VertexSize() = 0;
+
+	virtual T& GetVertexData() = 0;	
 };
 

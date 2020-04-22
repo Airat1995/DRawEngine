@@ -1,28 +1,18 @@
 #pragma once
-#include <vector>
 #include <vulkan/vulkan.h>
-
-#include <glm/mat4x4.hpp> // glm::mat4
-#include <glm/vec3.hpp> // glm::vec3
-#include <glm/vec4.hpp> // glm::vec4
-
-#include <glm/ext/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale
-#include <glm/ext/matrix_clip_space.hpp> // glm::perspective
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <filesystem>
-
+#include <glm/fwd.hpp>
+#include <map>
 #include "IRender.h"
+#include "VulkanPipeline.h"
+#include "VulkanCommandBuffer.h"
+#include "Mesh.h"
+#include "ISwapchain.h"
+#include "VulkanCommandPool.h"
+#include "VulkanFramebuffer.h"
 #include "IImage.h"
-#include "IFramebuffer.h"
-#include "IBuffer.h"
-#include "SimpleVertex.h"
-#include "IMesh.h"
-#include "VertexBuffer.h"
-
 
 using namespace std;
-using namespace glm;
 
 class VulkanRender : public IRender
 {
@@ -41,10 +31,18 @@ public:
 
 	void CreateDepthBuffer();
 
-	void CreateBuffer();
-
 	void DrawFrame() override;
 
+	void AddMesh(Mesh* mesh) override;
+
+	void RemoveMesh(Mesh* mesh) override;
+
+	VkDevice& Device();
+
+	glm::uint32 GraphicsQueueFamilyIndex();
+
+	uint32_t PresentQueueFamilyIndex();
+	VkPhysicalDevice Physical();
 protected:
 	static std::vector<const char*> GetLayers();
 
@@ -74,7 +72,7 @@ protected:
 
 	VkSurfaceKHR _surface = nullptr;
 
-	ICommandPool* _commandPool;
+	VulkanCommandPool* _commandPool;
 
 	VkExtent2D _swapchainExtent;
 
@@ -88,7 +86,13 @@ protected:
 
 	IImage* _depthBuffer;
 
-	IFramebuffer* _framebuffer;
+	VulkanFramebuffer* _framebuffer;
+	
+	ISwapchain* _swapchain;
+	
+	vector<VulkanPipeline> _pipelines{};
+
+	VulkanRenderpass* _renderpass;
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -119,5 +123,9 @@ private:
 	static const uint32_t INCORRECT_WIDTH = 0xFFFFFFFF;
 
 	vector<const char*> _extensions;
+
+	int _width;
+
+	int _height;
 };
 

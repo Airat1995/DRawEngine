@@ -52,9 +52,9 @@ ISwapchain::ISwapchain(VkDevice device, VkExtent2D swapchainExtent, VkSurfaceCap
 
 }
 
-VkSwapchainCreateInfoKHR* ISwapchain::SwapchainInfo()
+VkSwapchainCreateInfoKHR ISwapchain::SwapchainInfo()
 {
-	return &_swapchainInfo;
+	return _swapchainInfo;
 }
 
 vector<SwapchainBuffer>& ISwapchain::SwapchainBuffers()
@@ -67,19 +67,31 @@ ISwapchain::~ISwapchain()
 	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
 }
 
-VkSemaphore& ISwapchain::ImageAvailableSemaphore()
+VkSemaphore ISwapchain::ImageAvailableSemaphore()
 {
 	return _imageAvailableSemaphore;
 }
 
-VkSemaphore& ISwapchain::RenderFinishSemaphore()
+VkSemaphore ISwapchain::RenderFinishSemaphore()
 {
 	return _renderFinishSemaphore;
 }
 
-VkSwapchainKHR& ISwapchain::Swapchain()
+VkSwapchainKHR ISwapchain::Swapchain()
 {
 	return _swapChain;
+}
+
+void ISwapchain::RecreateSwapchain()
+{
+	DestroySwapchain();
+	CreateSwapchainAndImages(_device, _swapchainInfo);
+}
+
+void ISwapchain::DestroySwapchain()
+{
+	_swapchainBuffers.clear();
+	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
 }
 
 void ISwapchain::CreateSwapchainAndImages(VkDevice device, VkSwapchainCreateInfoKHR swapchainInfo)
@@ -127,7 +139,7 @@ void ISwapchain::CreateSwapchainAndImages(VkDevice device, VkSwapchainCreateInfo
 		color_image_view.subresourceRange.levelCount = 1;
 		color_image_view.subresourceRange.baseArrayLayer = 0;
 		color_image_view.subresourceRange.layerCount = 1;
-
+		
 		VkResult resultImage = vkCreateImageView(device, &color_image_view, nullptr, _swapchainBuffers.at(i).View());
 		if (resultImage != VK_SUCCESS)
 		{
