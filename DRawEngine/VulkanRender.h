@@ -38,10 +38,6 @@ public:
 
 	void RemoveMesh(IMesh* mesh) override;
 
-	void BindBuffer(IBuffer* buffer) override;
-	
-	void UnbindBuffer(IBuffer* buffer) override;
-
 	VkDevice& Device();
 
 	uint32_t GraphicsQueueFamilyIndex();
