@@ -4,9 +4,9 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "IShader.h"
-#include "IVertex.h"
 #include "VertexAttributeInfo.h"
 #include "VertexBindingInfo.h"
+#include "IMaterial.h"
 
 using namespace std;
 using namespace glm;
@@ -31,11 +31,11 @@ public:
 	
 	virtual vector<VertexBindingInfo> GetVertexBindingInfo() = 0;	
 
-	virtual vector<IShader>& Shaders() = 0;
+	virtual map<ShaderType, IShader>& Shaders() = 0;
+
+	virtual IMaterial& Material() = 0;
 	
 protected:
 	vec3 position;
 	quat rotation;
-
-	vector<IShader>	_shaders;		
 };

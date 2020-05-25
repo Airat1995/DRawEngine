@@ -93,7 +93,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectDir)libs\$(PlatformTarget)\vulkan-1.lib;$(ProjectDir)libs\$(PlatformTarget)\SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)libs\$(PlatformTarget)\vulkan-1.lib;$(ProjectDir)libs\$(PlatformTarget)\SDL2.lib;$(ProjectDir)libs\$(PlatformTarget)\tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib32;$(VULKAN_SDK)\Third-Party\Bin32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
@@ -111,7 +111,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectDir)libs\$(PlatformTarget)\vulkan-1.lib;$(ProjectDir)libs\$(PlatformTarget)\SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)libs\$(PlatformTarget)\vulkan-1.lib;$(ProjectDir)libs\$(PlatformTarget)\SDL2.lib;$(ProjectDir)libs\$(PlatformTarget)\tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib;$(VULKAN_SDK)\Third-Party\Bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
@@ -127,13 +127,14 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(VULKAN_SDK)\Third-Party\Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>vulkan-1.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)libs\$(PlatformTarget)\vulkan-1.lib;$(ProjectDir)libs\$(PlatformTarget)\SDL2.lib;$(ProjectDir)libs\$(PlatformTarget)\tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib32;$(VULKAN_SDK)\Third-Party\Bin32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
@@ -147,25 +148,27 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(VULKAN_SDK)\Third-Party\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>vulkan-1.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)libs\$(PlatformTarget)\vulkan-1.lib;$(ProjectDir)libs\$(PlatformTarget)\SDL2.lib;$(ProjectDir)libs\$(PlatformTarget)\tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib;$(VULKAN_SDK)\Third-Party\Bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FileReader.cpp" />
-    <ClCompile Include="IBuffer.cpp" />
     <ClCompile Include="ICommandBuffer.cpp" />
     <ClCompile Include="IFramebuffer.cpp" />
+    <ClCompile Include="IMaterial.cpp" />
     <ClCompile Include="VertexBindingInfo.cpp" />
+    <ClCompile Include="VulkanBuffer.cpp" />
     <ClCompile Include="VulkanCommandBuffer.cpp" />
     <ClCompile Include="ICommandPool.cpp" />
     <ClCompile Include="VulkanCommandPool.cpp" />
@@ -184,14 +187,19 @@
     <ClCompile Include="SDLWindow.cpp" />
     <ClCompile Include="VulkanRender.cpp" />
     <ClCompile Include="VulkanRenderpass.cpp" />
+    <ClCompile Include="VulkanUniformBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseBuffer.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="Format.h" />
     <ClInclude Include="IBuffer.h" />
+    <ClInclude Include="VulkanBuffer.h" />
     <ClInclude Include="ICommandBuffer.h" />
     <ClInclude Include="IFramebuffer.h" />
+    <ClInclude Include="IMaterial.h" />
     <ClInclude Include="IShader.h" />
+    <ClInclude Include="StageFlag.h" />
     <ClInclude Include="VertexAttributeInfo.h" />
     <ClInclude Include="VertexBindingInfo.h" />
     <ClInclude Include="VulkanCommandBuffer.h" />
@@ -217,6 +225,7 @@
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VulkanRender.h" />
     <ClInclude Include="VulkanRenderpass.h" />
+    <ClInclude Include="VulkanUniformBuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

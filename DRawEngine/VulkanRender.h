@@ -11,6 +11,7 @@
 #include "VulkanCommandPool.h"
 #include "VulkanFramebuffer.h"
 #include "IImage.h"
+#include "VulkanBuffer.h"
 
 using namespace std;
 
@@ -37,12 +38,18 @@ public:
 
 	void RemoveMesh(IMesh* mesh) override;
 
+	void BindBuffer(IBuffer* buffer) override;
+	
+	void UnbindBuffer(IBuffer* buffer) override;
+
 	VkDevice& Device();
 
-	glm::uint32 GraphicsQueueFamilyIndex();
+	uint32_t GraphicsQueueFamilyIndex();
 
 	uint32_t PresentQueueFamilyIndex();
+	
 	VkPhysicalDevice Physical();
+
 protected:
 	static std::vector<const char*> GetLayers();
 
@@ -93,6 +100,10 @@ protected:
 	vector<VulkanPipeline> _pipelines{};
 
 	VulkanRenderpass* _renderpass;
+
+	vector<IBuffer> _mapBuffers;
+
+	VulkanBuffer* _buffer;
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

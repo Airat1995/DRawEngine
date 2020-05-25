@@ -4,36 +4,39 @@
 
 
 VulkanPipeline::VulkanPipeline(VkDevice device, VkPhysicalDevice physical, VulkanRenderpass& renderpass,
-                               vector<VulkanMeshData>& vulkanMeshData,	VkFormat imageFormat, VkExtent2D extent) : _physical(physical), _renderPass(renderpass),  _meshData(vulkanMeshData), _device(device)
+	VulkanMeshData& vulkanMeshData, VkFormat imageFormat, VkExtent2D extent) : _physical(physical), _renderPass(renderpass), _meshData(vulkanMeshData), _device(device)
 {
-	if (!vulkanMeshData.empty()) 
-	{
-		Initialize(device, vulkanMeshData, imageFormat, extent);
-		CreateBuffers(vulkanMeshData);
-	}
+	Initialize(device, vulkanMeshData, imageFormat, extent);
+	CreateBuffers(vulkanMeshData);
 }
 
-void VulkanPipeline::Initialize(VkDevice device, vector<VulkanMeshData>& vulkanMeshData, VkFormat imageFormat, VkExtent2D extent)
+void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData, VkFormat imageFormat, VkExtent2D extent)
 {
-	auto attributeDescription = vulkanMeshData[0].AttributeDescriptions();
-	VkVertexInputAttributeDescription* attributeDescriptions = new VkVertexInputAttributeDescription[attributeDescription.size()];
+	vector<VkVertexInputAttributeDescription> attributeDescription = vulkanMeshData.AttributeDescriptions();
+	auto attributeDescriptions = new VkVertexInputAttributeDescription[attributeDescription.size()];
 	for (int attributeIndex = 0; attributeIndex < attributeDescription.size(); ++attributeIndex)
 	{
 		attributeDescriptions[attributeIndex] = attributeDescription[attributeIndex];
 	}
 
-	auto bindingDescription = vulkanMeshData[0].BindingDescriptions();
-	VkVertexInputBindingDescription* bindingDesctiptions = new VkVertexInputBindingDescription[bindingDescription.size()];
+	vector<VkVertexInputBindingDescription> bindingDescription = vulkanMeshData.BindingDescriptions();
+	auto* bindingDesctiptions = new VkVertexInputBindingDescription[bindingDescription.size()];
 	for (int bindingIndex = 0; bindingIndex < bindingDescription.size(); ++bindingIndex)
 	{
 		bindingDesctiptions[bindingIndex] = bindingDescription[bindingIndex];
 	}
 
+	vector<VulkanBuffer> buffersDescriptions = vulkanMeshData.Buffers();
+	auto* descriptorSets = new VkDescriptorSetLayout[buffersDescriptions.size()];
+	for (int bufferIndex = 0; bufferIndex < buffersDescriptions.size(); ++bufferIndex)
+	{
+		descriptorSets[bufferIndex] = buffersDescriptions[bufferIndex].DescriptorSetLayout();
+	}
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = vulkanMeshData[0].BindingDescriptions().size();
-	vertexInputInfo.vertexAttributeDescriptionCount = vulkanMeshData[0].AttributeDescriptions().size();
+	vertexInputInfo.vertexBindingDescriptionCount = vulkanMeshData.BindingDescriptions().size();
+	vertexInputInfo.vertexAttributeDescriptionCount = vulkanMeshData.AttributeDescriptions().size();
 	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions;
 	vertexInputInfo.pVertexBindingDescriptions = bindingDesctiptions;
 	vertexInputInfo.flags = 0;
@@ -101,7 +104,8 @@ void VulkanPipeline::Initialize(VkDevice device, vector<VulkanMeshData>& vulkanM
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 0;
+	pipelineLayoutInfo.setLayoutCount = buffersDescriptions.size();
+	pipelineLayoutInfo.pSetLayouts = descriptorSets;
 	pipelineLayoutInfo.pushConstantRangeCount = 0;
 
 	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) {
@@ -109,7 +113,7 @@ void VulkanPipeline::Initialize(VkDevice device, vector<VulkanMeshData>& vulkanM
 	}
 
 	auto shadersInfo = vector<VkPipelineShaderStageCreateInfo>();
-	auto basicShaders = _meshData[0].Meshes()[0]->Shaders();
+	auto basicShaders = _meshData.Meshes()[0]->Shaders();
 	auto shaders = BaseShadersToVulkanShader(_device, basicShaders);
 	for (auto& shader : shaders)
 		shadersInfo.push_back(shader.GetShaderStageInfo());
@@ -135,8 +139,8 @@ void VulkanPipeline::Initialize(VkDevice device, vector<VulkanMeshData>& vulkanM
 	pipelineInfo.flags = 0;
 	pipelineInfo.pNext = nullptr;
 
-	_firstBinding = _meshData[0].BindingDescriptions()[0].binding;
-	_bindingCount = _meshData[0].BindingDescriptions().size();
+	_firstBinding = _meshData.BindingDescriptions()[0].binding;
+	_bindingCount = _meshData.BindingDescriptions().size();
 
 
 	if (vkCreateGraphicsPipelines(device, nullptr, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS) {
@@ -145,17 +149,84 @@ void VulkanPipeline::Initialize(VkDevice device, vector<VulkanMeshData>& vulkanM
 
 	for (auto& shader : shaders)
 		shader.DestroyShader();
+
+		
+	vector<VkDescriptorPoolSize> typeCounts = vector<VkDescriptorPoolSize>(buffersDescriptions.size());
+	for (auto bufferDescription : buffersDescriptions)
+	{
+		VkDescriptorPoolSize poolInfo = {};
+		poolInfo.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolInfo.descriptorCount = 1;
+		typeCounts.push_back(poolInfo);
+	}
+
+	// Create the global descriptor pool
+	// All descriptors used in this example are allocated from this pool
+	VkDescriptorPoolCreateInfo descriptorPoolInfo = {};
+	descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	descriptorPoolInfo.pNext = nullptr;
+	descriptorPoolInfo.poolSizeCount = typeCounts.size();
+	descriptorPoolInfo.pPoolSizes = typeCounts.data();
+	// Set the max. number of descriptor sets that can be requested from this pool (requesting beyond this limit will result in an error)
+	descriptorPoolInfo.maxSets = typeCounts.size();
+
+	vkCreateDescriptorPool(device, &descriptorPoolInfo, nullptr, &_descriptorPool);
+
+	// Allocate a new descriptor set from the global descriptor pool
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = _descriptorPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = descriptorSets;
+
+	VkResult result = vkAllocateDescriptorSets(device, &allocInfo, &_descriptorSets);
+
+	// Update the descriptor set determining the shader binding points
+	// For every binding point used in a shader there needs to be one
+	// descriptor set matching that binding point
+	// 
+	vector<VkWriteDescriptorSet> writeDescriptorSet = vector<VkWriteDescriptorSet>();
+	for (auto bufferDescription : buffersDescriptions)
+	{
+		VkWriteDescriptorSet descriptorSet = {};
+		// Binding 0 : Uniform buffer
+		descriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorSet.dstSet = _descriptorSets;
+		descriptorSet.descriptorCount = 1;
+		descriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorSet.pBufferInfo = &bufferDescription.BufferDescriptorInfo();
+		// Binds this uniform buffer to binding point 0
+		descriptorSet.dstBinding = bufferDescription.BindingId();
+		writeDescriptorSet.push_back(descriptorSet);
+	}
+
+	vkUpdateDescriptorSets(device, writeDescriptorSet.size(), writeDescriptorSet.data(), 0, nullptr);
 }
 
-vector<VulkanShader> VulkanPipeline::BaseShadersToVulkanShader(VkDevice device, vector<IShader>& shaders)
+vector<VulkanShader> VulkanPipeline::BaseShadersToVulkanShader(VkDevice device, map<ShaderType, IShader>& shaders)
 {
 	auto vulkanShaders = vector<VulkanShader>();
 	for (auto& shader : shaders)
 	{
-		vulkanShaders.push_back(VulkanShader(device, shader));
+		vulkanShaders.push_back(VulkanShader(device, shader.second));
 	}
 
 	return vulkanShaders;
+}
+
+VkDescriptorType VulkanPipeline::BufferUsageToDescriptorType(BufferUsageFlag bufferUsageFlag)
+{
+	VkDescriptorType descriptor;
+	switch (bufferUsageFlag)
+	{
+	case BufferUsageFlag::UniformTexel: descriptor = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER; break;
+	case BufferUsageFlag::StorageTexel: descriptor = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER; break;
+	case BufferUsageFlag::UniformBuffer: descriptor = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; break;
+	case BufferUsageFlag::StorageBuffer: descriptor = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER; break;
+	default: cerr << "Current type not supported! Please add new case statement in VulkanPipeline->BufferUsageToDescriptorType" << endl;
+	}
+
+	return descriptor;
 }
 
 VkPipeline VulkanPipeline::Pipeline()
@@ -171,6 +242,11 @@ VulkanPipeline::~VulkanPipeline()
 
 void VulkanPipeline::DrawFrame(VkCommandBuffer commandBuffer)
 {
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1, &_descriptorSets, 0, nullptr);
+	for (auto& dataBuffer : _dataBuffers)
+	{
+		dataBuffer.Fill();
+	}
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
 	VkDeviceSize offsets[1] = { 0 };
 	for (auto& _meshBuffer : _meshBuffers)
@@ -185,15 +261,17 @@ void VulkanPipeline::DestroyPipeline()
 	vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
 }
 
-void VulkanPipeline::CreateBuffers(vector<VulkanMeshData>& meshData)
+void VulkanPipeline::CreateBuffers(VulkanMeshData& meshData)
 {
-	for (auto& data : meshData)
+	for (IMesh* mesh : meshData.Meshes())
 	{
-		for (IMesh* mesh : data.Meshes())
-		{			
-			VertexBuffer vertexBuffer = VertexBuffer(_device, _physical, mesh->RequiredBufferSize(), mesh->VertexCount());			
-			vertexBuffer.Fill(mesh->VerticesData());
-			_meshBuffers.push_back(vertexBuffer);
-		}		
+		VertexBuffer vertexBuffer = VertexBuffer(_device, _physical, mesh->RequiredBufferSize(), mesh->VertexCount());
+		vertexBuffer.Fill(mesh->VerticesData());
+		_meshBuffers.push_back(vertexBuffer);
+	}
+
+	for (VulkanBuffer data : meshData.Buffers())
+	{
+		_dataBuffers.push_back(data);
 	}
 }

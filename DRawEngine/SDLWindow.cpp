@@ -7,7 +7,6 @@ SDLWindow::SDLWindow(int width, int height, const string& name, WindowType windo
 {
 	Uint32 flag = WindowTypeToSDLWindowFlags(windowType);
 	flag |= SDL_WINDOW_VULKAN | SDL_WINDOW_MOUSE_CAPTURE | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_INPUT_GRABBED;
-
 	if(SDL_Init(SDL_INIT_EVERYTHING))
 	{
 		throw std::exception("Unable to initialize SDL!");

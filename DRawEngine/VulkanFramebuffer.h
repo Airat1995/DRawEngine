@@ -41,5 +41,13 @@ private:
 	VulkanCommandPool& _commandPool;
 
 	VulkanRenderpass& _renderpass;
+
+	VkSemaphore presentCompleteSemaphore;
+	
+	VkSemaphore renderCompleteSemaphore;
+
+	std::vector<VkFence> waitFences;
+
+	PFN_vkQueuePresentKHR fpQueuePresentKHR;
 };
 

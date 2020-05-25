@@ -74,7 +74,13 @@ template<typename VertexDataT,
 	class SimpleVertex1 : public IVertex<VertexDataT>
 {
 public:
-	SimpleVertex1(VertexDataT& vertexData) : _vertexData(vertexData)
+
+	SimpleVertex1(const SimpleVertex1&) = default;
+	SimpleVertex1(SimpleVertex1&&) = default;
+	SimpleVertex1& operator=(const SimpleVertex1&) = default;
+	SimpleVertex1& operator=(SimpleVertex1&&) = default;
+
+	SimpleVertex1(VertexDataT vertexData) : _vertexData(vertexData)
 	{
 		SimpleVertex1::FillVertexInfo();
 	}
@@ -85,12 +91,12 @@ public:
 		VertexAttributeInfo firstAttributeInfo{};
 		firstAttributeInfo.Location = 0;
 		firstAttributeInfo.Offset = 0;
-		firstAttributeInfo.Format = Format::Vector2F;
+		firstAttributeInfo.Format = Format::Vector3F;
 		_vertexInfo->push_back(firstAttributeInfo);
 
 		VertexAttributeInfo secondAttributeInfo{};
 		secondAttributeInfo.Location = 1;
-		secondAttributeInfo.Offset = 8;
+		secondAttributeInfo.Offset = 12;
 		secondAttributeInfo.Format = Format::Vector3F;
 		_vertexInfo->push_back(secondAttributeInfo);
 
@@ -98,7 +104,7 @@ public:
 		_bindingInfo = new vector<VertexBindingInfo>();
 		VertexBindingInfo firstBindingInfo{};
 		firstBindingInfo.BindId = 0;
-		firstBindingInfo.Size = 20;
+		firstBindingInfo.Size = 24;
 		firstBindingInfo.InputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 		_bindingInfo->push_back(firstBindingInfo);
 	}
@@ -115,7 +121,7 @@ public:
 
 	int VertexSize() override
 	{
-		return 20;
+		return 24;
 	}
 
 	VertexDataT& GetVertexData() override
@@ -124,7 +130,7 @@ public:
 	}
 
 protected:
-	VertexDataT& _vertexData;
+	VertexDataT _vertexData;
 
 	vector<VertexAttributeInfo>* _vertexInfo = nullptr;
 

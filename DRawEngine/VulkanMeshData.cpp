@@ -1,7 +1,7 @@
 #include "VulkanMeshData.h"
 
-
-VulkanMeshData::VulkanMeshData(std::vector<IMesh*>& meshes) : _meshes(meshes)
+VulkanMeshData::VulkanMeshData(std::vector<IMesh*>& meshes, vector<VulkanBuffer>& buffers)
+: _meshes(meshes), _buffers(buffers)
 {
 	_bindingDescriptions = vector<VkVertexInputBindingDescription>();
 	vector<VertexAttributeInfo> vertexAttributesBindings = meshes[0]->VertexInfo();
@@ -42,4 +42,9 @@ void VulkanMeshData::AddMesh(IMesh* mesh)
 vector<IMesh*>& VulkanMeshData::Meshes()
 {
 	return _meshes;
+}
+
+vector<VulkanBuffer>& VulkanMeshData::Buffers()
+{
+	return _buffers;
 }

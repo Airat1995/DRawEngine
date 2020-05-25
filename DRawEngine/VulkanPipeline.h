@@ -12,9 +12,9 @@ class VulkanPipeline : public IPipeline
 {
 public:
 	explicit VulkanPipeline(VkDevice device, VkPhysicalDevice physical, VulkanRenderpass& renderpass,
-		vector<VulkanMeshData>& vulkanMeshData, VkFormat imageFormat, VkExtent2D extent);
+		VulkanMeshData& vulkanMeshData, VkFormat imageFormat, VkExtent2D extent);
 
-	void Initialize(VkDevice device, vector<VulkanMeshData>& vulkanMeshData,
+	void Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 		VkFormat imageFormat, VkExtent2D extent);
 
 	VkPipeline Pipeline();
@@ -27,9 +27,11 @@ public:
 
 private:
 
-	void CreateBuffers(vector<VulkanMeshData>& meshData);
+	void CreateBuffers(VulkanMeshData& meshData);
+	
+	vector<VulkanShader> BaseShadersToVulkanShader(VkDevice device, map<ShaderType, IShader>& shaders);
 
-	vector<VulkanShader> BaseShadersToVulkanShader(VkDevice device, vector<IShader>& shaders);
+	VkDescriptorType BufferUsageToDescriptorType(BufferUsageFlag bufferUsageFlag);
 	
 	VkDynamicState _dynamicStates[2] = {
 		VK_DYNAMIC_STATE_VIEWPORT,
@@ -44,11 +46,17 @@ private:
 	
 	VkPipeline _pipeline{};
 
+	VkDescriptorPool _descriptorPool;
+
+	VkDescriptorSet _descriptorSets;
+
 	VulkanRenderpass& _renderPass;
 
-	vector<VulkanMeshData>& _meshData;
+	VulkanMeshData& _meshData;
 
 	vector<VertexBuffer> _meshBuffers;
+
+	vector<VulkanBuffer> _dataBuffers;
 
 	uint32_t _firstBinding;
 

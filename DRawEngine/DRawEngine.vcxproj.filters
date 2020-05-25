@@ -52,9 +52,6 @@
     <ClCompile Include="IImage.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="IBuffer.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
     <ClCompile Include="VulkanRender.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
@@ -109,6 +106,15 @@
     <ClCompile Include="IMesh.cpp">
       <Filter>Source Files\Render\Data</Filter>
     </ClCompile>
+    <ClCompile Include="IMaterial.cpp">
+      <Filter>Source Files\Render\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanBuffer.cpp">
+      <Filter>Source Files\Render\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanUniformBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IWindow.h">
@@ -121,9 +127,6 @@
       <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="SwapchainBuffer.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="IBuffer.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="VulkanRender.h">
@@ -203,6 +206,24 @@
     </ClInclude>
     <ClInclude Include="IMesh.h">
       <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="IMaterial.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="StageFlag.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanBuffer.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="IBuffer.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanUniformBuffer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

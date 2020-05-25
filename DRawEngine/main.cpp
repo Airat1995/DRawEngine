@@ -34,6 +34,9 @@ Create and destroy a Vulkan surface on an SDL window.
 // Tell SDL not to mess with main()
 #define SDL_MAIN_HANDLED
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 #include <glm/glm.hpp>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
@@ -47,77 +50,52 @@ Create and destroy a Vulkan surface on an SDL window.
 #include "SDLWindow.h"
 #include "SimpleVertex.h"
 #include "VulkanRender.h"
+#include "StageFlag.h"
 
-Mesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData> CreateMesh()
-{
-	vector<SimpleVertex<AlphaColoredVertexData>> vertices = vector<SimpleVertex<AlphaColoredVertexData>>();
-	AlphaColoredVertexData firstVertex = AlphaColoredVertexData();
-	firstVertex.position = vec2(-1, -1);
-	firstVertex.color = vec3(1, 0, 0);
-	firstVertex.alpha = 1;
-
-	AlphaColoredVertexData firstVertex2 = AlphaColoredVertexData();
-	firstVertex2.position = vec2(1, 1);
-	firstVertex2.color = vec3(0, 1, 0);
-	firstVertex2.alpha = 0.5;
-
-	AlphaColoredVertexData firstVertex3 = AlphaColoredVertexData();
-	firstVertex3.position = vec2(-1, 1);
-	firstVertex3.color = vec3(0, 0, 1);
-	firstVertex3.alpha = 0.0;
-
-	SimpleVertex vertex1 = SimpleVertex(firstVertex);
-	SimpleVertex vertex2 = SimpleVertex(firstVertex2);
-	SimpleVertex vertex3 = SimpleVertex(firstVertex3);
-	vertex1.FillVertexInfo();
-	vertices.push_back(vertex1);
-	vertices.push_back(vertex2);
-	vertices.push_back(vertex3);
-	string vertexLoc = "../vert.spv";
-	string fragmentLoc = "../frag.spv";
-	string name = "main";
-	IShader vertexShader = IShader(vertexLoc, name, ShaderType::Vertex);
-	IShader fragShader = IShader(fragmentLoc, name, ShaderType::Fragment);
-	vector<IShader> shaders = vector<IShader>();
-	shaders.push_back(vertexShader);
-	shaders.push_back(fragShader);
-
-	Mesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData> basicMesh = Mesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData>(vertices, shaders);
-	return basicMesh;
-}
+struct UniformBufferObject {
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
 
 Mesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData> CreateMesh1()
 {
 	vector<SimpleVertex1<ColoredVertexData>> vertices = vector<SimpleVertex1<ColoredVertexData>>();
-	ColoredVertexData firstVertex = ColoredVertexData();
-	firstVertex.position = vec2(1, 1);
-	firstVertex.color = vec3(1, 0, 0);
 
-	ColoredVertexData firstVertex2 = ColoredVertexData();
-	firstVertex2.position = vec2(-1, -1);
-	firstVertex2.color = vec3(0, 1, 0);
+	tinyobj::attrib_t attrib;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+	std::string warn, err;
 
-	ColoredVertexData firstVertex3 = ColoredVertexData();
-	firstVertex3.position = vec2(1, -1);
-	firstVertex3.color = vec3(0, 0, 1);
+	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, "../viking_room.obj")) 
+		throw std::runtime_error(warn + err);
 
-	SimpleVertex1 vertex1 = SimpleVertex1(firstVertex);
-	SimpleVertex1 vertex2 = SimpleVertex1(firstVertex2);
-	SimpleVertex1 vertex3 = SimpleVertex1(firstVertex3);
-	vertex1.FillVertexInfo();
-	vertices.push_back(vertex1);
-	vertices.push_back(vertex2);
-	vertices.push_back(vertex3);
-	string vertexLoc = "../vert1.spv";
+	for (const auto& shape : shapes) {
+		for (const auto& index : shape.mesh.indices) {
+			ColoredVertexData* vertexData = new ColoredVertexData();
+
+			vertexData->position = vec3(
+				attrib.vertices[3 * index.vertex_index + 0],
+				attrib.vertices[3 * index.vertex_index + 1],
+				attrib.vertices[3 * index.vertex_index + 2]
+			);
+			vertexData->color = vec3(1,1,1);
+			vertices.emplace_back(SimpleVertex1(*vertexData));
+		}
+	}
+
+	string vertexLoc = "../vert3.spv";
 	string fragmentLoc = "../frag.spv";
 	string name = "main";
 	IShader vertexShader = IShader(vertexLoc, name, ShaderType::Vertex);
 	IShader fragShader = IShader(fragmentLoc, name, ShaderType::Fragment);
-	vector<IShader> shaders = vector<IShader>();
-	shaders.push_back(vertexShader);
-	shaders.push_back(fragShader);
+	map<ShaderType, IShader> shaders = map<ShaderType, IShader>();
+	shaders.insert(shaders.end(), std::pair<ShaderType, IShader>(ShaderType::Vertex, vertexShader));
+	shaders.insert(shaders.end(), std::pair<ShaderType, IShader>(ShaderType::Fragment, fragShader));
 
-	Mesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData> basicMesh = Mesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData>(vertices, shaders);
+	
+	IMaterial simpleMaterial = IMaterial(shaders);
+	Mesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData> basicMesh = Mesh<SimpleVertex1<ColoredVertexData>, ColoredVertexData>(vertices, simpleMaterial);
 	return basicMesh;
 }
 
@@ -126,26 +104,31 @@ int main()
 	IRender* vulkanRender = new VulkanRender();
 	IWindow* window = new SDLWindow(1920, 1080, "some name", WindowType::Windowed, vulkanRender);
 
-	Mesh<SimpleVertex<AlphaColoredVertexData>, AlphaColoredVertexData> basicMesh = CreateMesh();
 	auto mesh1 = CreateMesh1();
-	vulkanRender->AddMesh(&basicMesh);
+
+	float initialRotation = 90;
+	UniformBufferObject ubo{};
+	ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(initialRotation), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(glm::vec3(2.0f, -2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = glm::perspective(glm::radians(45.0f), 1920 / (float)1080, 0.1f, 10.0f);
+	BaseBuffer<UniformBufferObject> uniformBuffer = BaseBuffer<UniformBufferObject>(BufferUsageFlag::UniformBuffer, BufferSharingMode::Exclusive, &ubo, BufferStageFlag::Fragment, 0);
+
+	mesh1.Material().AddBuffer(&uniformBuffer);
+
 	vulkanRender->AddMesh(&mesh1);
 	
-    bool stillRunning = true;
+	bool stillRunning = true;
 	SDL_Event event;
-    while(stillRunning) 
-	{		
+	
+	while (stillRunning)
+	{
+		initialRotation++;
+		ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(initialRotation), glm::vec3(0.0f, 0.0f, 1.0f));
 		SDL_PollEvent(&event);
 		if (event.type == SDL_QUIT)
 			stillRunning = false;
-		vulkanRender->DrawFrame();	
-    }
-//
-//    // Clean up.
-//    vkDestroySurfaceKHR(instance, surface, NULL);
-//    SDL_DestroyWindow(window);
-//    SDL_Quit();
-//    vkDestroyInstance(instance, NULL);
+		vulkanRender->DrawFrame();
+	}
 
-    return 0;
+	return 0;
 }

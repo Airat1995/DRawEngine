@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IMesh.h"
 #include <vector>
+#include "IMesh.h"
 
 using namespace std;
 
@@ -17,7 +17,7 @@ public:
 	virtual void AddMesh(IMesh* mesh) = 0;
 
 	virtual void RemoveMesh(IMesh* mesh) = 0;
-
+	
 	virtual void DrawFrame() = 0;
 };
 

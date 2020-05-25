@@ -7,18 +7,42 @@ using namespace std;
 using namespace glm;
 
 
-struct VertexData
+class VertexData
 {
-	glm::vec2 position;
+public:
+	VertexData(const VertexData&) = default;
+	VertexData(VertexData&&) = default;
+	VertexData& operator=(const VertexData&) = default;
+	VertexData& operator=(VertexData&&) = default;
+	explicit VertexData()
+	{
+		position = glm::vec3(0, 0, 0);
+	}
+
+	glm::vec3 position;
 };
 
-struct ColoredVertexData : VertexData
+class ColoredVertexData : public VertexData
 {
+public:
+
+	ColoredVertexData(const ColoredVertexData&) = default;
+	ColoredVertexData(ColoredVertexData&&) = default;
+	ColoredVertexData& operator=(const ColoredVertexData&) = default;
+	ColoredVertexData& operator=(ColoredVertexData&&) = default;
+	explicit ColoredVertexData()
+	{
+		position = glm::vec3(0, 0, 0);
+		color = glm::vec3(0, 0, 0);
+	}
+
+
 	glm::vec3 color;
 };
 
-struct AlphaColoredVertexData : ColoredVertexData
+class AlphaColoredVertexData : public ColoredVertexData
 {
+public:
 	float alpha;
 };
 

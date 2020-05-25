@@ -1,5 +1,6 @@
 #include "VulkanRender.h"
 #include "VulkanFramebuffer.h"
+#include "VulkanUniformBuffer.h"
 
 
 VulkanRender::VulkanRender() : IRender()
@@ -110,36 +111,48 @@ void VulkanRender::DrawFrame()
 {
 	int frameBuffersCount = _framebuffer->FramebufferCount();
 	for (size_t frameBufferIndex = 0; frameBufferIndex < frameBuffersCount; frameBufferIndex++)
-	{		
-		int commandBuffersCount = _commandPool->CommandBufferCount();
-		for (size_t commandBufferIndex = 0; commandBufferIndex < commandBuffersCount; commandBufferIndex++)
-		{
-			_commandPool->CommandBuffer(commandBufferIndex).BeginCommandBuffer();
-			_renderpass->BeginRenderPass(_width, _height, *_framebuffer->Framebuffer(frameBufferIndex), 
-				_commandPool->CommandBuffer(commandBufferIndex).CommandBuffer());
+	{
+		_commandPool->CommandBuffer(frameBufferIndex).BeginCommandBuffer();
+		_renderpass->BeginRenderPass(_width, _height, *_framebuffer->Framebuffer(frameBufferIndex),
+			_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
 
-			for (auto&& pipeline : _pipelines)
-			{
-				pipeline.DrawFrame(_commandPool->CommandBuffer(commandBufferIndex).CommandBuffer());
-			}
-			
-			_renderpass->EndRenderPass(_commandPool->CommandBuffer(commandBufferIndex).CommandBuffer());
-			_commandPool->CommandBuffer(commandBufferIndex).EndCommandBuffer();
+		for (auto&& pipeline : _pipelines)
+		{
+			pipeline.DrawFrame(_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
 		}
-		_framebuffer->DrawFrame();
-		vkDeviceWaitIdle(_device);
-		_commandPool->ResetCommandBuffers();
-	}	
+
+		_renderpass->EndRenderPass(_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
+		_commandPool->CommandBuffer(frameBufferIndex).EndCommandBuffer();
+	}
+	_framebuffer->DrawFrame();
+	vkDeviceWaitIdle(_device);
+	_commandPool->ResetCommandBuffers();
 }
 
 void VulkanRender::AddMesh(IMesh* mesh)
 {
-	vector<VulkanMeshData> meshData = vector<VulkanMeshData>();
 	vector<IMesh*> meshes = vector<IMesh*>();
 	meshes.push_back(mesh);
-	VulkanMeshData currentMeshData = VulkanMeshData(meshes);
-	meshData.push_back(currentMeshData);
-	VulkanPipeline pipeline = VulkanPipeline(_device, _gpus[0], *_renderpass, meshData, _swapchain->SwapchainInfo().imageFormat, _swapchain->SwapchainInfo().imageExtent);
+
+	vector<VulkanBuffer> vulkanBuffers = vector<VulkanBuffer>();
+	for (int i = 0; i < mesh->Material().Buffers().size(); ++i)
+	{
+		IBuffer* buffer = mesh->Material().Buffers()[i];
+		if (buffer->Usage() == BufferUsageFlag::UniformBuffer)
+		{
+			VulkanUniformBuffer bufferData = VulkanUniformBuffer(_device, _gpus[0], buffer->StageFlag(), buffer->Usage(), buffer->SharingMode(), buffer->RawData(), buffer->Size(), buffer->BindingId());
+			vulkanBuffers.push_back(bufferData);
+		}
+		else
+		{
+			VulkanBuffer bufferData = VulkanBuffer(_device, _gpus[0], buffer->StageFlag(), buffer->Usage(), buffer->SharingMode(), buffer->RawData(), buffer->Size(), buffer->BindingId());;
+			vulkanBuffers.push_back(bufferData);
+		}
+	}
+	
+	VulkanMeshData currentMeshData = VulkanMeshData(meshes, vulkanBuffers);
+	
+	VulkanPipeline pipeline = VulkanPipeline(_device, _gpus[0], *_renderpass, currentMeshData, _swapchain->SwapchainInfo().imageFormat, _swapchain->SwapchainInfo().imageExtent);
 	_pipelines.push_back(pipeline);
 }
 

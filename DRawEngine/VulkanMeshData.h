@@ -3,13 +3,14 @@
 #include "IMesh.h"
 #include "VertexBuffer.h"
 #include "VulkanShader.h"
+#include "VulkanBuffer.h"
 
 using namespace std;
 
 class VulkanMeshData
 {
 public:
-	VulkanMeshData(vector<IMesh*>& meshes);
+	VulkanMeshData(vector<IMesh*>& meshes, vector<VulkanBuffer>& buffers);
 
 	vector<VkVertexInputBindingDescription> BindingDescriptions();
 
@@ -19,12 +20,16 @@ public:
 
 	vector<IMesh*>& Meshes();
 
+	vector<VulkanBuffer>& Buffers();
+
 private:
 	vector<VkVertexInputBindingDescription> _bindingDescriptions;
 
 	vector<VkVertexInputAttributeDescription> _attributeDescriptions;
 
 	vector<IMesh*>& _meshes;
+
+	vector<VulkanBuffer>& _buffers;
 	
 	inline VkVertexInputAttributeDescription CreateAttributeDescription(
 		uint32_t binding,
