@@ -5,6 +5,7 @@
 #include "VulkanPipeline.h"
 #include "VulkanCommandPool.h"
 #include "IBuffer.h"
+#include "VulkanDepthBuffer.h"
 
 
 using namespace std;
@@ -13,7 +14,7 @@ class VulkanFramebuffer : public IFramebuffer
 {
 public:
 	VulkanFramebuffer(VkDevice device, uint32_t grapQueueFI, uint32_t presentQueueFI, ISwapchain& swapchain,
-		VulkanRenderpass& renderpass, VulkanCommandPool& commandPool);
+		VulkanRenderpass& renderpass, VulkanCommandPool& commandPool, VulkanDepthBuffer& depthBuffer);
 	
 
 	VkFramebuffer* Framebuffer(int index);

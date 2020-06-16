@@ -11,20 +11,24 @@ class VulkanBuffer
 public:
 	VulkanBuffer(VkDevice device, VkPhysicalDevice physical, BufferStageFlag stageFlag, BufferUsageFlag usage, BufferSharingMode sharingMode, const void* data, int size, int bindingId);
 	
-	virtual void Fill();
+	static uint32_t FindMemoryType(uint32_t typeFilter, VkPhysicalDeviceMemoryProperties memoryProperties, VkMemoryPropertyFlags properties);
 
-	virtual void Flush();
+	void Fill();
+
+	void Flush();
 
 	virtual ~VulkanBuffer();
 
-	virtual void Destroy();
+	void Destroy();
 
 	VkBuffer& Buffer();
 
-	int BindingId() const;
+	int Binding() const;
 
 	VkDescriptorSetLayout DescriptorSetLayout() const;
 
+	VkDescriptorSetLayoutBinding DescriptorBindingInfo() const;
+	
 	VkDescriptorBufferInfo BufferDescriptorInfo();
 
 protected:
@@ -45,8 +49,6 @@ protected:
 	int _dataSize;
 	const void* _dataLocation;
 	uint8_t* _dataPointer = nullptr;
-
-	static uint32_t FindMemoryType(uint32_t typeFilter, VkPhysicalDeviceMemoryProperties memoryProperties, VkMemoryPropertyFlags properties);
 
 	static VkShaderStageFlagBits GetUsage(BufferStageFlag stage);
 };

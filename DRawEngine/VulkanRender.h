@@ -10,8 +10,12 @@
 #include "ISwapchain.h"
 #include "VulkanCommandPool.h"
 #include "VulkanFramebuffer.h"
-#include "IImage.h"
+#include "VulkanImage.h"
 #include "VulkanBuffer.h"
+#include "VulkanDepthBuffer.h"
+#include "VulkanFramebuffer.h"
+#include "VulkanUniformBuffer.h"
+
 
 using namespace std;
 
@@ -29,8 +33,6 @@ public:
 	VkInstance GetInstance() const;
 
 	VkSurfaceKHR* GetSurface();
-
-	void CreateDepthBuffer();
 
 	void DrawFrame() override;
 
@@ -87,7 +89,7 @@ protected:
 	
 	uint32_t _presentQueueFamilyIndex;
 
-	IImage* _depthBuffer;
+	VulkanDepthBuffer* _depthBuffer;
 
 	VulkanFramebuffer* _framebuffer;
 	

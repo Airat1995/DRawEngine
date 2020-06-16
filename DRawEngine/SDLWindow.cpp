@@ -23,7 +23,6 @@ SDLWindow::SDLWindow(int width, int height, const string& name, WindowType windo
 	VulkanRender* vulkanInstance = dynamic_cast<VulkanRender*>(render);
 	SDL_Vulkan_CreateSurface(_window, vulkanInstance->GetInstance(), vulkanInstance->GetSurface());
 	vulkanInstance->InitSurface(width, height);
-	vulkanInstance->CreateDepthBuffer();
 }
 
 vector<const char*> SDLWindow::GetExtensions() const

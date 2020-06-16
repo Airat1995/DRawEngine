@@ -27,11 +27,29 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	}
 
 	vector<VulkanBuffer> buffersDescriptions = vulkanMeshData.Buffers();
-	auto* descriptorSets = new VkDescriptorSetLayout[buffersDescriptions.size()];
-	for (int bufferIndex = 0; bufferIndex < buffersDescriptions.size(); ++bufferIndex)
+	vector<VulkanImage> imagesDescriptions = vulkanMeshData.Images();
+	vector<VkDescriptorSetLayoutBinding> descriptorSets = vector<VkDescriptorSetLayoutBinding>();
+	for (auto& buffersDescription : buffersDescriptions)
 	{
-		descriptorSets[bufferIndex] = buffersDescriptions[bufferIndex].DescriptorSetLayout();
+		descriptorSets.push_back(buffersDescription.DescriptorBindingInfo());
 	}
+
+	for (auto& imageDescription : imagesDescriptions)
+	{
+		descriptorSets.push_back(imageDescription.DescriptorBindingInfo());
+	}
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo{};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSets.size());
+	layoutInfo.pBindings = descriptorSets.data();
+	layoutInfo.flags = 0;
+	layoutInfo.pNext = nullptr;
+
+	VkResult result = vkCreateDescriptorSetLayout(_device, &layoutInfo, nullptr, &_descriptorSetLayout);
+	if (result != VK_SUCCESS)
+		throw runtime_error("Unable to create descriptor set layout");
+
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -84,11 +102,11 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 	colorBlendAttachment.blendEnable = VK_TRUE;
-	colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
-	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD,
-	colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
-	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+	colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+	colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
 	colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
 	VkPipelineColorBlendStateCreateInfo colorBlending = {};
@@ -104,8 +122,8 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = buffersDescriptions.size();
-	pipelineLayoutInfo.pSetLayouts = descriptorSets;
+	pipelineLayoutInfo.setLayoutCount = 1;
+	pipelineLayoutInfo.pSetLayouts = &_descriptorSetLayout;
 	pipelineLayoutInfo.pushConstantRangeCount = 0;
 
 	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) {
@@ -119,6 +137,18 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 		shadersInfo.push_back(shader.GetShaderStageInfo());
 
 
+	VkPipelineDepthStencilStateCreateInfo depthStencil{};
+	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	depthStencil.depthTestEnable = VK_TRUE;
+	depthStencil.depthWriteEnable = VK_TRUE;
+	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+	depthStencil.depthBoundsTestEnable = VK_FALSE;
+	depthStencil.minDepthBounds = 0.0f;
+	depthStencil.maxDepthBounds = 1.0f;
+	depthStencil.stencilTestEnable = VK_FALSE;
+	depthStencil.front = {};
+	depthStencil.back = {};
+	
 	VkGraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipelineInfo.stageCount = shadersInfo.size();
@@ -133,7 +163,7 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	pipelineInfo.renderPass = _renderPass.RenderPass();
 	pipelineInfo.pTessellationState = nullptr;
 	pipelineInfo.pDynamicState = nullptr;
-	pipelineInfo.pDepthStencilState = nullptr;
+	pipelineInfo.pDepthStencilState = &depthStencil;
 	pipelineInfo.basePipelineHandle = nullptr;
 	pipelineInfo.subpass = 0;
 	pipelineInfo.flags = 0;
@@ -150,12 +180,20 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	for (auto& shader : shaders)
 		shader.DestroyShader();
 
-		
-	vector<VkDescriptorPoolSize> typeCounts = vector<VkDescriptorPoolSize>(buffersDescriptions.size());
+
+	vector<VkDescriptorPoolSize> typeCounts = vector<VkDescriptorPoolSize>();
 	for (auto bufferDescription : buffersDescriptions)
 	{
 		VkDescriptorPoolSize poolInfo = {};
 		poolInfo.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolInfo.descriptorCount = 1;
+		typeCounts.push_back(poolInfo);
+	}
+
+	for (auto imageDescription : imagesDescriptions)
+	{
+		VkDescriptorPoolSize poolInfo = {};
+		poolInfo.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		poolInfo.descriptorCount = 1;
 		typeCounts.push_back(poolInfo);
 	}
@@ -177,27 +215,44 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = _descriptorPool;
 	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = descriptorSets;
+	allocInfo.pSetLayouts = &_descriptorSetLayout;
 
-	VkResult result = vkAllocateDescriptorSets(device, &allocInfo, &_descriptorSets);
+	result = vkAllocateDescriptorSets(device, &allocInfo, &_descriptorSets);
+	if (result != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
 
 	// Update the descriptor set determining the shader binding points
 	// For every binding point used in a shader there needs to be one
 	// descriptor set matching that binding point
 	// 
 	vector<VkWriteDescriptorSet> writeDescriptorSet = vector<VkWriteDescriptorSet>();
-	for (auto bufferDescription : buffersDescriptions)
+	for (auto&& bufferDescription : buffersDescriptions)
 	{
 		VkWriteDescriptorSet descriptorSet = {};
 		// Binding 0 : Uniform buffer
 		descriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorSet.dstSet = _descriptorSets;
 		descriptorSet.descriptorCount = 1;
+		descriptorSet.dstArrayElement = 0;
 		descriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		descriptorSet.pBufferInfo = &bufferDescription.BufferDescriptorInfo();
 		// Binds this uniform buffer to binding point 0
-		descriptorSet.dstBinding = bufferDescription.BindingId();
+		descriptorSet.dstBinding = bufferDescription.Binding();
 		writeDescriptorSet.push_back(descriptorSet);
+	}
+
+	for (auto&& imageDescription : imagesDescriptions)
+	{
+		VkWriteDescriptorSet iamgedescriptorSet = {};
+		iamgedescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		iamgedescriptorSet.dstSet = _descriptorSets;
+		iamgedescriptorSet.descriptorCount = 1;
+		iamgedescriptorSet.dstArrayElement = 0;
+		iamgedescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		iamgedescriptorSet.pImageInfo = &imageDescription.ImageInfo();
+		iamgedescriptorSet.dstBinding = imageDescription.Binding();
+		writeDescriptorSet.push_back(iamgedescriptorSet);
 	}
 
 	vkUpdateDescriptorSets(device, writeDescriptorSet.size(), writeDescriptorSet.data(), 0, nullptr);

@@ -7,7 +7,7 @@ class VulkanRenderpass :
 	public IRenderpass
 {
 public:
-	VulkanRenderpass(VkDevice device, VkFormat format);
+	VulkanRenderpass(VkDevice device, VkFormat colorFormat, VkFormat depthFormat);
 
 	VkRenderPass RenderPass();
 

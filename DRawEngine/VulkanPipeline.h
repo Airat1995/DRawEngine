@@ -5,7 +5,6 @@
 #include "VulkanRenderpass.h"
 #include "VulkanMeshData.h"
 
-
 using namespace std;
 
 class VulkanPipeline : public IPipeline
@@ -49,6 +48,8 @@ private:
 	VkDescriptorPool _descriptorPool;
 
 	VkDescriptorSet _descriptorSets;
+
+	VkDescriptorSetLayout _descriptorSetLayout;
 
 	VulkanRenderpass& _renderPass;
 

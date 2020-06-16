@@ -55,14 +55,17 @@ VulkanBuffer::VulkanBuffer(VkDevice device, VkPhysicalDevice physical, BufferSta
 	}
 	_bufferDescriptorInfo.buffer = _buffer;
 	_bufferDescriptorInfo.offset = 0;
-	_bufferDescriptorInfo.range = _dataSize;
+	_bufferDescriptorInfo.range = _dataSize;	
 }
 
 void VulkanBuffer::Fill()
 {
-	VkResult result = vkMapMemory(_device, _memory, 0, _memoryReq.size, 0, reinterpret_cast<void**>(&_dataPointer));
+	VkResult result = vkMapMemory(_device, _memory, 0, _memoryReq.size, 0, 
+		reinterpret_cast<void**>(&_dataPointer));
+
 	if (result != VK_SUCCESS)
 		cerr << "Unable to map memory!" << endl;
+	
 	memcpy(_dataPointer, _dataLocation, _bufferInfo.size);
 	vkUnmapMemory(_device, _memory);
 }
@@ -88,7 +91,7 @@ VkBuffer& VulkanBuffer::Buffer()
 	return _buffer;
 }
 
-int VulkanBuffer::BindingId() const
+int VulkanBuffer::Binding() const
 {
 	return _bindingId;
 }
@@ -96,6 +99,11 @@ int VulkanBuffer::BindingId() const
 VkDescriptorSetLayout VulkanBuffer::DescriptorSetLayout() const
 {
 	return _descriptorSetLayout;
+}
+
+VkDescriptorSetLayoutBinding VulkanBuffer::DescriptorBindingInfo() const
+{
+	return _layoutBinding;
 }
 
 VkDescriptorBufferInfo VulkanBuffer::BufferDescriptorInfo()

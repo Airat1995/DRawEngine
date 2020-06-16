@@ -1,30 +1,38 @@
 #pragma once
-#include <vulkan/vulkan.h>
-#include <vector>
-#include <iostream>
-
-using namespace std;
+#include "ImageFlags.h"
 
 class IImage
 {
-public:
-	explicit IImage(VkFormat format, VkDevice device, vector<VkPhysicalDevice>& gpus, VkImageViewType imageType, int width, int height, VkSampleCountFlagBits samples);
+public:	 
+	IImage(ImageFormat format, ImageType type, ImageUsage usage, int binding, int width, int height, unsigned char* imageData);
 
-	~IImage();
+	int Width() const;
+
+	int Height() const;
+
+	ImageType Type() const;
+
+	ImageFormat Format() const;
+
+	unsigned char* ImageData() const;
+
+	ImageUsage Usage() const;
+
+	int Binding() const;
+	
 protected:
 
-	bool MemoryTypeFromProperties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+	int _width;
 
-	VkFormat _format;
+	int _height;
 
-	VkImage _image;
-
-	VkDeviceMemory _mem;
-
-	VkImageView _view;
+	int _binding;
 	
-	VkPhysicalDeviceMemoryProperties _memoryProperties;
+	unsigned char* _imageData;
 
-	VkDevice _device;
+	ImageFormat _format;
+
+	ImageType _type;
+
+	ImageUsage _usage;
 };
-

@@ -38,6 +38,18 @@
     <Filter Include="Header Files\Tools">
       <UniqueIdentifier>{437666b9-af82-49ea-a555-b10085732a28}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Render\Vulkan">
+      <UniqueIdentifier>{4339b975-9f42-4199-bc98-011a93001b61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Render\Interface">
+      <UniqueIdentifier>{b1e831b7-d6a5-4819-9697-e0c4839784f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render\Vulkan">
+      <UniqueIdentifier>{1990e343-e125-4662-93cd-127d9755bdc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render\Interface">
+      <UniqueIdentifier>{2475d651-82b2-4398-82f4-d43316b89849}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IWindow.cpp">
@@ -46,61 +58,10 @@
     <ClCompile Include="SDLWindow.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="IRender.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="IImage.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanRender.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="ISwapchain.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
     <ClCompile Include="FileReader.cpp">
       <Filter>Source Files\Tools</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IRenderpass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanRenderpass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanPipeline.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="IPipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanCommandPool.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="ICommandPool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanCommandBuffer.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="ICommandBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanMeshData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanFramebuffer.cpp">
-      <Filter>Source Files\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="IFramebuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanShader.cpp">
-      <Filter>Source Files\Render\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="VertexBindingInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IMesh.cpp">
@@ -109,10 +70,70 @@
     <ClCompile Include="IMaterial.cpp">
       <Filter>Source Files\Render\Data</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanBuffer.cpp">
-      <Filter>Source Files\Render\Data</Filter>
-    </ClCompile>
     <ClCompile Include="VulkanUniformBuffer.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBindingInfo.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanCommandBuffer.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanCommandPool.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanFramebuffer.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanMeshData.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanPipeline.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanRender.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanRenderpass.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="ISwapchain.cpp">
+      <Filter>Source Files\Render\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="ICommandBuffer.cpp">
+      <Filter>Source Files\Render\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="ICommandPool.cpp">
+      <Filter>Source Files\Render\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="IFramebuffer.cpp">
+      <Filter>Source Files\Render\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="IPipeline.cpp">
+      <Filter>Source Files\Render\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="IRender.cpp">
+      <Filter>Source Files\Render\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="IRenderpass.cpp">
+      <Filter>Source Files\Render\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanImage.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanShader.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanBuffer.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="IImage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IDepthBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanDepthBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -123,83 +144,20 @@
     <ClInclude Include="SDLWindow.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="IRender.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="SwapchainBuffer.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanRender.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="ISwapchain.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
     <ClInclude Include="FileReader.h">
       <Filter>Header Files\Tools</Filter>
     </ClInclude>
     <ClInclude Include="IVertex.h">
       <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
-    <ClInclude Include="IImage.h">
-      <Filter>Header Files\Render\Data</Filter>
-    </ClInclude>
     <ClInclude Include="SimpleVertex.h">
       <Filter>Header Files\Render\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
-      <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="IndexedVertexBuffer.h">
       <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
-    <ClInclude Include="IRenderpass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanRenderpass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanPipeline.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="IPipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanCommandPool.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="ICommandPool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanCommandBuffer.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="ICommandBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanMeshData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Format.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanFramebuffer.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="IFramebuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanShader.h">
-      <Filter>Header Files\Render\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="IShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VertexAttributeInfo.h">
       <Filter>Header Files\Render\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBindingInfo.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Header Files\Render\Data</Filter>
@@ -213,16 +171,91 @@
     <ClInclude Include="StageFlag.h">
       <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanBuffer.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
     <ClInclude Include="IBuffer.h">
       <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
+    <ClInclude Include="VulkanUniformBuffer.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanBuffer.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanCommandBuffer.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanCommandPool.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanFramebuffer.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanMeshData.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanPipeline.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanRender.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanRenderpass.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
     <ClInclude Include="BaseBuffer.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanShader.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanImage.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBindingInfo.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="SwapchainBuffer.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="ISwapchain.h">
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Format.h">
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ICommandBuffer.h">
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ICommandPool.h">
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="IFramebuffer.h">
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="IPipeline.h">
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="IRender.h">
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderpass.h">
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="IShader.h">
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="IImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanUniformBuffer.h">
+    <ClInclude Include="ImageFlags.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="IDepthBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanDepthBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

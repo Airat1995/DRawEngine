@@ -1,7 +1,7 @@
 #include "VulkanMeshData.h"
 
-VulkanMeshData::VulkanMeshData(std::vector<IMesh*>& meshes, vector<VulkanBuffer>& buffers)
-: _meshes(meshes), _buffers(buffers)
+VulkanMeshData::VulkanMeshData(std::vector<IMesh*>& meshes, vector<VulkanBuffer>& buffers, vector<VulkanImage>& images)
+: _meshes(meshes), _buffers(buffers), _images(images)
 {
 	_bindingDescriptions = vector<VkVertexInputBindingDescription>();
 	vector<VertexAttributeInfo> vertexAttributesBindings = meshes[0]->VertexInfo();
@@ -14,7 +14,6 @@ VulkanMeshData::VulkanMeshData(std::vector<IMesh*>& meshes, vector<VulkanBuffer>
 				EnumFormatToVulkanFormat(attributeBinding.Format), attributeBinding.Offset);
 			_attributeDescriptions.push_back(vertexAttribute);
 		}
-
 
 		VkVertexInputBindingDescription bindingDescriptions =
 			CreateInputBindingDescription(vertexBinding.BindId,
@@ -47,4 +46,9 @@ vector<IMesh*>& VulkanMeshData::Meshes()
 vector<VulkanBuffer>& VulkanMeshData::Buffers()
 {
 	return _buffers;
+}
+
+vector<VulkanImage>& VulkanMeshData::Images()
+{
+	return _images;
 }

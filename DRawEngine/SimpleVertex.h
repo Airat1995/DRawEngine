@@ -94,9 +94,15 @@ public:
 		firstAttributeInfo.Format = Format::Vector3F;
 		_vertexInfo->push_back(firstAttributeInfo);
 
+		VertexAttributeInfo texCoordAttributeInfo{};
+		texCoordAttributeInfo.Location = 1;
+		texCoordAttributeInfo.Offset = 12;
+		texCoordAttributeInfo.Format = Format::Vector2F;
+		_vertexInfo->push_back(texCoordAttributeInfo);
+
 		VertexAttributeInfo secondAttributeInfo{};
-		secondAttributeInfo.Location = 1;
-		secondAttributeInfo.Offset = 12;
+		secondAttributeInfo.Location = 2;
+		secondAttributeInfo.Offset = 20;
 		secondAttributeInfo.Format = Format::Vector3F;
 		_vertexInfo->push_back(secondAttributeInfo);
 
@@ -104,9 +110,9 @@ public:
 		_bindingInfo = new vector<VertexBindingInfo>();
 		VertexBindingInfo firstBindingInfo{};
 		firstBindingInfo.BindId = 0;
-		firstBindingInfo.Size = 24;
+		firstBindingInfo.Size = sizeof(VertexDataT);
 		firstBindingInfo.InputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-		_bindingInfo->push_back(firstBindingInfo);
+		_bindingInfo->push_back(firstBindingInfo);		
 	}
 
 	vector<VertexAttributeInfo>& GetVertexInfo() override
@@ -121,7 +127,7 @@ public:
 
 	int VertexSize() override
 	{
-		return 24;
+		return sizeof(VertexDataT);
 	}
 
 	VertexDataT& GetVertexData() override
@@ -135,4 +141,5 @@ protected:
 	vector<VertexAttributeInfo>* _vertexInfo = nullptr;
 
 	vector<VertexBindingInfo>* _bindingInfo = nullptr;
+
 };

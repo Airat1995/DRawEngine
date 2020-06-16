@@ -125,7 +125,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(VULKAN_SDK)\Third-Party\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
@@ -163,17 +163,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="IDepthBuffer.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="ICommandBuffer.cpp" />
     <ClCompile Include="IFramebuffer.cpp" />
+    <ClCompile Include="IImage.cpp" />
     <ClCompile Include="IMaterial.cpp" />
     <ClCompile Include="VertexBindingInfo.cpp" />
     <ClCompile Include="VulkanBuffer.cpp" />
     <ClCompile Include="VulkanCommandBuffer.cpp" />
     <ClCompile Include="ICommandPool.cpp" />
     <ClCompile Include="VulkanCommandPool.cpp" />
+    <ClCompile Include="VulkanDepthBuffer.cpp" />
     <ClCompile Include="VulkanFramebuffer.cpp" />
-    <ClCompile Include="IImage.cpp" />
+    <ClCompile Include="VulkanImage.cpp" />
     <ClCompile Include="IPipeline.cpp" />
     <ClCompile Include="VulkanMeshData.cpp" />
     <ClCompile Include="VulkanPipeline.cpp" />
@@ -191,9 +194,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseBuffer.h" />
+    <ClInclude Include="IDepthBuffer.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="Format.h" />
     <ClInclude Include="IBuffer.h" />
+    <ClInclude Include="IImage.h" />
+    <ClInclude Include="ImageFlags.h" />
     <ClInclude Include="VulkanBuffer.h" />
     <ClInclude Include="ICommandBuffer.h" />
     <ClInclude Include="IFramebuffer.h" />
@@ -205,8 +211,9 @@
     <ClInclude Include="VulkanCommandBuffer.h" />
     <ClInclude Include="ICommandPool.h" />
     <ClInclude Include="VulkanCommandPool.h" />
+    <ClInclude Include="VulkanDepthBuffer.h" />
     <ClInclude Include="VulkanFramebuffer.h" />
-    <ClInclude Include="IImage.h" />
+    <ClInclude Include="VulkanImage.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="IndexedVertexBuffer.h" />
     <ClInclude Include="IPipeline.h" />

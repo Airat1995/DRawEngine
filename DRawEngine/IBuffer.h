@@ -26,6 +26,12 @@ enum class BufferUsageFlag
 	ShaderDeviceAddress = 0x00020000
 };
 
+inline constexpr BufferUsageFlag operator|(BufferUsageFlag a, BufferUsageFlag b)
+{
+	return a = static_cast<BufferUsageFlag> (static_cast<unsigned int>(a) | static_cast<unsigned int>(b));
+}
+
+
 class IBuffer
 {
 public:
