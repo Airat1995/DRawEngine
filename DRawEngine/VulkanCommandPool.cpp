@@ -7,7 +7,7 @@ VulkanCommandPool::VulkanCommandPool(VkDevice device, int queueFamilyIndex) : _d
 	commandPoolInfo.pNext = nullptr;
 	commandPoolInfo.queueFamilyIndex = queueFamilyIndex;
 	commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-
+	_vulkanCommandBuffers = {};
 	const VkResult result = vkCreateCommandPool(device, &commandPoolInfo, nullptr, &_commandPool);
 	if (result != VK_SUCCESS)
 	{
@@ -28,8 +28,9 @@ VulkanCommandPool::~VulkanCommandPool()
 
 void VulkanCommandPool::AddCommandBuffer()
 {
-	const VulkanCommandBuffer commandBuffer = VulkanCommandBuffer(_device, _commandPool);
+	VulkanCommandBuffer commandBuffer = VulkanCommandBuffer(_device, _commandPool);
 	_commandBuffers.push_back(commandBuffer);
+	_vulkanCommandBuffers.push_back(commandBuffer.CommandBuffer());
 }
 
 void VulkanCommandPool::BeginCommandPool()
@@ -63,12 +64,5 @@ VkCommandPool VulkanCommandPool::CommandPool()
 
 VkCommandBuffer* VulkanCommandPool::CommandBuffersData()
 {
-	int commandBuffersCount = _commandBuffers.size();
-	VkCommandBuffer* commandBuffers = new VkCommandBuffer[commandBuffersCount];
-	for (size_t commandBufferIndex = 0; commandBufferIndex < commandBuffersCount; ++commandBufferIndex)
-	{
-		commandBuffers[commandBufferIndex] = _commandBuffers[commandBufferIndex].CommandBuffer();
-	}
-
-	return commandBuffers;
+	return  _vulkanCommandBuffers.data();
 }

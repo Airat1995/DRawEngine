@@ -115,5 +115,7 @@ void VulkanFramebuffer::DrawFrame()
 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
 		_swapchain.RecreateSwapchain();
 	else if (res != VK_SUCCESS)
-		throw exception("Unable to get image from queue!");	
+		throw exception("Unable to get image from queue!");
+
+	vkDestroyFence(_device, drawFence, nullptr);
 }

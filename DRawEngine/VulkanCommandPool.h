@@ -34,6 +34,8 @@ private:
 
 	VkDevice _device;
 
-	std::vector<VulkanCommandBuffer> _commandBuffers;
+	vector<VkCommandBuffer> _vulkanCommandBuffers;
+	
+	vector<VulkanCommandBuffer> _commandBuffers;
 };
 
