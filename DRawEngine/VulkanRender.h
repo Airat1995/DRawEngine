@@ -1,20 +1,15 @@
 #pragma once
-#include <vulkan/vulkan.h>
 #include <filesystem>
 #include <glm/fwd.hpp>
-#include <map>
 #include "IRender.h"
 #include "VulkanPipeline.h"
-#include "VulkanCommandBuffer.h"
+#include "VulkanUniformBuffer.h"
 #include "IMesh.h"
 #include "ISwapchain.h"
 #include "VulkanCommandPool.h"
 #include "VulkanFramebuffer.h"
-#include "VulkanImage.h"
 #include "VulkanBuffer.h"
 #include "VulkanDepthBuffer.h"
-#include "VulkanFramebuffer.h"
-#include "VulkanUniformBuffer.h"
 
 
 using namespace std;
@@ -24,7 +19,11 @@ class VulkanRender : public IRender
 public:
 	VulkanRender();	
 
-	void Init(vector<const char*>* extensions) override;
+	void Init() override
+	{
+	}	
+	
+	void Init(vector<const char*>* extensions);
 
 	~VulkanRender();	
 
@@ -95,7 +94,9 @@ protected:
 	
 	ISwapchain* _swapchain;
 	
-	vector<VulkanPipeline> _pipelines{};
+	vector<VulkanPipeline*> _pipelines{};
+
+	vector<VulkanMeshData*> _meshDataCollection{};
 
 	VulkanRenderpass* _renderpass;
 

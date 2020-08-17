@@ -1,28 +1,34 @@
 #pragma once
-
 #include "IPipeline.h"
+#include "IVulkanRenderMeshBufferCreator.h"
 #include "VulkanShader.h"
 #include "VulkanRenderpass.h"
 #include "VulkanMeshData.h"
+#include "VertexBuffer.h"
 
 using namespace std;
 
-class VulkanPipeline : public IPipeline
+class VulkanPipeline : public IPipeline, public IVulkanRenderMeshBufferCreator
 {
 public:
 	explicit VulkanPipeline(VkDevice device, VkPhysicalDevice physical, VulkanRenderpass& renderpass,
-		VulkanMeshData& vulkanMeshData, VkFormat imageFormat, VkExtent2D extent);
+		VulkanMeshData& vulkanMeshData, VkExtent2D extent);
 
-	void Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
-		VkFormat imageFormat, VkExtent2D extent);
+	void Initialize(VkDevice device, VulkanMeshData& vulkanMeshData, VkExtent2D extent);
 
 	VkPipeline Pipeline();
 
 	virtual ~VulkanPipeline();
 
-	void DrawFrame(VkCommandBuffer commandBuffer);
+	void BindBuffer(VkCommandBuffer commandBuffer);
+
+	void BuildCommandbuffer(VkCommandBuffer commandBuffer);
 
 	void DestroyPipeline();
+
+	void ReCreateBuffers(IMesh* mesh) override;
+
+	void AttachVulkanMeshData(VulkanMeshData& meshData);
 
 private:
 

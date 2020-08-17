@@ -16,9 +16,6 @@
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{89c0283b-9bc2-4d0f-8122-6b92e1fd4f09}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Tools">
-      <UniqueIdentifier>{af05d0b2-9590-4fe1-be7a-b00decf0e876}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Render\Data">
       <UniqueIdentifier>{2058fec0-401d-4a8e-a7bd-9c37f7a5fdfe}</UniqueIdentifier>
     </Filter>
@@ -50,6 +47,21 @@
     <Filter Include="Source Files\Render\Interface">
       <UniqueIdentifier>{2475d651-82b2-4398-82f4-d43316b89849}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Render\VulkanOpenVR">
+      <UniqueIdentifier>{af2fa982-2bf8-48ff-8fa4-9083d3283736}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\VulkanOpenVR">
+      <UniqueIdentifier>{287213c4-7327-4420-9fd9-5dd11aee14fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Render\Vulkan\Extensions">
+      <UniqueIdentifier>{89ff05a2-7df2-41a8-bd0e-ba497f49b2ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render\Vulkan\Extensions">
+      <UniqueIdentifier>{badc07f3-d5f6-449a-8198-ef0dd2a1bcd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render\Interface\Tools">
+      <UniqueIdentifier>{af05d0b2-9590-4fe1-be7a-b00decf0e876}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IWindow.cpp">
@@ -59,7 +71,7 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="FileReader.cpp">
-      <Filter>Source Files\Tools</Filter>
+      <Filter>Source Files\Render\Interface\Tools</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
@@ -127,14 +139,17 @@
     <ClCompile Include="VulkanBuffer.cpp">
       <Filter>Source Files\Render\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="VulkanDepthBuffer.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="IVulkanRenderMeshBufferCreator.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
     <ClCompile Include="IImage.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Render\Interface</Filter>
     </ClCompile>
     <ClCompile Include="IDepthBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanDepthBuffer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Render\Interface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -246,17 +261,20 @@
     <ClInclude Include="IShader.h">
       <Filter>Header Files\Render\Interface</Filter>
     </ClInclude>
-    <ClInclude Include="IImage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ImageFlags.h">
       <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
+    <ClInclude Include="IImage.h">
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
     <ClInclude Include="IDepthBuffer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Render\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="IVulkanRenderMeshBufferCreator.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="VulkanDepthBuffer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Render\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

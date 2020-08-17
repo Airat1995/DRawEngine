@@ -1,12 +1,11 @@
 #include "SDLWindow.h"
 #include <SDL2/SDL_vulkan.h>
 #include "VulkanRender.h"
-#include <iostream>
 
 SDLWindow::SDLWindow(int width, int height, const string& name, WindowType windowType, IRender* render) : IWindow(width, height, name, windowType, render)
 {
 	Uint32 flag = WindowTypeToSDLWindowFlags(windowType);
-	flag |= SDL_WINDOW_VULKAN | SDL_WINDOW_MOUSE_CAPTURE | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_INPUT_GRABBED;
+	flag |= SDL_WINDOW_VULKAN | SDL_WINDOW_MOUSE_CAPTURE | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_INPUT_FOCUS;
 	if(SDL_Init(SDL_INIT_EVERYTHING))
 	{
 		throw std::exception("Unable to initialize SDL!");
@@ -19,9 +18,11 @@ SDLWindow::SDLWindow(int width, int height, const string& name, WindowType windo
     }
 
 	vector<const char*> extensions = GetExtensions();
-	render->Init(&extensions);
 	VulkanRender* vulkanInstance = dynamic_cast<VulkanRender*>(render);
-	SDL_Vulkan_CreateSurface(_window, vulkanInstance->GetInstance(), vulkanInstance->GetSurface());
+	vulkanInstance->Init(&extensions);
+	bool surfaceWasCreated = SDL_Vulkan_CreateSurface(_window, vulkanInstance->GetInstance(), vulkanInstance->GetSurface());
+	if (!surfaceWasCreated)
+		throw std::exception("Unable to create surface!");
 	vulkanInstance->InitSurface(width, height);
 }
 

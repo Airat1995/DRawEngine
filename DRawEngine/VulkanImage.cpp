@@ -3,8 +3,8 @@
 
 VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, ImageType type, ImageUsage imageUsage,
                          int width, int height, unsigned char* imageData, VkDevice device,
-                         vector<VkPhysicalDevice>& gpus, int binding, int graphicsFamilyIndex, VkSampleCountFlagBits samples)
-	: IImage(format, type, imageUsage, binding, width, height, imageData), _commandPool(commandPool), _graphicsFamilyIndex(graphicsFamilyIndex)
+                         vector<VkPhysicalDevice>& gpus, int binding, int graphicsFamilyIndex, int samples)
+	: IImage(format, type, imageUsage, binding, width, height, samples, imageData), _commandPool(commandPool), _graphicsFamilyIndex(graphicsFamilyIndex)
 {
 	_device = device;
 
@@ -16,6 +16,7 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 	VkFormat vulkanFormat = ImageFormatToVulkan(format);
 	VkImageType vkImageType = ImageTypeToVulkan(type);
 	VkImageViewType imageView = ImageTypeToVulkanViewType(type);
+	VkImageUsageFlagBits vulkanImageUsage = ImageUsageToVulkan(imageUsage);
 	
 	VkImageCreateInfo image_info = {};
 	VkFormatProperties props;
@@ -31,9 +32,9 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 	image_info.extent.depth = 1;
 	image_info.mipLevels = 1;
 	image_info.arrayLayers = 1;
-	image_info.samples = samples;
+	image_info.samples = static_cast<VkSampleCountFlagBits>(samples);
 	image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	image_info.usage = ImageUsageToVulkan(imageUsage);
+	image_info.usage = vulkanImageUsage;
 	image_info.queueFamilyIndexCount = 0;
 	image_info.pQueueFamilyIndices = nullptr;
 	image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -102,7 +103,7 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 	{
 		std::cerr << "Unable to create view for the image!" << std::endl;
 	}
-	CreateCopyCommandBuffer();
+	CreateCopyCommandBuffer(vulkanImageUsage);
 
 	_imageInfo = {};
 	_imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -151,8 +152,8 @@ bool VulkanImage::MemoryTypeFromProperties(uint32_t typeBits, VkFlags requiremen
 	throw std::runtime_error("Could not find a matching memory type");
 }
 
-void VulkanImage::CreateCopyCommandBuffer()
-{
+void VulkanImage::CreateCopyCommandBuffer(VkImageUsageFlagBits imageUsage)
+{	
 	_commandBuffer = &_commandPool->CommandBuffer(0);
 	VkImageSubresourceRange subresourceRange = {};
 	subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -209,10 +210,11 @@ void VulkanImage::CreateCopyCommandBuffer()
 
 	_commandBuffer->EndCommandBuffer();
 
+	VkCommandBuffer commandBuffer = { _commandBuffer->CommandBuffer() };
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &_commandBuffer->CommandBuffer();
+	submitInfo.pCommandBuffers = &commandBuffer;
 
 	VkResult result = vkQueueSubmit(_imageSubmitQueue, 1, &submitInfo, nullptr);
 	if(result != VK_SUCCESS)
@@ -296,7 +298,7 @@ VkFormat VulkanImage::ImageFormatToVulkan(ImageFormat format)
 	{
 	case ImageFormat::R: vulkanFormat = VK_FORMAT_R32_UINT; break;
 	case ImageFormat::RG: vulkanFormat = VK_FORMAT_R8G8_UINT;  break;
-	case ImageFormat::RGB: vulkanFormat = VK_FORMAT_R16G16B16_UINT; break;
+	case ImageFormat::RGB: vulkanFormat = VK_FORMAT_R16G16B16_UNORM; break;
 	case ImageFormat::RGBA: vulkanFormat = VK_FORMAT_R8G8B8A8_UNORM; break;
 	default:
 		cerr << "This type of image format wasn't supported! Please add new statement to the VulkanImage format!" << endl;
@@ -352,7 +354,7 @@ VkImageUsageFlagBits VulkanImage::ImageUsageToVulkan(ImageUsage usage)
 		imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
 	if (HasFlag(usage, ImageUsage::Sample))
-		imageUsage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+		imageUsage |= VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
 	if (HasFlag(usage, ImageUsage::Storage))
 		imageUsage |= VK_IMAGE_USAGE_STORAGE_BIT;

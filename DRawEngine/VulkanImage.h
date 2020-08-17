@@ -15,7 +15,7 @@ class VulkanImage : public IImage
 public:
 	explicit VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, ImageType type, ImageUsage imageUsage,
 	                     int width, int height, unsigned char* imageData, VkDevice device,
-	                     vector<VkPhysicalDevice>& gpus, int binding, int graphicsFamilyIndex, VkSampleCountFlagBits samples);
+	                     vector<VkPhysicalDevice>& gpus, int binding, int graphicsFamilyIndex, int samples);
 	void Clean() const;
 
 	VkDescriptorSetLayout DescriptorSetLayout() const;
@@ -29,7 +29,7 @@ protected:
 
 	bool MemoryTypeFromProperties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
 
-	void CreateCopyCommandBuffer();
+	void CreateCopyCommandBuffer(VkImageUsageFlagBits imageUsage);
 
 	void CreateSampler();
 

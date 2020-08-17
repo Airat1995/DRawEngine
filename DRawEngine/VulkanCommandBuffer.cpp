@@ -18,7 +18,7 @@ VulkanCommandBuffer::VulkanCommandBuffer(VkDevice device, VkCommandPool commandP
 
 }
 
-VkCommandBuffer& VulkanCommandBuffer::CommandBuffer()
+VkCommandBuffer VulkanCommandBuffer::CommandBuffer()
 {
 	return _commandBuffer;
 }

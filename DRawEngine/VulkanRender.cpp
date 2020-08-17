@@ -81,7 +81,7 @@ void VulkanRender::InitSurface(int screenWidth, int screenHeight)
 	_renderpass = new VulkanRenderpass(_device, _swapchain->SwapchainInfo().imageFormat, _depthBuffer->Format());
 
 	//First init with empty pipelines
-	_pipelines = vector<VulkanPipeline>();
+	_pipelines = vector<VulkanPipeline*>();
 	
 
 	_framebuffer = new VulkanFramebuffer(_device, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex, *_swapchain,
@@ -110,19 +110,29 @@ void VulkanRender::DrawFrame()
 
 		for (auto&& pipeline : _pipelines)
 		{
-			pipeline.DrawFrame(_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
+			pipeline->BindBuffer(_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
+			pipeline->BuildCommandbuffer(_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
 		}
 
 		_renderpass->EndRenderPass(_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
 		_commandPool->CommandBuffer(frameBufferIndex).EndCommandBuffer();
+		_framebuffer->SubmitFramebuffer(frameBufferIndex);
 	}
-	_framebuffer->DrawFrame();
 	vkDeviceWaitIdle(_device);
 	_commandPool->ResetCommandBuffers();
 }
 
 void VulkanRender::AddMesh(IMesh* mesh)
 {
+	for (auto && meshData : _meshDataCollection)
+	{
+		if(meshData->SameShaders(mesh))
+		{
+			meshData->AddMesh(mesh);
+			return;
+		}
+	}	
+	
 	vector<IMesh*> meshes = vector<IMesh*>();
 	meshes.push_back(mesh);
 
@@ -146,13 +156,13 @@ void VulkanRender::AddMesh(IMesh* mesh)
 	{
 		auto imageData = VulkanImage(_commandPool, image->Format(), image->Type(), image->Usage(), image->Width(), image->Height(),
 		                             image->ImageData(), _device, _gpus, image->Binding(), _graphicsQueueFamilyIndex,
-		                             VK_SAMPLE_COUNT_1_BIT);
+		                             image->SampleCount());
 		images.push_back(imageData);
 	}
-	
-	VulkanMeshData currentMeshData = VulkanMeshData(meshes, vulkanBuffers, images);
-	
-	VulkanPipeline pipeline = VulkanPipeline(_device, _gpus[0], *_renderpass, currentMeshData, _swapchain->SwapchainInfo().imageFormat, _swapchain->SwapchainInfo().imageExtent);
+	VulkanMeshData* currentMeshData = new VulkanMeshData(meshes, vulkanBuffers, images);
+	VulkanPipeline* pipeline = new VulkanPipeline(_device, _gpus[0], *_renderpass, *currentMeshData, _swapchain->SwapchainInfo().imageExtent);
+	pipeline->AttachVulkanMeshData(*currentMeshData);
+	_meshDataCollection.push_back(currentMeshData);
 	_pipelines.push_back(pipeline);
 }
 

@@ -1,8 +1,8 @@
 #include "VulkanMeshData.h"
 
-VulkanMeshData::VulkanMeshData(std::vector<IMesh*>& meshes, vector<VulkanBuffer>& buffers, vector<VulkanImage>& images)
-: _meshes(meshes), _buffers(buffers), _images(images)
-{
+VulkanMeshData::VulkanMeshData(std::vector<IMesh*> meshes, vector<VulkanBuffer>& buffers, vector<VulkanImage>& images)
+: _meshes(meshes), _buffers(buffers), _images(images), _needRebuild(true)
+{	
 	_bindingDescriptions = vector<VkVertexInputBindingDescription>();
 	vector<VertexAttributeInfo> vertexAttributesBindings = meshes[0]->VertexInfo();
 	vector<VertexBindingInfo> vertexBindings = meshes[0]->GetVertexBindingInfo();
@@ -35,7 +35,12 @@ std::vector<VkVertexInputAttributeDescription> VulkanMeshData::AttributeDescript
 
 void VulkanMeshData::AddMesh(IMesh* mesh)
 {
+	_needRebuild = true;
 	_meshes.push_back(mesh);
+	if(_bufferCreator != nullptr)
+	{
+		_bufferCreator->ReCreateBuffers(mesh);
+	}
 }
 
 vector<IMesh*>& VulkanMeshData::Meshes()
@@ -51,4 +56,37 @@ vector<VulkanBuffer>& VulkanMeshData::Buffers()
 vector<VulkanImage>& VulkanMeshData::Images()
 {
 	return _images;
+}
+
+void VulkanMeshData::SetBufferRecreateEventListener(IVulkanRenderMeshBufferCreator* bufferCreator)
+{
+	_bufferCreator = bufferCreator;
+}
+
+bool VulkanMeshData::SameShaders(IMesh* mesh)
+{
+	bool sameShaders = true;
+	map<ShaderType, IShader> shaders = _meshes[0]->Shaders();
+	map<ShaderType, IShader> meshSahders = mesh->Shaders();
+
+	if (shaders.size() != meshSahders.size()) return false;
+	bool containsSameShader;
+	bool sameShaderData;
+	for (auto && shader : shaders)
+	{
+		containsSameShader = meshSahders.count(shader.first) != 0;
+		if(!containsSameShader)
+		{
+			sameShaders = false;
+			break;
+		}
+		sameShaderData = meshSahders.at(shader.first).ShaderData() == shader.second.ShaderData();
+		if(!sameShaderData)
+		{
+			sameShaders = false;
+			break;
+		}
+	}
+
+	return sameShaders;
 }

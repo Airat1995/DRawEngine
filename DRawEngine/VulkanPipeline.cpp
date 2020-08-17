@@ -1,16 +1,14 @@
 #include "VulkanPipeline.h"
 
-#include "SimpleVertex.h"
-
 
 VulkanPipeline::VulkanPipeline(VkDevice device, VkPhysicalDevice physical, VulkanRenderpass& renderpass,
-	VulkanMeshData& vulkanMeshData, VkFormat imageFormat, VkExtent2D extent) : _physical(physical), _renderPass(renderpass), _meshData(vulkanMeshData), _device(device)
+	VulkanMeshData& vulkanMeshData, VkExtent2D extent) : _device(device), _physical(physical), _renderPass(renderpass), _meshData(vulkanMeshData)
 {
-	Initialize(device, vulkanMeshData, imageFormat, extent);
+	Initialize(device, vulkanMeshData, extent);	
 	CreateBuffers(vulkanMeshData);
 }
 
-void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData, VkFormat imageFormat, VkExtent2D extent)
+void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData, VkExtent2D extent)
 {
 	vector<VkVertexInputAttributeDescription> attributeDescription = vulkanMeshData.AttributeDescriptions();
 	auto attributeDescriptions = new VkVertexInputAttributeDescription[attributeDescription.size()];
@@ -67,9 +65,9 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 
 	VkViewport viewport = {};
 	viewport.x = 0.0f;
-	viewport.y = 0.0f;
+	viewport.y = static_cast<float>(extent.height);
 	viewport.width = static_cast<float>(extent.width);
-	viewport.height = static_cast<float>(extent.height);
+	viewport.height = -static_cast<float>(extent.height);
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
@@ -91,7 +89,7 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth = 1.0f;
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 
 	VkPipelineMultisampleStateCreateInfo multisampling = {};
@@ -289,19 +287,22 @@ VkPipeline VulkanPipeline::Pipeline()
 	return _pipeline;
 }
 
-
 VulkanPipeline::~VulkanPipeline()
 {
 	
 }
 
-void VulkanPipeline::DrawFrame(VkCommandBuffer commandBuffer)
+void VulkanPipeline::BindBuffer(VkCommandBuffer commandBuffer)
 {
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1, &_descriptorSets, 0, nullptr);
 	for (auto& dataBuffer : _dataBuffers)
 	{
 		dataBuffer.Fill();
 	}
+}
+
+void VulkanPipeline::BuildCommandbuffer(VkCommandBuffer commandBuffer)
+{	
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
 	VkDeviceSize offsets[1] = { 0 };
 	for (auto& _meshBuffer : _meshBuffers)
@@ -316,6 +317,18 @@ void VulkanPipeline::DestroyPipeline()
 	vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
 }
 
+void VulkanPipeline::ReCreateBuffers(IMesh* mesh)
+{
+	VertexBuffer vertexBuffer = VertexBuffer(_device, _physical, mesh->RequiredBufferSize(), mesh->VertexCount());
+	vertexBuffer.Fill(mesh->VerticesData());
+	_meshBuffers.push_back(vertexBuffer);
+}
+
+void VulkanPipeline::AttachVulkanMeshData(VulkanMeshData& meshData)
+{
+	meshData.SetBufferRecreateEventListener(this);
+}
+
 void VulkanPipeline::CreateBuffers(VulkanMeshData& meshData)
 {
 	for (IMesh* mesh : meshData.Meshes())
@@ -325,7 +338,7 @@ void VulkanPipeline::CreateBuffers(VulkanMeshData& meshData)
 		_meshBuffers.push_back(vertexBuffer);
 	}
 
-	for (VulkanBuffer data : meshData.Buffers())
+	for (const VulkanBuffer& data : meshData.Buffers())
 	{
 		_dataBuffers.push_back(data);
 	}

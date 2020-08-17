@@ -19,13 +19,10 @@ class IShader
 {
 public:
 
-	IShader(string& location, string& name, ShaderType shaderType)
+	explicit IShader(string& location, string& name, ShaderType shaderType): _shaderLocation(location), _name(name), _shaderType(shaderType)
 	{
-		_shaderLocation = location;
-		_name = name;
 		FileReader reader = FileReader();
 		_shaderData = reader.Read(location);		
-		_shaderType = shaderType;
 	}
 
 	vector<char>& ShaderData()

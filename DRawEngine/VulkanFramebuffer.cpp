@@ -63,7 +63,7 @@ void VulkanFramebuffer::CreateQueues(VkDevice device, uint32_t grapQueueFI, uint
 	vkGetDeviceQueue(device, presentQueueFI, 0, &_presentQueue);
 }
 
-void VulkanFramebuffer::DrawFrame()
+void VulkanFramebuffer::SubmitFramebuffer(int index)
 {
 	uint32_t imageIndex;
 	auto result = vkAcquireNextImageKHR(_device, _swapchain.Swapchain(), UINT64_MAX, _swapchain.ImageAvailableSemaphore(), nullptr, &imageIndex);
@@ -84,11 +84,12 @@ void VulkanFramebuffer::DrawFrame()
 
 	VkSemaphore waitSemaphores[] = { _swapchain.ImageAvailableSemaphore() };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	VkCommandBuffer commandBuffers = { _commandPool.CommandBuffer(index).CommandBuffer() };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
-	submitInfo.commandBufferCount = _commandPool.CommandBufferCount();
-	submitInfo.pCommandBuffers = _commandPool.CommandBuffersData();
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffers;
 	submitInfo.pSignalSemaphores = nullptr;
 	submitInfo.pNext = nullptr;
 	VkSemaphore signalSemaphores[] = { _swapchain.RenderFinishSemaphore() };
@@ -101,7 +102,7 @@ void VulkanFramebuffer::DrawFrame()
 	//do {
 	//	res = vkWaitForFences(_device, 1, &drawFence, VK_TRUE, FENCE_TIMEOUT);
 	//} while (res == VK_TIMEOUT);
-
+	//
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	presentInfo.waitSemaphoreCount = 1;

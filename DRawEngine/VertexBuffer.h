@@ -2,9 +2,6 @@
 #include <vulkan/vulkan.h>
 #include <iostream>
 
-#include "IVertex.h"
-
-#define FENCE_TIMEOUT 1
 
 using namespace std;
 
@@ -65,6 +62,11 @@ public:
 			cerr << "Unable to map memory!" << endl;
 		memcpy(_dataPointer, data, _bufferInfo.size);
 		vkUnmapMemory(_device, _memory);
+	}
+
+	virtual void Destroy()
+	{
+		vkDestroyBuffer(_device, _buffer, nullptr);
 	}
 
 	VkBuffer& Buffer()

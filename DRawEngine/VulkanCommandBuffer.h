@@ -10,7 +10,7 @@ class VulkanCommandBuffer : public ICommandBuffer
 public:
 	VulkanCommandBuffer(VkDevice device, VkCommandPool commandPool);
 
-	VkCommandBuffer& CommandBuffer();
+	VkCommandBuffer CommandBuffer();
 
 	virtual ~VulkanCommandBuffer();
 	

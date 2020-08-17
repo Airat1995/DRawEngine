@@ -12,7 +12,7 @@ public:
 
 	virtual ~IRender() = default;
 
-	virtual void Init(vector<const char*>* extensions) = 0;
+	virtual void Init() = 0;
 
 	virtual void AddMesh(IMesh* mesh) = 0;
 

@@ -1,7 +1,7 @@
 #include "IImage.h"
 
-IImage::IImage(ImageFormat format, ImageType type, ImageUsage usage, int binding, int width, int height, unsigned char* imageData)
-	: _width(width), _height(height), _imageData(imageData), _format(format), _type(type), _usage(usage), _binding(binding)
+IImage::IImage(ImageFormat format, ImageType type, ImageUsage usage, int binding, int width, int height, int sampleCount, unsigned char* imageData)
+	: _width(width), _height(height), _binding(binding), _sampleCount(sampleCount), _imageData(imageData), _format(format), _type(type), _usage(usage)
 {
 }
 
@@ -38,4 +38,9 @@ ImageUsage IImage::Usage() const
 int IImage::Binding() const
 {
 	return _binding;
+}
+
+int IImage::SampleCount() const
+{
+	return _sampleCount;
 }

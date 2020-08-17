@@ -4,7 +4,7 @@
 class IImage
 {
 public:	 
-	IImage(ImageFormat format, ImageType type, ImageUsage usage, int binding, int width, int height, unsigned char* imageData);
+	IImage(ImageFormat format, ImageType type, ImageUsage usage, int binding, int width, int height, int sampleCount, unsigned char* imageData);
 
 	int Width() const;
 
@@ -19,14 +19,18 @@ public:
 	ImageUsage Usage() const;
 
 	int Binding() const;
+
+	int SampleCount() const;
 	
 protected:
 
-	int _width;
+	const int _width;
 
-	int _height;
+	const int _height;
 
 	int _binding;
+
+	const int _sampleCount;
 	
 	unsigned char* _imageData;
 

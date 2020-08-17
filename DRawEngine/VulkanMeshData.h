@@ -1,17 +1,17 @@
 #pragma once
-#include <vulkan/vulkan.h>
 #include "IMesh.h"
-#include "VertexBuffer.h"
 #include "VulkanShader.h"
 #include "VulkanBuffer.h"
 #include "VulkanImage.h"
+#include "IVulkanRenderMeshBufferCreator.h"
+
 
 using namespace std;
 
 class VulkanMeshData
 {
 public:
-	VulkanMeshData(vector<IMesh*>& meshes, vector<VulkanBuffer>& buffers, vector<VulkanImage>& images);
+	VulkanMeshData(vector<IMesh*> meshes, vector<VulkanBuffer>& buffers, vector<VulkanImage>& images);
 
 	vector<VkVertexInputBindingDescription> BindingDescriptions();
 
@@ -25,16 +25,23 @@ public:
 
 	vector<VulkanImage>& Images();
 
+	void SetBufferRecreateEventListener(IVulkanRenderMeshBufferCreator* bufferCreator);
+	bool SameShaders(IMesh* mesh);
+
 private:
 	vector<VkVertexInputBindingDescription> _bindingDescriptions;
 
 	vector<VkVertexInputAttributeDescription> _attributeDescriptions;
 
-	vector<IMesh*>& _meshes;
+	vector<IMesh*> _meshes;
 
 	vector<VulkanBuffer>& _buffers;
 
 	vector<VulkanImage>& _images;
+
+	IVulkanRenderMeshBufferCreator* _bufferCreator = nullptr;
+
+	bool _needRebuild;
 	
 	inline VkVertexInputAttributeDescription CreateAttributeDescription(
 		uint32_t binding,

@@ -25,7 +25,7 @@ public:
 
 	virtual ~VulkanFramebuffer();
 	
-	void DrawFrame();
+	void SubmitFramebuffer(int index);
 private:
 	vector<VkFramebuffer>* _swapChainFramebuffers;
 
