@@ -62,6 +62,9 @@
     <Filter Include="Source Files\Render\Interface\Tools">
       <UniqueIdentifier>{af05d0b2-9590-4fe1-be7a-b00decf0e876}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Tools">
+      <UniqueIdentifier>{57bf40d1-9453-4d92-bcd1-daa55ae76a53}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IWindow.cpp">
@@ -150,6 +153,15 @@
     </ClCompile>
     <ClCompile Include="IDepthBuffer.cpp">
       <Filter>Source Files\Render\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="IVulkanRenderExtension.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ICamera.cpp">
+      <Filter>Source Files\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="TPCamera.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -275,6 +287,18 @@
     </ClInclude>
     <ClInclude Include="VulkanDepthBuffer.h">
       <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="IVulkanRenderExtension.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ICamera.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="TPCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraObject.h">
+      <Filter>Header Files\Tools</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
