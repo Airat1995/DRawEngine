@@ -1,8 +1,10 @@
 #pragma once
 #include "CameraObject.h"
 
+
 using namespace glm;
 
+template<typename T>
 class ICamera
 {
 public:
@@ -22,5 +24,5 @@ public:
 
 	virtual float GetFar() = 0;
 
-	virtual CameraObject& GetCameraObject() = 0;
+	virtual T& GetCameraObject() = 0;
 };
