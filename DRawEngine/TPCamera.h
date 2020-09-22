@@ -3,7 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-class TPCamera : public ICamera
+template<typename T>
+class TPCamera : public ICamera<CameraObject>
 {
 private:
 
@@ -23,9 +24,20 @@ private:
 
 	float _aspect;
 
+	float _speed;
+
 public:
 
-	TPCamera() = default;
+	TPCamera(float cameraSpeed)
+	{
+		_speed = cameraSpeed;
+	}
+
+	~TPCamera()
+	{		
+	}
+
+	
 
 	TPCamera(const TPCamera& other)
 		: ICamera(other)
@@ -53,27 +65,80 @@ public:
 		return *this;
 	}
 
-	void SetPosition(vec3& position) override;
-	
-	void SetRotation(vec3& rotation) override;
-	
-	void Rotate(vec3& delta) override;
-	
-	void Move(vec3& delta) override;
-	
-	void SetPerspective(float fov, float aspect, float zNear, float zFar) override;
-	void UpdateProjectionMatrix();
+	void SetPosition(vec3& position) override
+	{
+		_position = position;
+		UpdateViewMatrix();
+	}
 
-	void SetAspect(float aspect) override;
-	
-	float GetNear() override;
-	
-	float GetFar() override;
+	void SetRotation(vec3& rotation) override
+	{
+		_rotation = rotation;
+		UpdateViewMatrix();
+	}
 
-	CameraObject& GetCameraObject() override;
-	
+	void Rotate(vec3& delta) override
+	{
+		_rotation += delta;
+		UpdateViewMatrix();
+	}
+
+	void Move(vec3& delta) override
+	{
+		_position += delta * _speed;
+		UpdateViewMatrix();
+	}
+
+	void SetPerspective(float fov, float aspect, float zNear, float zFar) override
+	{
+		_fov = fov;
+		_aspect = aspect;
+		_zNear = zNear;
+		_zFar = zFar;
+		UpdateProjectionMatrix();
+	}
+
+	void UpdateProjectionMatrix()
+	{
+		_cameraObject._proj = perspective(glm::radians(_fov), _aspect, _zNear, _zFar);
+	}
+
+	void SetAspect(float aspect) override
+	{
+		_aspect = aspect;
+		UpdateProjectionMatrix();
+	}
+
+	float GetNear() override
+	{
+		return _zNear;
+	}
+
+	float GetFar() override
+	{
+		return _zFar;
+	}
+
+	CameraObject& GetCameraObject() override
+	{
+		return _cameraObject;
+	}
+
 private:
 
-	void UpdateViewMatrix();
+	void UpdateViewMatrix()
+	{
+		mat4 rotM = mat4(1.0f);
 
+		rotM = rotate(rotM, radians(_rotation.x * (1.0f)), glm::vec3(1.0f, 0.0f, 0.0f));
+		rotM = rotate(rotM, radians(_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+		rotM = rotate(rotM, radians(_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+		const vec3 translation = _position;
+		mat4 transM = glm::translate(mat4(1.0f), translation);
+
+		_cameraObject._view = transM * rotM;
+
+		_viewPos = glm::vec4(_position, 0.0f) * glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f);
+	}
 };
