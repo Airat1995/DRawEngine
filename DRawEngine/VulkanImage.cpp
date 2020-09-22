@@ -353,7 +353,7 @@ VkImageUsageFlagBits VulkanImage::ImageUsageToVulkan(ImageUsage usage)
 	if (HasFlag(usage, ImageUsage::TransferDst))
 		imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-	if (HasFlag(usage, ImageUsage::Sample))
+	if (HasFlag(usage, ImageUsage::Sampler))
 		imageUsage |= VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
 	if (HasFlag(usage, ImageUsage::Storage))

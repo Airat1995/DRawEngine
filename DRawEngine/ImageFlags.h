@@ -23,7 +23,7 @@ enum class ImageUsage
 {
 	TransferSrc = 1 << 0,
 	TransferDst = 1 << 1,
-	Sample = 1 << 2,
+	Sampler = 1 << 2,
 	Storage = 1 << 3,
 	DepthStencil = 1 << 4,
 	TransientAtc = 1 << 5,
