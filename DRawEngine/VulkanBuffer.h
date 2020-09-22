@@ -25,6 +25,10 @@ public:
 
 	int Binding() const;
 
+	int Size() const;
+
+	const void* DataLocation();
+
 	VkDescriptorSetLayout DescriptorSetLayout() const;
 
 	VkDescriptorSetLayoutBinding DescriptorBindingInfo() const;

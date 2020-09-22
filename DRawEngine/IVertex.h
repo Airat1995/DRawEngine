@@ -16,10 +16,27 @@ public:
 	VertexData& operator=(VertexData&&) = default;
 	explicit VertexData()
 	{
-		position = glm::vec3(0, 0, 0);
+		position = vec3(0, 0, 0);
 	}
 
-	glm::vec3 position;
+	vec3 position;
+};
+
+class TexturedVertexData : public VertexData
+{
+public:
+	TexturedVertexData(const TexturedVertexData&) = default;
+	TexturedVertexData(TexturedVertexData&&) = default;
+	TexturedVertexData& operator=(const TexturedVertexData&) = default;
+	TexturedVertexData& operator=(TexturedVertexData&&) = default;
+	explicit TexturedVertexData()
+	{
+		position = vec3(0, 0, 0);
+		normal = vec3(0, 0, 0);
+		uv = vec2(0, 0);
+	}
+	vec3 normal;
+	vec2 uv;
 };
 
 class ColoredVertexData : public VertexData
@@ -32,13 +49,13 @@ public:
 	ColoredVertexData& operator=(ColoredVertexData&&) = default;
 	explicit ColoredVertexData()
 	{
-		position = glm::vec3(0, 0, 0);
-		color = glm::vec3(0, 0, 0);
-		texCoord = glm::vec2(0, 0);
+		position = vec3(0, 0, 0);
+		color = vec3(0, 0, 0);
+		texCoord = vec2(0, 0);
 	}
 
-	glm::vec2 texCoord;
-	glm::vec3 color;
+	vec2 texCoord;
+	vec3 color;
 };
 
 class AlphaColoredVertexData : public ColoredVertexData

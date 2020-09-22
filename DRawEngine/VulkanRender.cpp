@@ -124,20 +124,27 @@ void VulkanRender::DrawFrame()
 
 void VulkanRender::AddMesh(IMesh* mesh)
 {
+
+	vector<VulkanBuffer> buffers{};
+	for (vector<IBuffer*>::value_type& buffer : mesh->PerObjectBuffers())
+	{
+		VulkanUniformBuffer uniformBuffer = VulkanUniformBuffer(_device, _gpus[0], buffer->StageFlag(), buffer->Usage(), buffer->SharingMode(), buffer->RawData(), buffer->Size(), buffer->BindingId());
+		buffers.push_back(uniformBuffer);
+	}
+
+	
 	for (auto && meshData : _meshDataCollection)
 	{
-		if(meshData->SameShaders(mesh))
+		if(meshData->ShouldCombine(mesh))
 		{
-			meshData->AddMesh(mesh);
+			meshData->AddMesh(mesh, buffers);
 			return;
 		}
 	}	
 	
-	vector<IMesh*> meshes = vector<IMesh*>();
-	meshes.push_back(mesh);
 
 	vector<VulkanBuffer> vulkanBuffers = vector<VulkanBuffer>();
-	for (auto* buffer : mesh->Material().Buffers())
+	for (auto* buffer : mesh->Material()->Buffers())
 	{
 		if (buffer->Usage() == BufferUsageFlag::UniformBuffer)
 		{
@@ -149,19 +156,18 @@ void VulkanRender::AddMesh(IMesh* mesh)
 			VulkanBuffer bufferData = VulkanBuffer(_device, _gpus[0], buffer->StageFlag(), buffer->Usage(), buffer->SharingMode(), buffer->RawData(), buffer->Size(), buffer->BindingId());;
 			vulkanBuffers.push_back(bufferData);
 		}
-	}
+	}	
 
 	vector<VulkanImage> images = vector<VulkanImage>();
-	for (auto* image : mesh->Material().Images())
+	for (auto* image : mesh->Material()->Images())
 	{
 		auto imageData = VulkanImage(_commandPool, image->Format(), image->Type(), image->Usage(), image->Width(), image->Height(),
 		                             image->ImageData(), _device, _gpus, image->Binding(), _graphicsQueueFamilyIndex,
 		                             image->SampleCount());
 		images.push_back(imageData);
 	}
-	VulkanMeshData* currentMeshData = new VulkanMeshData(meshes, vulkanBuffers, images);
+	VulkanMeshData* currentMeshData = new VulkanMeshData(mesh, vulkanBuffers, images, buffers);
 	VulkanPipeline* pipeline = new VulkanPipeline(_device, _gpus[0], *_renderpass, *currentMeshData, _swapchain->SwapchainInfo().imageExtent);
-	pipeline->AttachVulkanMeshData(*currentMeshData);
 	_meshDataCollection.push_back(currentMeshData);
 	_pipelines.push_back(pipeline);
 }

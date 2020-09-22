@@ -20,7 +20,7 @@ public:
 	Mesh& operator=(Mesh&&) = delete;       // Move assignment operator
 	virtual ~Mesh() = default;
 
-	Mesh(vector<Vertex>& vertices, IMaterial& material) : IMesh(), _vertices(vertices), _material(material)
+	Mesh(vector<Vertex>& vertices, IMaterial* material) : IMesh(), _vertices(vertices), _material(material)
 	{
 		vertices.at(0).FillVertexInfo();
 		FillVertexDatas();
@@ -31,7 +31,7 @@ public:
 		_vertices = vector<Vertex>();		
 	}
 
-	Mesh(vector<Vertex>& vertices, vector<uint16_t> indexes, IMaterial& material) : IMesh(), _vertices(vertices),
+	Mesh(vector<Vertex>& vertices, vector<uint16_t> indexes, IMaterial* material) : IMesh(), _vertices(vertices),
 	                                                            _indexes(indexes), _material(material)
 	{
 		_indexed = true;
@@ -90,24 +90,37 @@ public:
 
 	map<ShaderType, IShader>& Shaders() override
 	{
-		return _material.MaterialShaders();
+		return _material->MaterialShaders();
 	}
 
-	IMaterial& Material() override
+	IMaterial* Material() override
 	{
 		return _material;
 	}
+
+	void AddPerObjectBuffer(IBuffer* buffer) override
+	{
+		_perObjectBuffers.push_back(buffer);
+	}
+
+	vector<IBuffer*>& PerObjectBuffers() override
+	{
+		return _perObjectBuffers;
+	}
+	
 protected:
 
 	vector<Vertex> _vertices;
 
 	vector<uint16_t> _indexes;
 
+	vector<IBuffer*> _perObjectBuffers;
+
 private:
 	bool _indexed = false;
 
 	vector<VertexDataT> _vertexDatas;
 
-	IMaterial _material;
+	IMaterial* _material;
 };
 

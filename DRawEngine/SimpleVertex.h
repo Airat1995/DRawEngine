@@ -2,12 +2,10 @@
 #include <vector>
 #include "IVertex.h"
 
-template<typename VertexDataT,
-		typename = enable_if<is_base_of_v<VertexData, VertexDataT>>>
-	class SimpleVertex : public IVertex<VertexDataT>
+class SimpleVertex : public IVertex<TexturedVertexData>
 {
 public:
-	SimpleVertex(VertexDataT& vertexData) : _vertexData(vertexData)
+	SimpleVertex(TexturedVertexData& vertexData) : _vertexData(vertexData)
 	{
 		SimpleVertex::FillVertexInfo();
 	}
@@ -15,28 +13,29 @@ public:
 	void FillVertexInfo() override
 	{
 		_vertexInfo = new vector<VertexAttributeInfo>();
-		VertexAttributeInfo firstAttributeInfo{};
-		firstAttributeInfo.Location = 0;
-		firstAttributeInfo.Offset = 0;
-		firstAttributeInfo.Format = Format::Vector2F;
-		_vertexInfo->push_back(firstAttributeInfo);
+		VertexAttributeInfo position{};
+		position.Location = 0;
+		position.Offset = 0;
+		position.Format = Format::Vector3F;
+		_vertexInfo->push_back(position);
 
-		VertexAttributeInfo secondAttributeInfo{};
-		secondAttributeInfo.Location = 1;
-		secondAttributeInfo.Offset = 8;
-		secondAttributeInfo.Format = Format::Vector3F;
-		_vertexInfo->push_back(secondAttributeInfo);
+		VertexAttributeInfo normal{};
+		normal.Location = 1;
+		normal.Offset = 12;
+		normal.Format = Format::Vector3F;
+		_vertexInfo->push_back(normal);
 
-		VertexAttributeInfo thirdAttributeInfo{};
-		thirdAttributeInfo.Location = 2;
-		thirdAttributeInfo.Offset = 20;
-		thirdAttributeInfo.Format = Format::Float;
-		_vertexInfo->push_back(thirdAttributeInfo);
+		VertexAttributeInfo uv{};
+		uv.Location = 1;
+		uv.Offset = 12;
+		uv.Format = Format::Vector2F;
+		_vertexInfo->push_back(uv);
+
 
 		_bindingInfo = new vector<VertexBindingInfo>();
 		VertexBindingInfo firstBindingInfo{};
 		firstBindingInfo.BindId = 0;
-		firstBindingInfo.Size = 24;
+		firstBindingInfo.Size = sizeof(TexturedVertexData);
 		firstBindingInfo.InputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 		_bindingInfo->push_back(firstBindingInfo);
 	}
@@ -53,16 +52,16 @@ public:
 
 	int VertexSize() override
 	{
-		return 24;
+		return sizeof(TexturedVertexData);
 	}
 
-	VertexDataT& GetVertexData() override
+	TexturedVertexData& GetVertexData() override
 	{
 		return _vertexData;
 	}
 
 protected:
-	VertexDataT& _vertexData;	
+	TexturedVertexData& _vertexData;
 
 	vector<VertexAttributeInfo>* _vertexInfo = nullptr;
 

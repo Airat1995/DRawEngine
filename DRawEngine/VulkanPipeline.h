@@ -26,9 +26,7 @@ public:
 
 	void DestroyPipeline();
 
-	void ReCreateBuffers(IMesh* mesh) override;
-
-	void AttachVulkanMeshData(VulkanMeshData& meshData);
+	void ReCreateBuffers(IMesh* mesh, vector<VulkanBuffer> perObjectBuffers) override;
 
 private:
 
@@ -62,6 +60,8 @@ private:
 	VulkanMeshData& _meshData;
 
 	vector<VertexBuffer> _meshBuffers;
+
+	map<VertexBuffer, vector<VulkanBuffer>> _perObjectBuffer;
 
 	vector<VulkanBuffer> _dataBuffers;
 

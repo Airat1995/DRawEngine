@@ -50,9 +50,6 @@
     <Filter Include="Header Files\Render\VulkanOpenVR">
       <UniqueIdentifier>{af2fa982-2bf8-48ff-8fa4-9083d3283736}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\VulkanOpenVR">
-      <UniqueIdentifier>{287213c4-7327-4420-9fd9-5dd11aee14fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Render\Vulkan\Extensions">
       <UniqueIdentifier>{89ff05a2-7df2-41a8-bd0e-ba497f49b2ff}</UniqueIdentifier>
     </Filter>

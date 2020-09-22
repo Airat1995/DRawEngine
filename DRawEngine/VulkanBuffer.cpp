@@ -96,6 +96,16 @@ int VulkanBuffer::Binding() const
 	return _bindingId;
 }
 
+int VulkanBuffer::Size() const
+{
+	return _size;
+}
+
+const void* VulkanBuffer::DataLocation()
+{
+	return _dataLocation;
+}
+
 VkDescriptorSetLayout VulkanBuffer::DescriptorSetLayout() const
 {
 	return _descriptorSetLayout;

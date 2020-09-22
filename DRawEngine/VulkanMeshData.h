@@ -11,13 +11,14 @@ using namespace std;
 class VulkanMeshData
 {
 public:
-	VulkanMeshData(vector<IMesh*> meshes, vector<VulkanBuffer>& buffers, vector<VulkanImage>& images);
+	VulkanMeshData(IMesh* mesh, vector<VulkanBuffer>& buffers, vector<VulkanImage>& images,
+		vector<VulkanBuffer>& perObjectBuffers);
 
 	vector<VkVertexInputBindingDescription> BindingDescriptions();
 
 	vector<VkVertexInputAttributeDescription> AttributeDescriptions();
 
-	void AddMesh(IMesh* mesh);
+	void AddMesh(IMesh* mesh, vector<VulkanBuffer>& vulkanBuffers);
 
 	vector<IMesh*>& Meshes();
 
@@ -25,8 +26,12 @@ public:
 
 	vector<VulkanImage>& Images();
 
+	vector<VulkanBuffer>& PerObjectBuffersInfo();
+
+	vector<VulkanBuffer>& PerObjectBuffersInfo(IMesh* mesh);
+
 	void SetBufferRecreateEventListener(IVulkanRenderMeshBufferCreator* bufferCreator);
-	bool SameShaders(IMesh* mesh);
+	bool ShouldCombine(IMesh* mesh);
 
 private:
 	vector<VkVertexInputBindingDescription> _bindingDescriptions;
@@ -38,6 +43,8 @@ private:
 	vector<VulkanBuffer>& _buffers;
 
 	vector<VulkanImage>& _images;
+
+	map<IMesh*, vector<VulkanBuffer>>& _perObjectBuffers = map<IMesh*, vector<VulkanBuffer>>();
 
 	IVulkanRenderMeshBufferCreator* _bufferCreator = nullptr;
 

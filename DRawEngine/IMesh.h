@@ -14,7 +14,7 @@ using namespace glm;
 class IMesh
 {
 public:
-			
+
 	virtual const void* VerticesData() = 0;
 
 	virtual void const* IndicesData() = 0;
@@ -33,9 +33,24 @@ public:
 
 	virtual map<ShaderType, IShader>& Shaders() = 0;
 
-	virtual IMaterial& Material() = 0;
+	virtual void AddPerObjectBuffer(IBuffer* buffer) = 0;
+
+	virtual vector<IBuffer*>& PerObjectBuffers() = 0;
+
+	virtual IMaterial* Material() = 0;
+
+	virtual bool IsStatic()
+	{
+		return _isStatic;
+	}
+
+	virtual void SetStatic(bool isStatic)
+	{
+		_isStatic = isStatic;
+	}
 	
 protected:
-	vec3 position;
-	quat rotation;
+	mat4 _model;
+
+	bool _isStatic;
 };

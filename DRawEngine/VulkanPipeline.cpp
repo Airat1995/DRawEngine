@@ -6,6 +6,7 @@ VulkanPipeline::VulkanPipeline(VkDevice device, VkPhysicalDevice physical, Vulka
 {
 	Initialize(device, vulkanMeshData, extent);	
 	CreateBuffers(vulkanMeshData);
+	vulkanMeshData.SetBufferRecreateEventListener(this);
 }
 
 void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData, VkExtent2D extent)
@@ -25,12 +26,19 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	}
 
 	vector<VulkanBuffer> buffersDescriptions = vulkanMeshData.Buffers();
+	vector<VulkanBuffer> perObjectDescriptions = vulkanMeshData.PerObjectBuffersInfo();
 	vector<VulkanImage> imagesDescriptions = vulkanMeshData.Images();
 	vector<VkDescriptorSetLayoutBinding> descriptorSets = vector<VkDescriptorSetLayoutBinding>();
 	for (auto& buffersDescription : buffersDescriptions)
 	{
 		descriptorSets.push_back(buffersDescription.DescriptorBindingInfo());
 	}
+
+	for (vector<VulkanBuffer>::value_type perObject : perObjectDescriptions)
+	{
+		descriptorSets.push_back(perObject.DescriptorBindingInfo());
+	}
+	
 
 	for (auto& imageDescription : imagesDescriptions)
 	{
@@ -118,11 +126,20 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	colorBlending.blendConstants[2] = 0.0f;
 	colorBlending.blendConstants[3] = 0.0f;
 
+	VkPushConstantRange pushConstantRange;
+	if (!perObjectDescriptions.empty())
+	{
+		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		pushConstantRange.offset = 0;
+		pushConstantRange.size = perObjectDescriptions.at(0).Size();
+	}
+
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 1;
 	pipelineLayoutInfo.pSetLayouts = &_descriptorSetLayout;
-	pipelineLayoutInfo.pushConstantRangeCount = 0;
+	pipelineLayoutInfo.pushConstantRangeCount = !perObjectDescriptions.empty() ? 1 : 0;
+	pipelineLayoutInfo.pPushConstantRanges = !perObjectDescriptions.empty() ? &pushConstantRange : nullptr;
 
 	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create pipeline layout!");
@@ -182,8 +199,8 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	vector<VkDescriptorPoolSize> typeCounts = vector<VkDescriptorPoolSize>();
 	for (auto bufferDescription : buffersDescriptions)
 	{
-		VkDescriptorPoolSize poolInfo = {};
-		poolInfo.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		VkDescriptorPoolSize poolInfo = {};		
+		poolInfo.type = bufferDescription.DescriptorBindingInfo().descriptorType;
 		poolInfo.descriptorCount = 1;
 		typeCounts.push_back(poolInfo);
 	}
@@ -233,7 +250,7 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 		descriptorSet.dstSet = _descriptorSets;
 		descriptorSet.descriptorCount = 1;
 		descriptorSet.dstArrayElement = 0;
-		descriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorSet.descriptorType = bufferDescription.DescriptorBindingInfo().descriptorType;
 		descriptorSet.pBufferInfo = &bufferDescription.BufferDescriptorInfo();
 		// Binds this uniform buffer to binding point 0
 		descriptorSet.dstBinding = bufferDescription.Binding();
@@ -305,10 +322,16 @@ void VulkanPipeline::BuildCommandbuffer(VkCommandBuffer commandBuffer)
 {	
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
 	VkDeviceSize offsets[1] = { 0 };
-	for (auto& _meshBuffer : _meshBuffers)
+	for (auto& meshBuffer : _meshBuffers)
 	{
-		vkCmdBindVertexBuffers(commandBuffer, _firstBinding, _bindingCount, &_meshBuffer.Buffer(), offsets);
-		vkCmdDraw(commandBuffer, _meshBuffer.VertexCount(), 1, 0, 0);
+		auto constantBuffers = _perObjectBuffer.at(meshBuffer);
+		for (auto&& constantBuffer : constantBuffers)
+		{
+			vkCmdPushConstants(commandBuffer, _pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, constantBuffer.Size(), constantBuffer.DataLocation());
+		}
+		
+		vkCmdBindVertexBuffers(commandBuffer, _firstBinding, _bindingCount, &meshBuffer.Buffer(), offsets);
+		vkCmdDraw(commandBuffer, meshBuffer.VertexCount(), 1, 0, 0);
 	}
 }
 
@@ -317,25 +340,23 @@ void VulkanPipeline::DestroyPipeline()
 	vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
 }
 
-void VulkanPipeline::ReCreateBuffers(IMesh* mesh)
+void VulkanPipeline::ReCreateBuffers(IMesh* mesh, vector<VulkanBuffer> perObjectBuffers)
 {
-	VertexBuffer vertexBuffer = VertexBuffer(_device, _physical, mesh->RequiredBufferSize(), mesh->VertexCount());
-	vertexBuffer.Fill(mesh->VerticesData());
-	_meshBuffers.push_back(vertexBuffer);
-}
+	VertexBuffer* vertexBuffer = new VertexBuffer(_device, _physical, mesh->RequiredBufferSize(), mesh->VertexCount());
+	vertexBuffer->Fill(mesh->VerticesData());
+	_meshBuffers.push_back(*vertexBuffer);
+	_perObjectBuffer.insert({ *vertexBuffer, perObjectBuffers });
 
-void VulkanPipeline::AttachVulkanMeshData(VulkanMeshData& meshData)
-{
-	meshData.SetBufferRecreateEventListener(this);
 }
 
 void VulkanPipeline::CreateBuffers(VulkanMeshData& meshData)
 {
 	for (IMesh* mesh : meshData.Meshes())
 	{
-		VertexBuffer vertexBuffer = VertexBuffer(_device, _physical, mesh->RequiredBufferSize(), mesh->VertexCount());
-		vertexBuffer.Fill(mesh->VerticesData());
-		_meshBuffers.push_back(vertexBuffer);
+		VertexBuffer* vertexBuffer = new VertexBuffer(_device, _physical, mesh->RequiredBufferSize(), mesh->VertexCount());
+		vertexBuffer->Fill(mesh->VerticesData());
+		_meshBuffers.push_back(*vertexBuffer);
+		_perObjectBuffer.insert({ *vertexBuffer, meshData.PerObjectBuffersInfo(mesh) });
 	}
 
 	for (const VulkanBuffer& data : meshData.Buffers())

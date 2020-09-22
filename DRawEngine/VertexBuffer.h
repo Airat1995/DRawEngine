@@ -11,7 +11,7 @@ public:
 	VertexBuffer(const VertexBuffer&) = default;               // Copy constructor
 	VertexBuffer(VertexBuffer&&) = default;                    // Move constructor
 	VertexBuffer& operator=(const VertexBuffer&) = default;  // Copy assignment operator
-	VertexBuffer& operator=(VertexBuffer&&) = default;       // Move assignment operator
+	VertexBuffer& operator=(VertexBuffer&&) = default;       // Move assignment operator	
 	virtual ~VertexBuffer() { }
 
 	VertexBuffer(VkDevice device, VkPhysicalDevice physical, int bufferSize, int vertexCount) :_device(device), _physical(physical), _vertexCount(vertexCount)
@@ -29,6 +29,8 @@ public:
 		if (result != VK_SUCCESS)
 			cerr << "Unable to create buffer!" << endl;
 
+		_uniqHash = reinterpret_cast<uint32_t>(this);
+		
 		vkGetBufferMemoryRequirements(_device, _buffer, &_memoryReq);
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(_physical, &memProperties);
@@ -66,6 +68,8 @@ public:
 
 	virtual void Destroy()
 	{
+		delete _dataPointer;
+		_dataPointer = nullptr;
 		vkDestroyBuffer(_device, _buffer, nullptr);
 	}
 
@@ -79,6 +83,12 @@ public:
 		return _vertexCount;
 	}
 
+	//NO NEED RIGHT NOW. CREATED TO FILL MAP
+	inline bool operator<(const VertexBuffer& second) const
+	{
+		return _uniqHash < second._uniqHash;
+	}
+	
 protected:
 
 	VkBuffer _buffer;
@@ -90,6 +100,8 @@ protected:
 	VkMemoryRequirements _memoryReq;
 
 	int _vertexCount;
+
+	int _uniqHash;
 
 	uint8_t* _dataPointer = nullptr;
 
@@ -106,4 +118,5 @@ protected:
 		}
 		throw std::runtime_error("Unable to find suitable memory type!");
 	}
+
 };
