@@ -200,7 +200,6 @@ vector<const char*> VulkanRender::GetLayers()
 {
 	std::vector<const char*> layers;
 #if _DEBUG
-    layers.push_back("VK_LAYER_LUNARG_standard_validation");
     layers.push_back("VK_LAYER_KHRONOS_validation");
 #endif
 	return layers;

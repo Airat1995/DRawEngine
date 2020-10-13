@@ -116,9 +116,9 @@ VkDescriptorSetLayoutBinding VulkanBuffer::DescriptorBindingInfo() const
 	return _layoutBinding;
 }
 
-VkDescriptorBufferInfo VulkanBuffer::BufferDescriptorInfo()
+VkDescriptorBufferInfo* VulkanBuffer::BufferDescriptorInfo()
 {
-	return _bufferDescriptorInfo;
+	return &_bufferDescriptorInfo;
 }
 
 uint32_t VulkanBuffer::FindMemoryType(uint32_t typeFilter, VkPhysicalDeviceMemoryProperties memoryProperties, VkMemoryPropertyFlags properties)
@@ -138,7 +138,7 @@ VkShaderStageFlagBits VulkanBuffer::GetUsage(BufferStageFlag stage)
 	int usage = 0;
 	if (HasFlag(stage, BufferStageFlag::Fragment))
 	{
-		usage |= VK_SHADER_STAGE_VERTEX_BIT;
+		usage |= VK_SHADER_STAGE_FRAGMENT_BIT;
 	}
 	if (HasFlag(stage, BufferStageFlag::Vertex))
 	{

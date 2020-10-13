@@ -8,11 +8,13 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 {
 	_device = device;
 
-	_buffer = new VulkanBuffer(_device, gpus[0], BufferStageFlag::Fragment, BufferUsageFlag::TransferSrc, BufferSharingMode::Exclusive, imageData, sizeof(char) * width * height * ChannelsCount(format), binding);
+	int layerCount = _type == ImageType::Cube ? 6 : 1;
+	_buffer = new VulkanBuffer(_device, gpus[0], BufferStageFlag::Fragment, BufferUsageFlag::TransferSrc, BufferSharingMode::Exclusive, imageData,
+		layerCount * width * height * ChannelsCount(format), binding);
 	_buffer->Fill();
 	CreateDescriptorSetLayout();
 	CreateSampler();
-	
+
 	VkFormat vulkanFormat = ImageFormatToVulkan(format);
 	VkImageType vkImageType = ImageTypeToVulkan(type);
 	VkImageViewType imageView = ImageTypeToVulkanViewType(type);
@@ -31,7 +33,7 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 	image_info.extent.height = height;
 	image_info.extent.depth = 1;
 	image_info.mipLevels = 1;
-	image_info.arrayLayers = 1;
+	image_info.arrayLayers = layerCount;
 	image_info.samples = static_cast<VkSampleCountFlagBits>(samples);
 	image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	image_info.usage = vulkanImageUsage;
@@ -39,6 +41,10 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 	image_info.pQueueFamilyIndices = nullptr;
 	image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	image_info.flags = 0;
+	if(_type == ImageType::Cube)
+	{
+		image_info.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+	}
 
 	VkMemoryAllocateInfo mem_alloc = {};
 	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -59,7 +65,7 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 	view_info.subresourceRange.baseMipLevel = 0;
 	view_info.subresourceRange.levelCount = 1;
 	view_info.subresourceRange.baseArrayLayer = 0;
-	view_info.subresourceRange.layerCount = 1;
+	view_info.subresourceRange.layerCount = layerCount;
 	view_info.viewType = imageView;
 	view_info.flags = 0;
 
@@ -153,13 +159,14 @@ bool VulkanImage::MemoryTypeFromProperties(uint32_t typeBits, VkFlags requiremen
 }
 
 void VulkanImage::CreateCopyCommandBuffer(VkImageUsageFlagBits imageUsage)
-{	
+{
+	int layerCount = _type == ImageType::Cube ? 6 : 1;
 	_commandBuffer = &_commandPool->CommandBuffer(0);
 	VkImageSubresourceRange subresourceRange = {};
 	subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	subresourceRange.baseMipLevel = 0;
 	subresourceRange.levelCount = 1;
-	subresourceRange.layerCount = 1;
+	subresourceRange.layerCount = layerCount;
 	VkImageMemoryBarrier imageBarrier = CreateImageMemoryBarrier();
 	imageBarrier.image = _image;
 	imageBarrier.subresourceRange = subresourceRange;
@@ -185,15 +192,15 @@ void VulkanImage::CreateCopyCommandBuffer(VkImageUsageFlagBits imageUsage)
 	imageBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 	imageBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-	VkBufferImageCopy imageCopy = CreateRegion();
+	vector<VkBufferImageCopy> imageCopies = CreateRegion();
 	
 	vkCmdCopyBufferToImage(
 		_commandBuffer->CommandBuffer(),
 		_buffer->Buffer(),
 		_image,
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		1,
-		&imageCopy);
+		imageCopies.size(),
+		imageCopies.data());
 
 	vkCmdPipelineBarrier(
 		_commandBuffer->CommandBuffer(),
@@ -266,20 +273,27 @@ void VulkanImage::CreateDescriptorSetLayout()
 	_samplerLayoutBinding.pImmutableSamplers = nullptr;
 }
 
-VkBufferImageCopy VulkanImage::CreateRegion()
+vector<VkBufferImageCopy> VulkanImage::CreateRegion() const
 {
-	VkBufferImageCopy copyRegion = {};
-	copyRegion.bufferOffset = 0;
-	copyRegion.bufferImageHeight = 0;
-	copyRegion.bufferRowLength = 0;
-	copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	copyRegion.imageSubresource.mipLevel = 0;
-	copyRegion.imageSubresource.baseArrayLayer = 0;
-	copyRegion.imageSubresource.layerCount = 1;
-	copyRegion.imageOffset = { 0,0,0 };
-	copyRegion.imageExtent = { static_cast<uint32_t>(_width),static_cast<uint32_t>(_height), 1 };
+	int imageCount = _type == ImageType::Cube ? 6 : 1;
+	int channelCount = ChannelsCount(_format);
+	vector<VkBufferImageCopy> copyRegions = vector<VkBufferImageCopy>();
+	for (int imageIndex = 0; imageIndex < imageCount; ++imageIndex)
+	{
+		VkBufferImageCopy copyRegion = {};
+		copyRegion.bufferOffset = channelCount * (_height * _width) * imageIndex;
+		copyRegion.bufferImageHeight = 0;
+		copyRegion.bufferRowLength = 0;
+		copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		copyRegion.imageSubresource.mipLevel = 0;
+		copyRegion.imageSubresource.baseArrayLayer = imageIndex;
+		copyRegion.imageSubresource.layerCount = 1;
+		copyRegion.imageOffset = { 0,0,0 };
+		copyRegion.imageExtent = { static_cast<uint32_t>(_width),static_cast<uint32_t>(_height), 1 };
+		copyRegions.push_back(copyRegion);
+	}
 
-	return copyRegion;
+	return copyRegions;
 }
 
 VkImageMemoryBarrier VulkanImage::CreateImageMemoryBarrier()
@@ -298,7 +312,7 @@ VkFormat VulkanImage::ImageFormatToVulkan(ImageFormat format)
 	{
 	case ImageFormat::R: vulkanFormat = VK_FORMAT_R32_UINT; break;
 	case ImageFormat::RG: vulkanFormat = VK_FORMAT_R8G8_UINT;  break;
-	case ImageFormat::RGB: vulkanFormat = VK_FORMAT_R16G16B16_UNORM; break;
+	case ImageFormat::RGB: vulkanFormat = VK_FORMAT_R8G8B8_SNORM; break;
 	case ImageFormat::RGBA: vulkanFormat = VK_FORMAT_R8G8B8A8_UNORM; break;
 	default:
 		cerr << "This type of image format wasn't supported! Please add new statement to the VulkanImage format!" << endl;
@@ -316,6 +330,7 @@ VkImageType VulkanImage::ImageTypeToVulkan(ImageType type)
 	case ImageType::_1D: vulkanImageType = VK_IMAGE_TYPE_1D; break;
 	case ImageType::_2D: vulkanImageType = VK_IMAGE_TYPE_2D; break;
 	case ImageType::_3D: vulkanImageType = VK_IMAGE_TYPE_3D; break;
+	case ImageType::Cube: vulkanImageType = VK_IMAGE_TYPE_2D; break;
 	default:
 		cerr << "This type of image type wasn't supported! Please add new statement to the VulkanImage->ImageTypeToVulkan!";
 		vulkanImageType = VK_IMAGE_TYPE_2D;

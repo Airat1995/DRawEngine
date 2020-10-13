@@ -35,7 +35,7 @@ protected:
 
 	void CreateDescriptorSetLayout();
 
-	VkBufferImageCopy CreateRegion();
+	vector<VkBufferImageCopy> CreateRegion() const;
 
 	static VkImageMemoryBarrier CreateImageMemoryBarrier();
 

@@ -26,8 +26,8 @@ public:
 		_vertexInfo->push_back(normal);
 
 		VertexAttributeInfo uv{};
-		uv.Location = 1;
-		uv.Offset = 12;
+		uv.Location = 2;
+		uv.Offset = 24;
 		uv.Format = Format::Vector2F;
 		_vertexInfo->push_back(uv);
 

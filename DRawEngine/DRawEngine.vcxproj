@@ -164,6 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CubeMapImage.cpp" />
     <ClCompile Include="ICamera.cpp" />
     <ClCompile Include="IDepthBuffer.cpp" />
     <ClCompile Include="FileReader.cpp" />
@@ -171,7 +172,6 @@
     <ClCompile Include="IFramebuffer.cpp" />
     <ClCompile Include="IImage.cpp" />
     <ClCompile Include="IMaterial.cpp" />
-    <ClCompile Include="IVulkanRenderExtension.cpp" />
     <ClCompile Include="IVulkanRenderMeshBufferCreator.cpp" />
     <ClCompile Include="TPCamera.cpp" />
     <ClCompile Include="VertexBindingInfo.cpp" />
@@ -200,6 +200,7 @@
   <ItemGroup>
     <ClInclude Include="BaseBuffer.h" />
     <ClInclude Include="CameraObject.h" />
+    <ClInclude Include="CubeMapImage.h" />
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="IDepthBuffer.h" />
     <ClInclude Include="FileReader.h" />
@@ -207,8 +208,9 @@
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="IImage.h" />
     <ClInclude Include="ImageFlags.h" />
-    <ClInclude Include="IVulkanRenderExtension.h" />
     <ClInclude Include="IVulkanRenderMeshBufferCreator.h" />
+    <ClInclude Include="PointLight.h" />
+    <ClInclude Include="SkyBoxVertex.h" />
     <ClInclude Include="TPCamera.h" />
     <ClInclude Include="VulkanBuffer.h" />
     <ClInclude Include="ICommandBuffer.h" />

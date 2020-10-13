@@ -119,6 +119,11 @@ public:
 		return _zFar;
 	}
 
+	vec3 GetPosition() override
+	{
+		return _position;
+	}
+
 	CameraObject& GetCameraObject() override
 	{
 		return _cameraObject;

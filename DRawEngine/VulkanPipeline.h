@@ -63,6 +63,10 @@ private:
 
 	map<VertexBuffer, vector<VulkanBuffer>> _perObjectBuffer;
 
+	vector<VulkanBuffer> _indices;
+	
+	map<VertexBuffer, int> _indicesSize;
+
 	vector<VulkanBuffer> _dataBuffers;
 
 	uint32_t _firstBinding;

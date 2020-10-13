@@ -156,7 +156,7 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	depthStencil.depthTestEnable = VK_TRUE;
 	depthStencil.depthWriteEnable = VK_TRUE;
-	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 	depthStencil.depthBoundsTestEnable = VK_FALSE;
 	depthStencil.minDepthBounds = 0.0f;
 	depthStencil.maxDepthBounds = 1.0f;
@@ -244,15 +244,14 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	vector<VkWriteDescriptorSet> writeDescriptorSet = vector<VkWriteDescriptorSet>();
 	for (auto&& bufferDescription : buffersDescriptions)
 	{
+		VkDescriptorBufferInfo* descr = bufferDescription.BufferDescriptorInfo();
 		VkWriteDescriptorSet descriptorSet = {};
-		// Binding 0 : Uniform buffer
 		descriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorSet.dstSet = _descriptorSets;
 		descriptorSet.descriptorCount = 1;
 		descriptorSet.dstArrayElement = 0;
 		descriptorSet.descriptorType = bufferDescription.DescriptorBindingInfo().descriptorType;
-		descriptorSet.pBufferInfo = &bufferDescription.BufferDescriptorInfo();
-		// Binds this uniform buffer to binding point 0
+		descriptorSet.pBufferInfo = descr;
 		descriptorSet.dstBinding = bufferDescription.Binding();
 		writeDescriptorSet.push_back(descriptorSet);
 	}
@@ -324,14 +323,22 @@ void VulkanPipeline::BuildCommandbuffer(VkCommandBuffer commandBuffer)
 	VkDeviceSize offsets[1] = { 0 };
 	for (auto& meshBuffer : _meshBuffers)
 	{
+		bool indexedDraw = _indicesSize.find(meshBuffer) != _indicesSize.end();
 		auto constantBuffers = _perObjectBuffer.at(meshBuffer);
 		for (auto&& constantBuffer : constantBuffers)
 		{
 			vkCmdPushConstants(commandBuffer, _pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, constantBuffer.Size(), constantBuffer.DataLocation());
 		}
-		
 		vkCmdBindVertexBuffers(commandBuffer, _firstBinding, _bindingCount, &meshBuffer.Buffer(), offsets);
-		vkCmdDraw(commandBuffer, meshBuffer.VertexCount(), 1, 0, 0);
+		if(indexedDraw)
+		{			
+			vkCmdBindIndexBuffer(commandBuffer, _indices[0].Buffer(), 0, VK_INDEX_TYPE_UINT16);
+			vkCmdDrawIndexed(commandBuffer, _indicesSize[meshBuffer], 1, 0, 0, 0);
+		}
+		else
+		{
+			vkCmdDraw(commandBuffer, meshBuffer.VertexCount(), 1, 0, 0);
+		}
 	}
 }
 
@@ -357,6 +364,18 @@ void VulkanPipeline::CreateBuffers(VulkanMeshData& meshData)
 		vertexBuffer->Fill(mesh->VerticesData());
 		_meshBuffers.push_back(*vertexBuffer);
 		_perObjectBuffer.insert({ *vertexBuffer, meshData.PerObjectBuffersInfo(mesh) });
+
+		if (mesh->IndexSize() > 0)
+		{
+			VulkanBuffer indexedBuffer = VulkanBuffer(_device, _physical, BufferStageFlag::Vertex,
+				BufferUsageFlag::IndexBuffer, BufferSharingMode::Exclusive,
+				mesh->IndicesData(), mesh->IndexSize() * sizeof(uint16_t), 0);
+
+			indexedBuffer.Fill();
+			
+			_indices.push_back(indexedBuffer);
+			_indicesSize.insert({ *vertexBuffer, mesh->IndexSize() });
+		}
 	}
 
 	for (const VulkanBuffer& data : meshData.Buffers())

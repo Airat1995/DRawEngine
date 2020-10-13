@@ -9,6 +9,7 @@ using namespace std;
 class VulkanBuffer
 {
 public:
+
 	VulkanBuffer(VkDevice device, VkPhysicalDevice physical, BufferStageFlag stageFlag, BufferUsageFlag usage, BufferSharingMode sharingMode, const void* data, int size, int bindingId);
 	
 	static uint32_t FindMemoryType(uint32_t typeFilter, VkPhysicalDeviceMemoryProperties memoryProperties, VkMemoryPropertyFlags properties);
@@ -33,7 +34,7 @@ public:
 
 	VkDescriptorSetLayoutBinding DescriptorBindingInfo() const;
 	
-	VkDescriptorBufferInfo BufferDescriptorInfo();
+	VkDescriptorBufferInfo* BufferDescriptorInfo();
 
 protected:
 	VkBuffer _buffer;

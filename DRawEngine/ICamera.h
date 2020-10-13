@@ -24,5 +24,7 @@ public:
 
 	virtual float GetFar() = 0;
 
+	virtual vec3 GetPosition() = 0;
+
 	virtual T& GetCameraObject() = 0;
 };

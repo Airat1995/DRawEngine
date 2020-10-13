@@ -81,7 +81,10 @@ public:
 
 	virtual vector<VertexBindingInfo>& GetBindingInfo() = 0;
 
-	virtual int VertexSize() = 0;
+	virtual int VertexSize()
+	{
+		return sizeof(T);
+	}
 
 	virtual T& GetVertexData() = 0;	
 };
