@@ -56,4 +56,6 @@ protected:
 	uint8_t* _dataPointer = nullptr;
 
 	static VkShaderStageFlagBits GetUsage(BufferStageFlag stage);
+
+	VkDescriptorType BufferUsageToDescriptorType(BufferUsageFlag bufferUsageFlag);
 };

@@ -5,5 +5,5 @@
 class IVulkanRenderMeshBufferCreator
 {
 public:
-	virtual void ReCreateBuffers(IMesh* mesh, vector<VulkanBuffer> perObjectBuffers) = 0;
+	virtual void AddMesh(IMesh* mesh, vector<VulkanBuffer> perObjectBuffers) = 0;
 };

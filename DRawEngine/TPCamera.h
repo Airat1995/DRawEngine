@@ -34,7 +34,7 @@ public:
 	}
 
 	~TPCamera()
-	{		
+	{
 	}
 
 	
@@ -107,6 +107,12 @@ public:
 	{
 		_aspect = aspect;
 		UpdateProjectionMatrix();
+	}
+
+	mat4 GetViewModel()
+	{
+		mat4 viewModel = _cameraObject._view * _cameraObject._model;
+		return viewModel;
 	}
 
 	float GetNear() override

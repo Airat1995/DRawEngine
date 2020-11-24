@@ -128,7 +128,7 @@ void VulkanRender::AddMesh(IMesh* mesh)
 	vector<VulkanBuffer> buffers{};
 	for (vector<IBuffer*>::value_type& buffer : mesh->PerObjectBuffers())
 	{
-		VulkanUniformBuffer uniformBuffer = VulkanUniformBuffer(_device, _gpus[0], buffer->StageFlag(), buffer->Usage(), buffer->SharingMode(), buffer->RawData(), buffer->Size(), buffer->BindingId());
+		VulkanBuffer uniformBuffer = VulkanBuffer(_device, _gpus[0], buffer->StageFlag(), buffer->Usage(), buffer->SharingMode(), buffer->RawData(), buffer->Size(), buffer->BindingId());
 		buffers.push_back(uniformBuffer);
 	}
 
@@ -146,17 +146,9 @@ void VulkanRender::AddMesh(IMesh* mesh)
 	vector<VulkanBuffer> vulkanBuffers = vector<VulkanBuffer>();
 	for (auto* buffer : mesh->Material()->Buffers())
 	{
-		if (buffer->Usage() == BufferUsageFlag::UniformBuffer)
-		{
-			VulkanUniformBuffer bufferData = VulkanUniformBuffer(_device, _gpus[0], buffer->StageFlag(), buffer->Usage(), buffer->SharingMode(), buffer->RawData(), buffer->Size(), buffer->BindingId());
-			vulkanBuffers.push_back(bufferData);
-		}
-		else
-		{
-			VulkanBuffer bufferData = VulkanBuffer(_device, _gpus[0], buffer->StageFlag(), buffer->Usage(), buffer->SharingMode(), buffer->RawData(), buffer->Size(), buffer->BindingId());;
-			vulkanBuffers.push_back(bufferData);
-		}
-	}	
+		VulkanBuffer bufferData = VulkanBuffer(_device, _gpus[0], buffer->StageFlag(), buffer->Usage(), buffer->SharingMode(), buffer->RawData(), buffer->Size(), buffer->BindingId());;
+		vulkanBuffers.push_back(bufferData);
+	}
 
 	vector<VulkanImage> images = vector<VulkanImage>();
 	for (auto* image : mesh->Material()->Images())

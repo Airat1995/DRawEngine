@@ -7,7 +7,10 @@ class PointLight
 {
 public:
 	alignas(16) vec3 position;
+	alignas(16) vec3 direction;
 	alignas(16) vec3 color;
-	alignas(16) vec3 cameraPosition;
-	alignas(4) float power;
+	alignas(16) vec3 cameraPosition;	
+	alignas(4) float constant;
+	alignas(4) float linear;
+	alignas(4) float quadratic;
 };

@@ -195,12 +195,12 @@
     <ClCompile Include="SDLWindow.cpp" />
     <ClCompile Include="VulkanRender.cpp" />
     <ClCompile Include="VulkanRenderpass.cpp" />
-    <ClCompile Include="VulkanUniformBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseBuffer.h" />
     <ClInclude Include="CameraObject.h" />
     <ClInclude Include="CubeMapImage.h" />
+    <ClInclude Include="DynamicSizeBuffer.h" />
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="IDepthBuffer.h" />
     <ClInclude Include="FileReader.h" />
@@ -244,7 +244,6 @@
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VulkanRender.h" />
     <ClInclude Include="VulkanRenderpass.h" />
-    <ClInclude Include="VulkanUniformBuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

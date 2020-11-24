@@ -47,7 +47,7 @@ void VulkanMeshData::AddMesh(IMesh* mesh, vector<VulkanBuffer>& vulkanBuffers)
 	{
 		_perObjectBuffers.insert({ mesh, vulkanBuffers });
 		vector<VulkanBuffer> buffers = PerObjectBuffersInfo(mesh);
-		_bufferCreator->ReCreateBuffers(mesh, buffers);
+		_bufferCreator->AddMesh(mesh, buffers);
 	}
 }
 

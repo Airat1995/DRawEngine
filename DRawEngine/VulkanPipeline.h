@@ -26,7 +26,7 @@ public:
 
 	void DestroyPipeline();
 
-	void ReCreateBuffers(IMesh* mesh, vector<VulkanBuffer> perObjectBuffers) override;
+	void AddMesh(IMesh* mesh, vector<VulkanBuffer> perObjectBuffers) override;
 
 private:
 
@@ -34,8 +34,6 @@ private:
 	
 	vector<VulkanShader> BaseShadersToVulkanShader(VkDevice device, map<ShaderType, IShader>& shaders);
 
-	VkDescriptorType BufferUsageToDescriptorType(BufferUsageFlag bufferUsageFlag);
-	
 	VkDynamicState _dynamicStates[2] = {
 		VK_DYNAMIC_STATE_VIEWPORT,
 		VK_DYNAMIC_STATE_LINE_WIDTH

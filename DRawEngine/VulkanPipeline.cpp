@@ -283,21 +283,6 @@ vector<VulkanShader> VulkanPipeline::BaseShadersToVulkanShader(VkDevice device, 
 	return vulkanShaders;
 }
 
-VkDescriptorType VulkanPipeline::BufferUsageToDescriptorType(BufferUsageFlag bufferUsageFlag)
-{
-	VkDescriptorType descriptor;
-	switch (bufferUsageFlag)
-	{
-	case BufferUsageFlag::UniformTexel: descriptor = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER; break;
-	case BufferUsageFlag::StorageTexel: descriptor = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER; break;
-	case BufferUsageFlag::UniformBuffer: descriptor = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; break;
-	case BufferUsageFlag::StorageBuffer: descriptor = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER; break;
-	default: cerr << "Current type not supported! Please add new case statement in VulkanPipeline->BufferUsageToDescriptorType" << endl;
-	}
-
-	return descriptor;
-}
-
 VkPipeline VulkanPipeline::Pipeline()
 {
 	return _pipeline;
@@ -347,7 +332,7 @@ void VulkanPipeline::DestroyPipeline()
 	vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
 }
 
-void VulkanPipeline::ReCreateBuffers(IMesh* mesh, vector<VulkanBuffer> perObjectBuffers)
+void VulkanPipeline::AddMesh(IMesh* mesh, vector<VulkanBuffer> perObjectBuffers)
 {
 	VertexBuffer* vertexBuffer = new VertexBuffer(_device, _physical, mesh->RequiredBufferSize(), mesh->VertexCount());
 	vertexBuffer->Fill(mesh->VerticesData());

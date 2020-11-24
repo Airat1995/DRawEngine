@@ -8,7 +8,7 @@ ISwapchain::ISwapchain(VkDevice device, VkExtent2D swapchainExtent, VkSurfaceCap
 	const VkSurfaceTransformFlagBitsKHR preTransform = GetPresentMode(surfaceCapabilities);
 	const VkCompositeAlphaFlagBitsKHR compositeAlpha = GetCompositeAlpha(surfaceCapabilities);
 	const VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-	uint32_t desiredNumberOfSwapChainImages = surfaceCapabilities.minImageCount;
+	uint32_t desiredNumberOfSwapChainImages = 3;
 
 	if (surfaceCapabilities.maxImageCount > 0 && desiredNumberOfSwapChainImages > surfaceCapabilities.maxImageCount)
 		desiredNumberOfSwapChainImages = surfaceCapabilities.maxImageCount;

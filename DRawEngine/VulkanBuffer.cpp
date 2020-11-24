@@ -16,11 +16,19 @@ VulkanBuffer::VulkanBuffer(VkDevice device, VkPhysicalDevice physical, BufferSta
 	_bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	_bufferInfo.pNext = nullptr;
 	_bufferInfo.usage = static_cast<VkBufferUsageFlags>(_usage);
-	_bufferInfo.size = _size;
+	_bufferInfo.size = _size;	
 	_bufferInfo.queueFamilyIndexCount = 0;
 	_bufferInfo.pQueueFamilyIndices = nullptr;
 	_bufferInfo.sharingMode = static_cast<VkSharingMode>(_sharingMode);
 	_bufferInfo.flags = 0;
+	
+
+	_layoutBinding = {};
+	_layoutBinding.binding = bindingId;
+	_layoutBinding.descriptorCount = 1;
+	_layoutBinding.descriptorType = BufferUsageToDescriptorType(usage);
+	_layoutBinding.stageFlags = GetUsage(stageFlag);
+	_layoutBinding.pImmutableSamplers = nullptr;
 
 	VkResult result = vkCreateBuffer(_device, &_bufferInfo, nullptr, &_buffer);
 	if (result != VK_SUCCESS)
@@ -159,3 +167,20 @@ VkShaderStageFlagBits VulkanBuffer::GetUsage(BufferStageFlag stage)
 
 	return static_cast<VkShaderStageFlagBits>(usage);
 }
+
+VkDescriptorType VulkanBuffer::BufferUsageToDescriptorType(BufferUsageFlag bufferUsageFlag)
+{
+	VkDescriptorType descriptor;
+	switch (bufferUsageFlag)
+	{
+	case BufferUsageFlag::UniformTexel: descriptor = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER; break;
+	case BufferUsageFlag::StorageTexel: descriptor = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER; break;
+	case BufferUsageFlag::UniformBuffer: descriptor = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; break;
+	case BufferUsageFlag::StorageBuffer: descriptor = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC; break;
+	case BufferUsageFlag::TransferSrc: descriptor = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE; break;
+	default: cerr << "Current type not supported! Please add new case statement in VulkanPipeline->BufferUsageToDescriptorType" << endl;
+	}
+
+	return descriptor;
+}
+
