@@ -157,6 +157,9 @@
     <ClCompile Include="CubeMapImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HeightMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IWindow.h">
@@ -299,6 +302,9 @@
     </ClInclude>
     <ClInclude Include="DynamicSizeBuffer.h">
       <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="HeightMap.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

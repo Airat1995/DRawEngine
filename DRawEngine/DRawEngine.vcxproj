@@ -165,6 +165,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CubeMapImage.cpp" />
+    <ClCompile Include="HeightMap.cpp" />
     <ClCompile Include="ICamera.cpp" />
     <ClCompile Include="IDepthBuffer.cpp" />
     <ClCompile Include="FileReader.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="CameraObject.h" />
     <ClInclude Include="CubeMapImage.h" />
     <ClInclude Include="DynamicSizeBuffer.h" />
+    <ClInclude Include="HeightMap.h" />
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="IDepthBuffer.h" />
     <ClInclude Include="FileReader.h" />

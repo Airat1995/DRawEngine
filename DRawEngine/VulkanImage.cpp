@@ -1,16 +1,16 @@
 #include "VulkanImage.h"
 
 
-VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, ImageType type, ImageUsage imageUsage,
-                         int width, int height, unsigned char* imageData, VkDevice device,
-                         vector<VkPhysicalDevice>& gpus, int binding, int graphicsFamilyIndex, int samples)
-	: IImage(format, type, imageUsage, binding, width, height, samples, imageData), _commandPool(commandPool), _graphicsFamilyIndex(graphicsFamilyIndex)
+VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, ImageType type, ImageUsage imageUsage, BufferStageFlag stage,
+                         int width, int height, vector<unsigned char>& imageData, VkDevice device,
+                         VkPhysicalDevice gpu, int binding, int graphicsFamilyIndex, int samples)
+	: IImage(format, type, imageUsage, stage, binding, width, height, samples, imageData), _commandPool(commandPool), _graphicsFamilyIndex(graphicsFamilyIndex)
 {
 	_device = device;
-
-	int layerCount = _type == ImageType::Cube ? 6 : 1;
-	_buffer = new VulkanBuffer(_device, gpus[0], BufferStageFlag::Fragment, BufferUsageFlag::TransferSrc, BufferSharingMode::Exclusive, imageData,
-		layerCount * width * height * ChannelsCount(format), binding);
+	int channelsCount = ChannelsCount(format);
+	int elementsCount = ImageCount(imageData, type, width, height, channelsCount);
+	_buffer = new VulkanBuffer(_device, gpu, stage, BufferUsageFlag::TransferSrc, BufferSharingMode::Exclusive, imageData.data(),
+		elementsCount * width * height * channelsCount, binding);
 	_buffer->Fill();
 	CreateDescriptorSetLayout();
 	CreateSampler();
@@ -22,8 +22,8 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 	
 	VkImageCreateInfo image_info = {};
 	VkFormatProperties props;
-	vkGetPhysicalDeviceFormatProperties(gpus.at(0), vulkanFormat, &props);
-	vkGetPhysicalDeviceMemoryProperties(gpus.at(0), &_memoryProperties);
+	vkGetPhysicalDeviceFormatProperties(gpu, vulkanFormat, &props);
+	vkGetPhysicalDeviceMemoryProperties(gpu, &_memoryProperties);
 	
 	image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	image_info.pNext = nullptr;
@@ -33,7 +33,7 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 	image_info.extent.height = height;
 	image_info.extent.depth = 1;
 	image_info.mipLevels = 1;
-	image_info.arrayLayers = layerCount;
+	image_info.arrayLayers = elementsCount;
 	image_info.samples = static_cast<VkSampleCountFlagBits>(samples);
 	image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	image_info.usage = vulkanImageUsage;
@@ -65,7 +65,7 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 	view_info.subresourceRange.baseMipLevel = 0;
 	view_info.subresourceRange.levelCount = 1;
 	view_info.subresourceRange.baseArrayLayer = 0;
-	view_info.subresourceRange.layerCount = layerCount;
+	view_info.subresourceRange.layerCount = elementsCount;
 	view_info.viewType = imageView;
 	view_info.flags = 0;
 
@@ -133,7 +133,6 @@ VkDescriptorImageInfo VulkanImage::ImageInfo() const
 {
 	return _imageInfo;
 }
-
 
 VulkanImage::~VulkanImage()
 {	
@@ -269,7 +268,7 @@ void VulkanImage::CreateDescriptorSetLayout()
 	_samplerLayoutBinding.binding = _binding;
 	_samplerLayoutBinding.descriptorCount = 1;
 	_samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	_samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	_samplerLayoutBinding.stageFlags = VulkanBuffer::GetUsage(_stage);
 	_samplerLayoutBinding.pImmutableSamplers = nullptr;
 }
 
@@ -390,6 +389,33 @@ VkImageUsageFlagBits VulkanImage::ImageUsageToVulkan(ImageUsage usage)
 		imageUsage |= VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT;
 
 	return static_cast<VkImageUsageFlagBits>(imageUsage);
+}
+
+int VulkanImage::ImageCount(vector<unsigned char>& image, ImageType imageType, int width, int height,
+	int channelsCount)
+{
+	int elementsCount = 0;
+	switch (imageType)
+	{
+	case ImageType::_1D:
+	case ImageType::_2D:
+	case ImageType::_3D:
+		elementsCount = 1;
+		break;
+	case ImageType::Cube:
+		elementsCount = 6;
+		break;
+	case ImageType::Array1D:
+	case ImageType::Array2D:
+		elementsCount = static_cast<int>(floor(image.size() / (width * channelsCount * height)));
+		break;	
+	case ImageType::CubeArray:
+		elementsCount = static_cast<int>(floor(image.size() / (width * channelsCount * height * 6)));
+		break;
+	}
+
+	return elementsCount;
+
 }
 
 int VulkanImage::ChannelsCount(ImageFormat format)

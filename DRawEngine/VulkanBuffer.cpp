@@ -106,7 +106,7 @@ int VulkanBuffer::Binding() const
 
 int VulkanBuffer::Size() const
 {
-	return _size;
+	return _layoutBinding.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER ? 100000 : _size;
 }
 
 const void* VulkanBuffer::DataLocation()
@@ -176,9 +176,12 @@ VkDescriptorType VulkanBuffer::BufferUsageToDescriptorType(BufferUsageFlag buffe
 	case BufferUsageFlag::UniformTexel: descriptor = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER; break;
 	case BufferUsageFlag::StorageTexel: descriptor = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER; break;
 	case BufferUsageFlag::UniformBuffer: descriptor = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; break;
-	case BufferUsageFlag::StorageBuffer: descriptor = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC; break;
+	case BufferUsageFlag::StorageBuffer: descriptor = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER; break;
 	case BufferUsageFlag::TransferSrc: descriptor = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE; break;
-	default: cerr << "Current type not supported! Please add new case statement in VulkanPipeline->BufferUsageToDescriptorType" << endl;
+	default:
+		descriptor = (VkDescriptorType)bufferUsageFlag;
+		cerr << "Current type not supported! Please add new case statement in VulkanPipeline->BufferUsageToDescriptorType" << endl;
+		break;
 	}
 
 	return descriptor;

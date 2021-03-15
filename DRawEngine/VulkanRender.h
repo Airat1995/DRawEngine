@@ -3,7 +3,6 @@
 #include <glm/fwd.hpp>
 #include "IRender.h"
 #include "VulkanPipeline.h"
-#include "VulkanUniformBuffer.h"
 #include "IMesh.h"
 #include "ISwapchain.h"
 #include "VulkanCommandPool.h"
@@ -111,7 +110,7 @@ protected:
 		void* pUserData) {
 
 		std::ofstream outfile;
-		outfile.open("log.txt", std::ios_base::app); // append instead of overwrite
+		outfile.open(DEBUG_FILENAME.c_str(), std::ios_base::app); // append instead of overwrite
 		outfile << pCallbackData->pMessage << endl;
 		outfile.close();
 		return VK_FALSE;
@@ -131,11 +130,14 @@ protected:
 
 private:
 	static const uint32_t INCORRECT_WIDTH = 0xFFFFFFFF;
+	
+	inline static const string DEBUG_FILENAME = "debugLog.log";
 
 	vector<const char*> _extensions;
 
 	int _width;
 
 	int _height;
+
 };
 

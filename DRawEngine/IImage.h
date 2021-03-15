@@ -1,10 +1,15 @@
 #pragma once
+#include <vector>
+
 #include "ImageFlags.h"
+#include "StageFlag.h"
+
+using namespace std;
 
 class IImage
 {
 public:	 
-	IImage(ImageFormat format, ImageType type, ImageUsage usage, int binding, int width, int height, int sampleCount, unsigned char* imageData);
+	IImage(ImageFormat format, ImageType type, ImageUsage usage, BufferStageFlag stage, int binding, int width, int height, int sampleCount, vector<unsigned char>& imageData);
 
 	int Width() const;
 
@@ -14,9 +19,11 @@ public:
 
 	ImageFormat Format() const;
 
-	unsigned char* ImageData() const;
+	vector<unsigned char>* ImageData();
 
 	ImageUsage Usage() const;
+
+	BufferStageFlag Stage() const;
 
 	int Binding() const;
 
@@ -32,11 +39,13 @@ protected:
 
 	const int _sampleCount;
 	
-	unsigned char* _imageData;
+	vector<unsigned char> _imageData;
 
 	ImageFormat _format;
 
 	ImageType _type;
 
 	ImageUsage _usage;
+
+	BufferStageFlag _stage;
 };

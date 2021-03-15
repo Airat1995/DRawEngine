@@ -233,9 +233,8 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	allocInfo.pSetLayouts = &_descriptorSetLayout;
 
 	result = vkAllocateDescriptorSets(device, &allocInfo, &_descriptorSets);
-	if (result != VK_SUCCESS) {
+	if (result != VK_SUCCESS)
 		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
 
 	// Update the descriptor set determining the shader binding points
 	// For every binding point used in a shader there needs to be one

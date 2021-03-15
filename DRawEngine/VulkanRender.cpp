@@ -13,8 +13,8 @@ void VulkanRender::Init(vector<const char*>* extensions)
 	extensions->push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	extensions->push_back("VK_EXT_debug_report");
 	//extensions->push_back("GL_KHR_vulkan_glsl ");
-	if (filesystem::exists("log.txt"))
-		remove("log.txt");
+	if (filesystem::exists(DEBUG_FILENAME.c_str()))
+		remove(DEBUG_FILENAME.c_str());
 #endif
 	CreateInstanceCreateInfo(appInfo, extensions, &layers);	
 	EnumeratePhysicalDevices();
@@ -26,7 +26,6 @@ VulkanRender::~VulkanRender()
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	vkDestroyDevice(_device, nullptr);
 	vkDestroyInstance(_instance, nullptr);
-
 }
 
 void VulkanRender::InitSurface(int screenWidth, int screenHeight)
@@ -128,8 +127,10 @@ void VulkanRender::AddMesh(IMesh* mesh)
 	vector<VulkanBuffer> buffers{};
 	for (vector<IBuffer*>::value_type& buffer : mesh->PerObjectBuffers())
 	{
-		VulkanBuffer uniformBuffer = VulkanBuffer(_device, _gpus[0], buffer->StageFlag(), buffer->Usage(), buffer->SharingMode(), buffer->RawData(), buffer->Size(), buffer->BindingId());
-		buffers.push_back(uniformBuffer);
+		VulkanBuffer meshBuffer = VulkanBuffer(_device, _gpus[0], buffer->StageFlag(), 
+			buffer->Usage(), buffer->SharingMode(), 
+			buffer->RawData(), buffer->Size(), buffer->BindingId());
+		buffers.push_back(meshBuffer);
 	}
 
 	
@@ -153,8 +154,8 @@ void VulkanRender::AddMesh(IMesh* mesh)
 	vector<VulkanImage> images = vector<VulkanImage>();
 	for (auto* image : mesh->Material()->Images())
 	{
-		auto imageData = VulkanImage(_commandPool, image->Format(), image->Type(), image->Usage(), image->Width(), image->Height(),
-		                             image->ImageData(), _device, _gpus, image->Binding(), _graphicsQueueFamilyIndex,
+		auto imageData = VulkanImage(_commandPool, image->Format(), image->Type(), image->Usage(), image->Stage(), image->Width(), image->Height(),
+		                             *image->ImageData(), _device, _gpus[0], image->Binding(), _graphicsQueueFamilyIndex,
 		                             image->SampleCount());
 		images.push_back(imageData);
 	}

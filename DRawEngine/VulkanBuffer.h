@@ -36,6 +36,9 @@ public:
 	
 	VkDescriptorBufferInfo* BufferDescriptorInfo();
 
+	static VkDescriptorType BufferUsageToDescriptorType(BufferUsageFlag bufferUsageFlag);
+	
+	static VkShaderStageFlagBits GetUsage(BufferStageFlag stage);
 protected:
 	VkBuffer _buffer;
 	VkDeviceMemory _memory;
@@ -55,7 +58,5 @@ protected:
 	const void* _dataLocation;
 	uint8_t* _dataPointer = nullptr;
 
-	static VkShaderStageFlagBits GetUsage(BufferStageFlag stage);
 
-	VkDescriptorType BufferUsageToDescriptorType(BufferUsageFlag bufferUsageFlag);
 };

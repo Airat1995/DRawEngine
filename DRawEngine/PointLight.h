@@ -6,11 +6,15 @@ using namespace glm;
 class PointLight
 {
 public:
-	alignas(16) vec3 position;
-	alignas(16) vec3 direction;
-	alignas(16) vec3 color;
-	alignas(16) vec3 cameraPosition;	
-	alignas(4) float constant;
-	alignas(4) float linear;
-	alignas(4) float quadratic;
+	vec4 position;
+	vec4 color;
+	vec4 lightContsts;
+};
+
+class LightsContainers
+{
+public:
+	vec4 cameraPosition = vec4(0);
+	int colorsCount = 0;
+	vector<PointLight> lightObject;
 };

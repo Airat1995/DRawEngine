@@ -115,6 +115,11 @@ public:
 		return viewModel;
 	}
 
+	mat4 GetView()
+	{
+		return _cameraObject._view;
+	}
+
 	float GetNear() override
 	{
 		return _zNear;

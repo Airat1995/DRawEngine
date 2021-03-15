@@ -13,9 +13,9 @@ using namespace std;
 class VulkanImage : public IImage
 {
 public:
-	explicit VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, ImageType type, ImageUsage imageUsage,
-	                     int width, int height, unsigned char* imageData, VkDevice device,
-	                     vector<VkPhysicalDevice>& gpus, int binding, int graphicsFamilyIndex, int samples);
+	explicit VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, ImageType type, ImageUsage imageUsage, BufferStageFlag stage,
+	                     int width, int height, vector<unsigned char>& imageData, VkDevice device,
+	                     VkPhysicalDevice gpu, int binding, int graphicsFamilyIndex, int samples);
 	void Clean() const;
 
 	VkDescriptorSetLayout DescriptorSetLayout() const;
@@ -76,6 +76,8 @@ protected:
 	static VkImageViewType ImageTypeToVulkanViewType(ImageType type);
 
 	static VkImageUsageFlagBits ImageUsageToVulkan(ImageUsage usage);
+
+	static int ImageCount(vector<unsigned char>& image, ImageType imageType, int width, int height, int channelsCount);
 
 	static int ChannelsCount(ImageFormat format);
 };
