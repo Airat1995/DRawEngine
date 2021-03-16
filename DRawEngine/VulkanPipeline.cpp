@@ -126,20 +126,24 @@ void VulkanPipeline::Initialize(VkDevice device, VulkanMeshData& vulkanMeshData,
 	colorBlending.blendConstants[2] = 0.0f;
 	colorBlending.blendConstants[3] = 0.0f;
 
-	VkPushConstantRange pushConstantRange;
-	if (!perObjectDescriptions.empty())
+	vector<VkPushConstantRange> pushConstantRanges = vector<VkPushConstantRange>();
+	int offset = 0;
+	for (size_t index = 0; index < perObjectDescriptions.size(); index++)
 	{
-		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		pushConstantRange.offset = 0;
-		pushConstantRange.size = perObjectDescriptions.at(0).Size();
+		VkPushConstantRange pushConstantRange = {};
+		pushConstantRange.stageFlags = perObjectDescriptions.at(index).DescriptorBindingInfo().stageFlags;
+		pushConstantRange.offset = offset;
+		pushConstantRange.size = perObjectDescriptions.at(index).Size();
+		pushConstantRanges.push_back(pushConstantRange);
+		offset += perObjectDescriptions.at(index).Size();
 	}
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 1;
 	pipelineLayoutInfo.pSetLayouts = &_descriptorSetLayout;
-	pipelineLayoutInfo.pushConstantRangeCount = !perObjectDescriptions.empty() ? 1 : 0;
-	pipelineLayoutInfo.pPushConstantRanges = !perObjectDescriptions.empty() ? &pushConstantRange : nullptr;
+	pipelineLayoutInfo.pushConstantRangeCount = !perObjectDescriptions.empty() ? pushConstantRanges.size() : 0;
+	pipelineLayoutInfo.pPushConstantRanges = !perObjectDescriptions.empty() ? pushConstantRanges.data() : nullptr;
 
 	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create pipeline layout!");
@@ -311,7 +315,7 @@ void VulkanPipeline::BuildCommandbuffer(VkCommandBuffer commandBuffer)
 		auto constantBuffers = _perObjectBuffer.at(meshBuffer);
 		for (auto&& constantBuffer : constantBuffers)
 		{
-			vkCmdPushConstants(commandBuffer, _pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, constantBuffer.Size(), constantBuffer.DataLocation());
+			vkCmdPushConstants(commandBuffer, _pipelineLayout, constantBuffer.DescriptorBindingInfo().stageFlags, 0, constantBuffer.Size(), constantBuffer.DataLocation());
 		}
 		vkCmdBindVertexBuffers(commandBuffer, _firstBinding, _bindingCount, &meshBuffer.Buffer(), offsets);
 		if(indexedDraw)

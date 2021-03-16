@@ -2,6 +2,7 @@
 #include <glm/vec3.hpp>
 
 using namespace glm;
+const int LIGHTS_ITEMS_COUNT = 3;
 
 class PointLight
 {
@@ -11,10 +12,10 @@ public:
 	vec4 lightContsts;
 };
 
+
 class LightsContainers
 {
 public:
 	vec4 cameraPosition = vec4(0);
-	int colorsCount = 0;
-	vector<PointLight> lightObject;
+	PointLight pointLights[LIGHTS_ITEMS_COUNT];
 };
