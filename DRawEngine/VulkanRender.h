@@ -9,6 +9,7 @@
 #include "VulkanFramebuffer.h"
 #include "VulkanBuffer.h"
 #include "VulkanDepthBuffer.h"
+#include "VulkanOmniShadowmap.h"
 
 
 using namespace std;
@@ -37,6 +38,8 @@ public:
 	void AddMesh(IMesh* mesh) override;
 
 	void RemoveMesh(IMesh* mesh) override;
+
+	void AddShadowmap(vec4* lightPosition, CameraObject* camera) override;
 
 	VkDevice& Device();
 
@@ -93,9 +96,11 @@ protected:
 	
 	ISwapchain* _swapchain;
 	
-	vector<VulkanPipeline*> _pipelines{};
+	map<RenderQueue, vector<VulkanPipeline*>> _pipelines{};
 
 	vector<VulkanMeshData*> _meshDataCollection{};
+
+	vector<VulkanOmniShadowmap*> _shadowmaps;
 
 	VulkanRenderpass* _renderpass;
 

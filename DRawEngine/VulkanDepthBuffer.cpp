@@ -1,9 +1,7 @@
 #include "VulkanDepthBuffer.h"
 
-#include "VulkanImage.h"
-
-VulkanDepthBuffer::VulkanDepthBuffer(VkDevice device, VkPhysicalDevice gpu, int widht, int height)
-: _device(device), _gpu(gpu), _width(widht), _height(height)
+VulkanDepthBuffer::VulkanDepthBuffer(VkDevice device, VkPhysicalDevice gpu, int widht, int height, bool useAsSampler)
+: _device(device), _gpu(gpu), _width(widht), _height(height), _useAsSampler(useAsSampler)
 {
 	vector<VkFormat> depthFormats ={ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
 	_depthFormat = FindSupportedFormat(depthFormats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
@@ -58,6 +56,10 @@ bool VulkanDepthBuffer::HasStencilComponent(VkFormat format)
 
 void VulkanDepthBuffer::CreateImage(VkFormat format)
 {
+	VkImageUsageFlags imageUsage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+	if (_useAsSampler)
+		imageUsage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+	
 	VkImageCreateInfo image_info = {};
 	image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	image_info.pNext = nullptr;
@@ -70,7 +72,7 @@ void VulkanDepthBuffer::CreateImage(VkFormat format)
 	image_info.arrayLayers = 1;
 	image_info.samples = VK_SAMPLE_COUNT_1_BIT;
 	image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	image_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+	image_info.usage = _useAsSampler;
 	image_info.queueFamilyIndexCount = 0;
 	image_info.pQueueFamilyIndices = nullptr;
 	image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;

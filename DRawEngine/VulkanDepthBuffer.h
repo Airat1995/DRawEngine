@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "IDepthBuffer.h"
+#include "VulkanImage.h"
 
 using namespace std;
 
@@ -11,7 +12,7 @@ class VulkanDepthBuffer :
     public IDepthBuffer
 {
 public:
-	VulkanDepthBuffer(VkDevice device, VkPhysicalDevice gpu, int widht, int height);
+	VulkanDepthBuffer(VkDevice device, VkPhysicalDevice gpu, int widht, int height, bool useAsSampler = false);
 
 	VkFormat Format();
 
@@ -36,6 +37,8 @@ protected:
 	int _width;
 
 	int _height;
+
+	bool _useAsSampler;
 
 private:
 	VkFormat FindSupportedFormat(vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);

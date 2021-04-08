@@ -1,6 +1,6 @@
 #include "IMaterial.h"
 
-IMaterial::IMaterial(map<ShaderType, IShader>& shaders) : _shaders(shaders)
+IMaterial::IMaterial(map<ShaderType, IShader>& shaders, RenderQueue renderQueue) : _shaders(shaders), _renderQueue(renderQueue)
 {
 	_buffers = vector<IBuffer*>();
 }
@@ -28,4 +28,9 @@ vector<IBuffer*>& IMaterial::Buffers()
 vector<IImage*>& IMaterial::Images()
 {
 	return _images;
+}
+
+RenderQueue IMaterial::GetRenderQueue()
+{
+	return _renderQueue;
 }

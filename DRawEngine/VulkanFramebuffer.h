@@ -26,6 +26,9 @@ public:
 	virtual ~VulkanFramebuffer();
 	
 	void SubmitFramebuffer(int index);
+
+	VkQueue PresentQueue();
+
 private:
 	vector<VkFramebuffer>* _swapChainFramebuffers;
 

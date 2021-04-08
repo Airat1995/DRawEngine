@@ -120,3 +120,8 @@ void VulkanFramebuffer::SubmitFramebuffer(int index)
 
 	vkDestroyFence(_device, drawFence, nullptr);
 }
+
+VkQueue VulkanFramebuffer::PresentQueue()
+{
+	return _presentQueue;
+}

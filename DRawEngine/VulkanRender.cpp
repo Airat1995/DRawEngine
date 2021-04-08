@@ -1,6 +1,6 @@
 #include "VulkanRender.h"
 
-VulkanRender::VulkanRender() : IRender()
+VulkanRender::VulkanRender()
 {
 }
 
@@ -80,7 +80,7 @@ void VulkanRender::InitSurface(int screenWidth, int screenHeight)
 	_renderpass = new VulkanRenderpass(_device, _swapchain->SwapchainInfo().imageFormat, _depthBuffer->Format());
 
 	//First init with empty pipelines
-	_pipelines = vector<VulkanPipeline*>();
+	_pipelines =  map<RenderQueue, vector<VulkanPipeline*>>();
 	
 
 	_framebuffer = new VulkanFramebuffer(_device, _graphicsQueueFamilyIndex, _presentQueueFamilyIndex, *_swapchain,
@@ -103,18 +103,37 @@ void VulkanRender::DrawFrame()
 	int frameBuffersCount = _framebuffer->FramebufferCount();
 	for (size_t frameBufferIndex = 0; frameBufferIndex < frameBuffersCount; frameBufferIndex++)
 	{
-		_commandPool->CommandBuffer(frameBufferIndex).BeginCommandBuffer();
-		_renderpass->BeginRenderPass(_width, _height, *_framebuffer->Framebuffer(frameBufferIndex),
-			_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
+		VulkanCommandBuffer commandBuffer = _commandPool->CommandBuffer(frameBufferIndex);
+		commandBuffer.BeginCommandBuffer();
 
-		for (auto&& pipeline : _pipelines)
+		for (auto* shadowmap : _shadowmaps)
 		{
-			pipeline->BindBuffer(_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
-			pipeline->BuildCommandbuffer(_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
+			for (int index = 0; index < 6; index++) {
+				shadowmap->Update(index);
+				shadowmap->Draw(&commandBuffer, frameBufferIndex);
+			}
+		}
+		
+		_renderpass->BeginRenderPass(_width, _height, *_framebuffer->Framebuffer(frameBufferIndex),
+			commandBuffer.CommandBuffer());
+
+		for (auto&& renderQueuePipelines : _pipelines)
+		{
+			for (auto&& renderPipeline : renderQueuePipelines.second)
+			{
+				renderPipeline->BindPipeline(commandBuffer.CommandBuffer());
+				renderPipeline->BindBuffer(commandBuffer.CommandBuffer());
+				renderPipeline->BuildCommandbuffer(commandBuffer.CommandBuffer());
+			}
 		}
 
-		_renderpass->EndRenderPass(_commandPool->CommandBuffer(frameBufferIndex).CommandBuffer());
-		_commandPool->CommandBuffer(frameBufferIndex).EndCommandBuffer();
+		_renderpass->EndRenderPass(commandBuffer.CommandBuffer());
+		commandBuffer.EndCommandBuffer();
+
+		for (auto* shadowmap : _shadowmaps)
+		{
+			shadowmap->Submit(frameBufferIndex);
+		}
 		_framebuffer->SubmitFramebuffer(frameBufferIndex);
 	}
 	vkDeviceWaitIdle(_device);
@@ -162,11 +181,27 @@ void VulkanRender::AddMesh(IMesh* mesh)
 	VulkanMeshData* currentMeshData = new VulkanMeshData(mesh, vulkanBuffers, images, buffers);
 	VulkanPipeline* pipeline = new VulkanPipeline(_device, _gpus[0], *_renderpass, *currentMeshData, _swapchain->SwapchainInfo().imageExtent);
 	_meshDataCollection.push_back(currentMeshData);
-	_pipelines.push_back(pipeline);
+	RenderQueue renderQueue = mesh->Material()->GetRenderQueue();
+
+	auto pipelineIter = _pipelines.find(renderQueue);
+	if (pipelineIter == _pipelines.end())
+	{
+		vector<VulkanPipeline*> emptyPipelines;
+		_pipelines.insert(pair<RenderQueue, vector<VulkanPipeline*>>(renderQueue, emptyPipelines));
+	}
+	_pipelines.at(renderQueue).push_back(pipeline);
 }
 
 void VulkanRender::RemoveMesh(IMesh* mesh)
 {
+}
+
+void VulkanRender::AddShadowmap(vec4* lightPosition, CameraObject* camera)
+{
+	VulkanOmniShadowmap* vulkan_omni_shadowmap = new VulkanOmniShadowmap(
+		lightPosition, camera, &_meshDataCollection, _commandPool, _swapchain, _device, _gpus[0], _graphicsQueueFamilyIndex, _presentQueueFamilyIndex, 0, _graphicsQueueFamilyIndex,
+		_width, _height);
+	_shadowmaps.push_back(vulkan_omni_shadowmap);
 }
 
 VkDevice& VulkanRender::Device()
