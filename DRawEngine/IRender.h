@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+
+#include "CameraObject.h"
 #include "IMesh.h"
 
 using namespace std;
@@ -8,8 +10,6 @@ using namespace std;
 class IRender
 {
 public:
-	explicit IRender() = default;
-
 	virtual ~IRender() = default;
 
 	virtual void Init() = 0;
@@ -19,5 +19,7 @@ public:
 	virtual void RemoveMesh(IMesh* mesh) = 0;
 	
 	virtual void DrawFrame() = 0;
+
+	virtual void AddShadowmap(vec4* lightPosition, CameraObject* camera) = 0;
 };
 

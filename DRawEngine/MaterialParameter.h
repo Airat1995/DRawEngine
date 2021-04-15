@@ -10,4 +10,5 @@ public:
 	vec4 diffuse;
 	vec4 specular;
 	mat4 model;
+	float shininess;
 };

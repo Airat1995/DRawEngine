@@ -164,7 +164,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BufferlessVulkanImage.cpp" />
     <ClCompile Include="CubeMapImage.cpp" />
+    <ClCompile Include="CubeShadowmap.cpp" />
     <ClCompile Include="HeightMap.cpp" />
     <ClCompile Include="ICamera.cpp" />
     <ClCompile Include="IDepthBuffer.cpp" />
@@ -174,7 +176,6 @@
     <ClCompile Include="IImage.cpp" />
     <ClCompile Include="IMaterial.cpp" />
     <ClCompile Include="IVulkanRenderMeshBufferCreator.cpp" />
-    <ClCompile Include="TPCamera.cpp" />
     <ClCompile Include="VertexBindingInfo.cpp" />
     <ClCompile Include="VulkanBuffer.cpp" />
     <ClCompile Include="VulkanCommandBuffer.cpp" />
@@ -185,6 +186,7 @@
     <ClCompile Include="VulkanImage.cpp" />
     <ClCompile Include="IPipeline.cpp" />
     <ClCompile Include="VulkanMeshData.cpp" />
+    <ClCompile Include="VulkanOmniShadowmap.cpp" />
     <ClCompile Include="VulkanPipeline.cpp" />
     <ClCompile Include="IRender.cpp" />
     <ClCompile Include="IRenderpass.cpp" />
@@ -199,8 +201,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseBuffer.h" />
+    <ClInclude Include="BufferlessVulkanImage.h" />
     <ClInclude Include="CameraObject.h" />
     <ClInclude Include="CubeMapImage.h" />
+    <ClInclude Include="CubeShadowmap.h" />
     <ClInclude Include="DynamicSizeBuffer.h" />
     <ClInclude Include="HeightMap.h" />
     <ClInclude Include="ICamera.h" />
@@ -210,10 +214,14 @@
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="IImage.h" />
     <ClInclude Include="ImageFlags.h" />
+    <ClInclude Include="IShadowmap.h" />
     <ClInclude Include="IVulkanRenderMeshBufferCreator.h" />
     <ClInclude Include="MaterialParameter.h" />
     <ClInclude Include="PointLight.h" />
-    <ClInclude Include="SkyBoxVertex.h" />
+    <ClInclude Include="BaseVertex.h" />
+    <ClInclude Include="RenderQueue.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="ShadowmapBuffer.h" />
     <ClInclude Include="TPCamera.h" />
     <ClInclude Include="VulkanBuffer.h" />
     <ClInclude Include="ICommandBuffer.h" />
@@ -233,6 +241,7 @@
     <ClInclude Include="IndexedVertexBuffer.h" />
     <ClInclude Include="IPipeline.h" />
     <ClInclude Include="VulkanMeshData.h" />
+    <ClInclude Include="VulkanOmniShadowmap.h" />
     <ClInclude Include="VulkanPipeline.h" />
     <ClInclude Include="IRender.h" />
     <ClInclude Include="IRenderpass.h" />

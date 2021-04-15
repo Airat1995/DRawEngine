@@ -7,18 +7,18 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 	: IImage(format, type, imageUsage, stage, binding, width, height, samples, imageData), _commandPool(commandPool), _graphicsFamilyIndex(graphicsFamilyIndex)
 {
 	_device = device;
-	int channelsCount = ChannelsCount(format);
-	int elementsCount = ImageCount(imageData, type, width, height, channelsCount);
+	int channelsCount = BufferlessVulkanImage::ChannelsCount(format);
+	int elementsCount = BufferlessVulkanImage::ImageCount(imageData, type, width, height, channelsCount);
 	_buffer = new VulkanBuffer(_device, gpu, stage, BufferUsageFlag::TransferSrc, BufferSharingMode::Exclusive, imageData.data(),
 		elementsCount * width * height * channelsCount, binding);
 	_buffer->Fill();
 	CreateDescriptorSetLayout();
 	CreateSampler();
 
-	VkFormat vulkanFormat = ImageFormatToVulkan(format);
-	VkImageType vkImageType = ImageTypeToVulkan(type);
-	VkImageViewType imageView = ImageTypeToVulkanViewType(type);
-	VkImageUsageFlagBits vulkanImageUsage = ImageUsageToVulkan(imageUsage);
+	VkFormat vulkanFormat = BufferlessVulkanImage::ImageFormatToVulkan(format);
+	VkImageType vkImageType = BufferlessVulkanImage::ImageTypeToVulkan(type);
+	VkImageViewType imageView = BufferlessVulkanImage::ImageTypeToVulkanViewType(type);
+	VkImageUsageFlagBits vulkanImageUsage = BufferlessVulkanImage::ImageUsageToVulkan(imageUsage);
 	
 	VkImageCreateInfo image_info = {};
 	VkFormatProperties props;
@@ -83,7 +83,9 @@ VulkanImage::VulkanImage(VulkanCommandPool* commandPool, ImageFormat format, Ima
 
 	mem_alloc.allocationSize = memReqs.size;
 	// Use the memory properties to determine the type of memory required
-	bool pass = MemoryTypeFromProperties(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &mem_alloc.memoryTypeIndex);
+	bool pass = BufferlessVulkanImage::MemoryTypeFromProperties(_memoryProperties,
+		memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &mem_alloc.memoryTypeIndex);
+
 	if(!pass)
 	{
 		std::cerr << "Unable to get memory properties from image!" << std::endl;
@@ -124,6 +126,11 @@ void VulkanImage::Clean() const
 	vkFreeMemory(_device, _mem, nullptr);
 }
 
+VkImageView VulkanImage::View() const
+{
+	return _view;
+}
+
 VkDescriptorSetLayout VulkanImage::DescriptorSetLayout() const
 {
 	return _descriptorSetLayout;
@@ -138,25 +145,6 @@ VulkanImage::~VulkanImage()
 {	
 }
 
-bool VulkanImage::MemoryTypeFromProperties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex)
-{
-	// Search memtypes to find first index with those properties
-	for (uint32_t i = 0; i < _memoryProperties.memoryTypeCount; i++) 
-	{
-		if ((typeBits & 1) == 1) 
-		{
-			if ((_memoryProperties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) 
-			{
-				*typeIndex = i;
-				return true;
-			}
-		}
-		typeBits >>= 1;
-	}
-	// No memory types matched, return failure
-	throw std::runtime_error("Could not find a matching memory type");
-}
-
 void VulkanImage::CreateCopyCommandBuffer(VkImageUsageFlagBits imageUsage)
 {
 	int layerCount = _type == ImageType::Cube ? 6 : 1;
@@ -166,7 +154,7 @@ void VulkanImage::CreateCopyCommandBuffer(VkImageUsageFlagBits imageUsage)
 	subresourceRange.baseMipLevel = 0;
 	subresourceRange.levelCount = 1;
 	subresourceRange.layerCount = layerCount;
-	VkImageMemoryBarrier imageBarrier = CreateImageMemoryBarrier();
+	VkImageMemoryBarrier imageBarrier = BufferlessVulkanImage::CreateImageMemoryBarrier();
 	imageBarrier.image = _image;
 	imageBarrier.subresourceRange = subresourceRange;
 	imageBarrier.srcAccessMask = 0;
@@ -257,25 +245,10 @@ void VulkanImage::CreateSampler()
 		throw exception("Unable to create sampler!");
 }
 
-VkDescriptorSetLayoutBinding VulkanImage::DescriptorBindingInfo() const
-{
-	return _samplerLayoutBinding;
-}
-
-void VulkanImage::CreateDescriptorSetLayout()
-{
-	_samplerLayoutBinding = {};
-	_samplerLayoutBinding.binding = _binding;
-	_samplerLayoutBinding.descriptorCount = 1;
-	_samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	_samplerLayoutBinding.stageFlags = VulkanBuffer::GetUsage(_stage);
-	_samplerLayoutBinding.pImmutableSamplers = nullptr;
-}
-
 vector<VkBufferImageCopy> VulkanImage::CreateRegion() const
 {
 	int imageCount = _type == ImageType::Cube ? 6 : 1;
-	int channelCount = ChannelsCount(_format);
+	int channelCount = BufferlessVulkanImage::ChannelsCount(_format);
 	vector<VkBufferImageCopy> copyRegions = vector<VkBufferImageCopy>();
 	for (int imageIndex = 0; imageIndex < imageCount; ++imageIndex)
 	{
@@ -295,143 +268,51 @@ vector<VkBufferImageCopy> VulkanImage::CreateRegion() const
 	return copyRegions;
 }
 
-VkImageMemoryBarrier VulkanImage::CreateImageMemoryBarrier()
+void VulkanImage::CreateDescriptorSetLayout()
 {
-	VkImageMemoryBarrier imageMemoryBarrier{};
-	imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	return imageMemoryBarrier;
-}
-
-VkFormat VulkanImage::ImageFormatToVulkan(ImageFormat format)
-{
-	VkFormat vulkanFormat;
-	switch (format)
-	{
-	case ImageFormat::R: vulkanFormat = VK_FORMAT_R32_UINT; break;
-	case ImageFormat::RG: vulkanFormat = VK_FORMAT_R8G8_UINT;  break;
-	case ImageFormat::RGB: vulkanFormat = VK_FORMAT_R8G8B8_SNORM; break;
-	case ImageFormat::RGBA: vulkanFormat = VK_FORMAT_R8G8B8A8_UNORM; break;
-	default:
-		cerr << "This type of image format wasn't supported! Please add new statement to the VulkanImage format!" << endl;
-		vulkanFormat = VK_FORMAT_R8G8B8A8_UNORM;
-	}
-
-	return vulkanFormat;
-}
-
-VkImageType VulkanImage::ImageTypeToVulkan(ImageType type)
-{
-	VkImageType vulkanImageType;
-	switch (type)
-	{
-	case ImageType::_1D: vulkanImageType = VK_IMAGE_TYPE_1D; break;
-	case ImageType::_2D: vulkanImageType = VK_IMAGE_TYPE_2D; break;
-	case ImageType::_3D: vulkanImageType = VK_IMAGE_TYPE_3D; break;
-	case ImageType::Cube: vulkanImageType = VK_IMAGE_TYPE_2D; break;
-	default:
-		cerr << "This type of image type wasn't supported! Please add new statement to the VulkanImage->ImageTypeToVulkan!";
-		vulkanImageType = VK_IMAGE_TYPE_2D;
-	}
-
-	return vulkanImageType;
-}
-
-VkImageViewType VulkanImage::ImageTypeToVulkanViewType(ImageType type)
-{
-	VkImageViewType imageViewType;
-	switch (type)
-	{
-	case ImageType::_1D: imageViewType = VK_IMAGE_VIEW_TYPE_1D; break;
-	case ImageType::_2D: imageViewType = VK_IMAGE_VIEW_TYPE_2D; break;
-	case ImageType::_3D: imageViewType = VK_IMAGE_VIEW_TYPE_3D; break;
-	case ImageType::Cube: imageViewType = VK_IMAGE_VIEW_TYPE_CUBE; break;
-	case ImageType::Array1D: imageViewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY; break;
-	case ImageType::Array2D: imageViewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY; break;
-	case ImageType::CubeArray: imageViewType = VK_IMAGE_VIEW_TYPE_CUBE_ARRAY; break;
-	default:
-		cerr << "This type of image view type wasn't supported! Please add new statement to the VulkanImage->ImageTypeToVulkanViewType!";
-		imageViewType = VK_IMAGE_VIEW_TYPE_2D;
-	}
-
-	return imageViewType;
-}
-
-VkImageUsageFlagBits VulkanImage::ImageUsageToVulkan(ImageUsage usage)
-{
-	int imageUsage = 0;
-	if(HasFlag(usage, ImageUsage::TransferSrc))
-		imageUsage |=VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-
-	if (HasFlag(usage, ImageUsage::TransferDst))
-		imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
-	if (HasFlag(usage, ImageUsage::Sampler))
-		imageUsage |= VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
-	if (HasFlag(usage, ImageUsage::Storage))
-		imageUsage |= VK_IMAGE_USAGE_STORAGE_BIT;
-
-	if (HasFlag(usage, ImageUsage::DepthStencil))
-		imageUsage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-
-	if (HasFlag(usage, ImageUsage::TransientAtc))
-		imageUsage |= VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
-
-	if (HasFlag(usage, ImageUsage::InputAtc))
-		imageUsage |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-
-	if (HasFlag(usage, ImageUsage::ShadingRate))
-		imageUsage |= VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV;
-
-	if (HasFlag(usage, ImageUsage::FragmentDensity))
-		imageUsage |= VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT;
-
-	return static_cast<VkImageUsageFlagBits>(imageUsage);
-}
-
-int VulkanImage::ImageCount(vector<unsigned char>& image, ImageType imageType, int width, int height,
-	int channelsCount)
-{
-	int elementsCount = 0;
-	switch (imageType)
-	{
-	case ImageType::_1D:
-	case ImageType::_2D:
-	case ImageType::_3D:
-		elementsCount = 1;
-		break;
-	case ImageType::Cube:
-		elementsCount = 6;
-		break;
-	case ImageType::Array1D:
-	case ImageType::Array2D:
-		elementsCount = static_cast<int>(floor(image.size() / (width * channelsCount * height)));
-		break;	
-	case ImageType::CubeArray:
-		elementsCount = static_cast<int>(floor(image.size() / (width * channelsCount * height * 6)));
-		break;
-	}
-
-	return elementsCount;
+	_samplerLayoutBinding = {};
+	_samplerLayoutBinding.binding = _binding;
+	_samplerLayoutBinding.descriptorCount = 1;
+	_samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	_samplerLayoutBinding.stageFlags = VulkanBuffer::GetUsage(_stage);
+	_samplerLayoutBinding.pImmutableSamplers = nullptr;
 
 }
 
-int VulkanImage::ChannelsCount(ImageFormat format)
+void VulkanImage::CreateCopyCommandBuffer()
 {
-	int count = 0;
-	switch (format)
-	{
-	case ImageFormat::R: count = 1; break;
-	case ImageFormat::RG: count = 2; break;
-	case ImageFormat::RGB: count = 3; break;
-	case ImageFormat::RGBA: count = 4; break;
-	default:
-		cerr << "This type of image format wasn't supported! Please add new statement to the VulkanImage format!" << endl;
-		count = 3;
-	}
+	vector<VkBufferImageCopy> imageCopies = CreateRegion();
 
-	return count;
+	vkCmdCopyBufferToImage(
+		_commandBuffer->CommandBuffer(),
+		_buffer->Buffer(),
+		_image,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		imageCopies.size(),
+		imageCopies.data());
 
+	_imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+	vkGetDeviceQueue(_device, _graphicsFamilyIndex, 0, &_imageSubmitQueue);
+
+	_commandBuffer->EndCommandBuffer();
+
+	VkCommandBuffer commandBuffer = { _commandBuffer->CommandBuffer() };
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+
+	VkResult result = vkQueueSubmit(_imageSubmitQueue, 1, &submitInfo, nullptr);
+	if (result != VK_SUCCESS)
+		throw exception("Unable to submit image's barrier queue");
+
+	result = vkQueueWaitIdle(_imageSubmitQueue);
+	if (result != VK_SUCCESS)
+		throw exception("Unable to wait image's barrier queue");
+}
+
+VkDescriptorSetLayoutBinding VulkanImage::DescriptorBindingInfo() const
+{
+	return _samplerLayoutBinding;
 }

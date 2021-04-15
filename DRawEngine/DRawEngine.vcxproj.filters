@@ -47,9 +47,6 @@
     <Filter Include="Source Files\Render\Interface">
       <UniqueIdentifier>{2475d651-82b2-4398-82f4-d43316b89849}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Render\VulkanOpenVR">
-      <UniqueIdentifier>{af2fa982-2bf8-48ff-8fa4-9083d3283736}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Render\Vulkan\Extensions">
       <UniqueIdentifier>{89ff05a2-7df2-41a8-bd0e-ba497f49b2ff}</UniqueIdentifier>
     </Filter>
@@ -151,13 +148,19 @@
     <ClCompile Include="ICamera.cpp">
       <Filter>Source Files\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="TPCamera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CubeMapImage.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Render\Data</Filter>
     </ClCompile>
     <ClCompile Include="HeightMap.cpp">
+      <Filter>Source Files\Render\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeShadowmap.cpp">
+      <Filter>Source Files\Render\Vulkan\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanOmniShadowmap.cpp">
+      <Filter>Source Files\Render\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="BufferlessVulkanImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -285,29 +288,50 @@
     <ClInclude Include="ICamera.h">
       <Filter>Header Files\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="TPCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CameraObject.h">
       <Filter>Header Files\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="PointLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CubeMapImage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SkyBoxVertex.h">
+    <ClInclude Include="BaseVertex.h">
       <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
     <ClInclude Include="DynamicSizeBuffer.h">
       <Filter>Header Files\Render\Data</Filter>
     </ClInclude>
+    <ClInclude Include="CubeMapImage.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
     <ClInclude Include="HeightMap.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeShadowmap.h">
+      <Filter>Header Files\Render\Vulkan\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="IShadowmap.h">
+      <Filter>Header Files\Render\Interface</Filter>
     </ClInclude>
     <ClInclude Include="MaterialParameter.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="TPCamera.h">
+      <Filter>Header Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanOmniShadowmap.h">
+      <Filter>Header Files\Render\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferlessVulkanImage.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowmapBuffer.h">
+      <Filter>Source Files\Render\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderQueue.h">
+      <Filter>Source Files\Render\Data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

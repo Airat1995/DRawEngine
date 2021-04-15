@@ -11,7 +11,7 @@
 using namespace std;
 using namespace glm;
 
-class IMesh
+class  IMesh
 {
 public:
 
@@ -38,6 +38,8 @@ public:
 	virtual vector<IBuffer*>& PerObjectBuffers() = 0;
 
 	virtual IMaterial* Material() = 0;
+
+	virtual vector<vec4>* VertexPositions() = 0;
 
 	virtual bool IsStatic()
 	{

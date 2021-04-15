@@ -14,6 +14,8 @@ class VulkanDepthBuffer :
 public:
 	VulkanDepthBuffer(VkDevice device, VkPhysicalDevice gpu, int widht, int height, bool useAsSampler = false);
 
+	void Destroy();
+
 	VkFormat Format();
 
 	VkImageView View();

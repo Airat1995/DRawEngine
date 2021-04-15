@@ -5,6 +5,7 @@ VulkanDepthBuffer::VulkanDepthBuffer(VkDevice device, VkPhysicalDevice gpu, int 
 {
 	vector<VkFormat> depthFormats ={ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
 	_depthFormat = FindSupportedFormat(depthFormats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
 	CreateImage(_depthFormat);
 	BindImage();
 	CreateView(_depthFormat);
@@ -15,7 +16,14 @@ VulkanDepthBuffer::VulkanDepthBuffer(VkDevice device, VkPhysicalDevice gpu, int 
 	_depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	_depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 	_depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	_depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;}
+	_depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+}
+
+void VulkanDepthBuffer::Destroy()
+{
+	vkDestroyImage(_device, _image, nullptr);
+	vkDestroyImageView(_device, _view, nullptr);
+}
 
 VkFormat VulkanDepthBuffer::Format()
 {
@@ -72,7 +80,7 @@ void VulkanDepthBuffer::CreateImage(VkFormat format)
 	image_info.arrayLayers = 1;
 	image_info.samples = VK_SAMPLE_COUNT_1_BIT;
 	image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	image_info.usage = _useAsSampler;
+	image_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 	image_info.queueFamilyIndexCount = 0;
 	image_info.pQueueFamilyIndices = nullptr;
 	image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;

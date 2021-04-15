@@ -3,12 +3,12 @@
 
 #include "IVertex.h"
 
-class SkyBoxVertex : public IVertex<VertexData>
+class BaseVertex : public IVertex<VertexData>
 {
 public:
-	SkyBoxVertex(VertexData& vertexData) : _vertexData(vertexData)
+	BaseVertex(VertexData& vertexData) : _vertexData(vertexData)
 	{
-		SkyBoxVertex::FillVertexInfo();
+		BaseVertex::FillVertexInfo();
 	}
 
 	void FillVertexInfo() override
@@ -46,6 +46,11 @@ public:
 	VertexData& GetVertexData() override
 	{
 		return _vertexData;
+	}
+
+	vec4 VertexPosition() override
+	{
+		return vec4(_vertexData.position.x, _vertexData.position.y, _vertexData.position.z, 0.0);
 	}
 
 protected:

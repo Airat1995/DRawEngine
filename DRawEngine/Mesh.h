@@ -107,6 +107,20 @@ public:
 	{
 		return _perObjectBuffers;
 	}
+
+	vector<vec4>* VertexPositions() override
+	{
+		if(_positions == nullptr)
+		{
+			_positions = new vector<vec4>();
+			for (size_t vertexIndex = 0; vertexIndex < _vertices.size(); vertexIndex++)
+			{
+				_positions->push_back(_vertices.at(vertexIndex).VertexPosition());
+			}
+		}
+				
+		return _positions;
+	}
 	
 protected:
 
@@ -115,6 +129,8 @@ protected:
 	vector<uint16_t> _indexes;
 
 	vector<IBuffer*> _perObjectBuffers;
+
+	vector<vec4>* _positions = nullptr;
 
 private:
 	bool _indexed = false;

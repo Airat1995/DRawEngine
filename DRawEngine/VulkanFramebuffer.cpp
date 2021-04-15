@@ -34,6 +34,40 @@ VulkanFramebuffer::VulkanFramebuffer(VkDevice device, uint32_t grapQueueFI, uint
 	}
 }
 
+VulkanFramebuffer::VulkanFramebuffer(VkDevice device, uint32_t grapQueueFI, uint32_t presentQueueFI, ISwapchain& swapchain, BufferlessVulkanImage& image,
+	VulkanRenderpass& renderpass, VulkanCommandPool& commandPool, VulkanDepthBuffer& depthBuffer) : _device(device), _commandPool(commandPool),
+	_swapchain(swapchain), _renderpass(renderpass)
+{
+	CreateQueues(device, grapQueueFI, presentQueueFI);
+
+	vector<SwapchainBuffer> swapchainBuffers = _swapchain.SwapchainBuffers();
+	_swapChainFramebuffers = new vector<VkFramebuffer>(0);
+	for (auto swapchainBuffer : swapchainBuffers)
+	{
+		VkImageView attachments[] = {
+			image.View(),
+			depthBuffer.View()
+		};
+
+		VkFramebufferCreateInfo framebufferCreateInfo;
+		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferCreateInfo.renderPass = _renderpass.RenderPass();
+		framebufferCreateInfo.attachmentCount = 2;
+		framebufferCreateInfo.pAttachments = attachments;
+		framebufferCreateInfo.width = _swapchain.SwapchainInfo().imageExtent.width;
+		framebufferCreateInfo.height = _swapchain.SwapchainInfo().imageExtent.height;
+		framebufferCreateInfo.layers = 1;
+		framebufferCreateInfo.pNext = nullptr;
+		framebufferCreateInfo.flags = 0;
+
+		VkFramebuffer framebuffer;
+		VkResult result = vkCreateFramebuffer(_device, &framebufferCreateInfo, nullptr, &framebuffer);
+		if (result != VK_SUCCESS)
+			throw runtime_error("Unable to create framebuffer");
+		_swapChainFramebuffers->push_back(framebuffer);
+	}
+}
+
 VkFramebuffer* VulkanFramebuffer::Framebuffer(int index)
 {
 	return &_swapChainFramebuffers->at(index);
@@ -124,4 +158,9 @@ void VulkanFramebuffer::SubmitFramebuffer(int index)
 VkQueue VulkanFramebuffer::PresentQueue()
 {
 	return _presentQueue;
+}
+
+VkQueue VulkanFramebuffer::DrawQueue()
+{
+	return _drawQueue;
 }

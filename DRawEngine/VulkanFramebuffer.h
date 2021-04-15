@@ -15,7 +15,11 @@ class VulkanFramebuffer : public IFramebuffer
 public:
 	VulkanFramebuffer(VkDevice device, uint32_t grapQueueFI, uint32_t presentQueueFI, ISwapchain& swapchain,
 		VulkanRenderpass& renderpass, VulkanCommandPool& commandPool, VulkanDepthBuffer& depthBuffer);
-	
+
+	VulkanFramebuffer(VkDevice device, uint32_t grapQueueFI, uint32_t presentQueueFI, ISwapchain& swapchain,
+		BufferlessVulkanImage& image, VulkanRenderpass& renderpass, VulkanCommandPool& commandPool,
+		VulkanDepthBuffer& depthBuffer);
+
 
 	VkFramebuffer* Framebuffer(int index);
 	
@@ -28,6 +32,8 @@ public:
 	void SubmitFramebuffer(int index);
 
 	VkQueue PresentQueue();
+
+	VkQueue DrawQueue();
 
 private:
 	vector<VkFramebuffer>* _swapChainFramebuffers;

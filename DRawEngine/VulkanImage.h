@@ -3,10 +3,10 @@
 #include <vector>
 #include <iostream>
 
-#include "IImage.h"
 #include "VulkanBuffer.h"
 #include "VulkanCommandBuffer.h"
 #include "VulkanCommandPool.h"
+#include "BufferlessVulkanImage.h"
 
 using namespace std;
 
@@ -18,6 +18,8 @@ public:
 	                     VkPhysicalDevice gpu, int binding, int graphicsFamilyIndex, int samples);
 	void Clean() const;
 
+	VkImageView View() const;
+	
 	VkDescriptorSetLayout DescriptorSetLayout() const;
 
 	VkDescriptorImageInfo ImageInfo() const;
@@ -25,19 +27,18 @@ public:
 	VkDescriptorSetLayoutBinding DescriptorBindingInfo() const;
 
 	~VulkanImage();
-protected:
 
-	bool MemoryTypeFromProperties(uint32_t typeBits, VkFlags requirements_mask, uint32_t* typeIndex);
+protected:
 
 	void CreateCopyCommandBuffer(VkImageUsageFlagBits imageUsage);
 
 	void CreateSampler();
 
-	void CreateDescriptorSetLayout();
-
 	vector<VkBufferImageCopy> CreateRegion() const;
 
-	static VkImageMemoryBarrier CreateImageMemoryBarrier();
+	void CreateDescriptorSetLayout();
+	
+	void CreateCopyCommandBuffer();
 
 	VkImage _image;
 
@@ -68,17 +69,5 @@ protected:
 	VkDescriptorSetLayoutBinding _samplerLayoutBinding;
 
 	int _graphicsFamilyIndex;
-
-	static VkFormat ImageFormatToVulkan(ImageFormat format);
-
-	static VkImageType ImageTypeToVulkan(ImageType type);
-
-	static VkImageViewType ImageTypeToVulkanViewType(ImageType type);
-
-	static VkImageUsageFlagBits ImageUsageToVulkan(ImageUsage usage);
-
-	static int ImageCount(vector<unsigned char>& image, ImageType imageType, int width, int height, int channelsCount);
-
-	static int ChannelsCount(ImageFormat format);
 };
 

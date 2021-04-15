@@ -86,6 +86,8 @@ public:
 		return sizeof(T);
 	}
 
-	virtual T& GetVertexData() = 0;	
+	virtual T& GetVertexData() = 0;
+
+	virtual vec4 VertexPosition() = 0;
 };
 

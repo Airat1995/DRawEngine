@@ -29,7 +29,8 @@ enum class ImageUsage
 	TransientAtc = 1 << 5,
 	InputAtc = 1 << 6,
 	ShadingRate = 1 << 7,
-	FragmentDensity = 1 << 8
+	FragmentDensity = 1 << 8,
+	ColorAttachment = 1 << 9
 };
 
 inline constexpr ImageUsage operator|(ImageUsage a, ImageUsage b)

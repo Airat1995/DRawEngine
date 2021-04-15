@@ -14,17 +14,22 @@ public:
 	explicit VulkanPipeline(VkDevice device, VkPhysicalDevice physical, VulkanRenderpass& renderpass,
 		VulkanMeshData& vulkanMeshData, VkExtent2D extent);
 
+	virtual ~VulkanPipeline();
+
 	void Initialize(VkDevice device, VulkanMeshData& vulkanMeshData, VkExtent2D extent);
 
 	VkPipeline Pipeline();
 
-	virtual ~VulkanPipeline();
+	VkPipelineLayout PipelineLayout();
 
+	void DestroyPipeline();
+	
 	void BindBuffer(VkCommandBuffer commandBuffer);
+
+	void BindPipeline(VkCommandBuffer commandBuffer);
 
 	void BuildCommandbuffer(VkCommandBuffer commandBuffer);
 
-	void DestroyPipeline();
 
 	void AddMesh(IMesh* mesh, vector<VulkanBuffer> perObjectBuffers) override;
 
