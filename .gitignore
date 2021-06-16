@@ -29,7 +29,7 @@
 *.lai
 *.la
 *.a
-*.lib
+!*.lib
 
 # Executables
 *.exe
@@ -68,6 +68,9 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+out/
+build/
+cmake-build-debug/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -401,3 +404,7 @@ MigrationBackup/
 *.jpg
 *.png
 *.mtl
+
+# Libraries
+
+!**/libs/**
