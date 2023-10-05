@@ -408,3 +408,7 @@ MigrationBackup/
 # Libraries
 
 !**/libs/**
+
+
+# jetbrains folders
+.idea
